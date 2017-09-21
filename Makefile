@@ -1,6 +1,7 @@
 VERSION         := $(shell git describe --tags --always)
 AMI_NAME		:= "vault-consul-ubuntu-$(VERSION)"
 SERVER_CM_TAG	:= "v3.31"
+TLS_OWNER		?= $(whoami)
 
 all: test build-images deploy
 
@@ -15,16 +16,17 @@ test-image: | build-test-image
 	@echo "=====> I'm like calling packer or something here <====="
 
 ensure-tls-certs-init:
-	terraform init terraform/modules/generate-tls-cert/
+	docker run -v $(PWD)/terraform/modules/generate-tls-cert:/workspace -w /workspace wpengine/terraform terraform init
 
 ensure-tls-certs-get: ensure-tls-certs-init
-	terraform get terraform/modules/generate-tls-cert/
+	docker run -v $(PWD)/terraform/modules/generate-tls-cert:/workspace -w /workspace wpengine/terraform terraform get
 
 ensure-tls-certs-apply: ensure-tls-certs-get
 	@echo "=====> Using private-tls-cert module to ensure certs <====="
-	terraform apply \
-        -var-file terraform/modules/generate-tls-cert/variables.json \
-        terraform/modules/generate-tls-cert/
+	docker run -v $(PWD)/terraform/modules/generate-tls-cert:/workspace -w /workspace wpengine/terraform \
+		terraform apply \
+        -var-file variables.json \
+		-var 'owner=$(TLS_OWNER)'
 
 build-ami: | ensure-tls-certs-apply
 	@echo "=====> Packer'ing up an AMI <====="

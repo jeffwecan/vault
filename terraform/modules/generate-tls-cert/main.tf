@@ -1,6 +1,6 @@
 
 module "private-tls-cert" {
-  source = "git::git@github.com:hashicorp/terraform-aws-vault.git//modules/private-tls-cert?ref=v0.0.2"
+  source = "github.com/hashicorp/terraform-aws-vault.git//modules/private-tls-cert?ref=v0.0.2"
 
 
   private_key_file_path = "${var.private_key_file_path}"

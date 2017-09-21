@@ -8,9 +8,9 @@ node('docker') {
     wpe.pipeline('Vault Monitoring') {
         String  IMAGE_TAG = ":${BUILD_NUMBER}.${GIT_COMMIT}"
         String  IMAGE_NAME = "vault${IMAGE_TAG}"
-
+		String	TLS_OWNER = "root"
         // IMAGE_TAG is used in docker-compose to ensure uniqueness of containers and networks.
-        withEnv(["IMAGE_TAG=${IMAGE_TAG}"]) {
+        withEnv(["IMAGE_TAG=${IMAGE_TAG}", "TLS_OWNER=${TLS_OWNER}"]) {
             try {
 
                 stage('Test') {
