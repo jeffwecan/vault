@@ -30,7 +30,7 @@ ensure-tls-certs-apply: ensure-tls-certs-get
 
 build-ami: | ensure-tls-certs-apply
 	@echo "=====> Packer'ing up an AMI <====="
-	@packer build \
+	docker run -v $(PWD):/workspace -w /workspace hashicorp/packer:light build \
 		-var version=$(VERSION) \
 		-var-file packer/vault-consul-ami/variables.json \
 		packer/vault-consul-ami/vault-consul.json
@@ -38,14 +38,13 @@ build-ami: | ensure-tls-certs-apply
 build-test-image-base:
 	docker build -t wpe-vault-test-image:$(VERSION) docker
 
-
 build-test-image: | ensure-tls-certs-apply build-test-image-base
 	@echo "=====> Packer'ing up an AMI <====="
-	packer build \
+	docker run -v $(PWD):/workspace -w /workspace hashicorp/packer:light build \
 		-except=ubuntu16-ami \
 		-var version=$(VERSION) \
-		-var-file packer/vault-consul-ami/variables.json \
-		packer/vault-consul-ami/vault-consul.json
+		-var-file /workspace/packer/vault-consul-ami/variables.json \
+		/workspace/packer/vault-consul-ami/vault-consul.json
 
 deploy: build-ami
 	@echo "Testing deploys?"
