@@ -96,7 +96,7 @@
 
 - name: Copy various vault helper scripts to /usr/local/bin
   copy:
-    src: "usr/local/bin/{{ item }}"
+    src: "roles/vault/files/usr/local/bin/{{ item }}"
     dest: "/usr/local/bin/{{ item }}"
     owner: root
     group: root

@@ -33,11 +33,16 @@
     "ssh_username": "ubuntu"
   },
     {
-      "name": "ubuntu16-test-image",
+      "name": "ubuntu:16.04",
       "type": "docker",
-      "image": "wpe-vault-test-image:{{ user `version` }}",
+      "image": "jeffreymhogan/ubuntu-1604-test-image:{{ user `version` }}",
       "pull": false,
-      "commit": true
+      "commit": true,
+      "changes": [
+
+    "ENV JUNIT_OUTPUT_DIR /test-results",
+    "VOLUME artifacts/test-results /test-results"
+      ]
     }],
   "provisioners": [{
     "type": "file",
@@ -71,7 +76,8 @@
     {
       "type": "ansible-local",
       "playbook_file": "{{ template_dir }}/../../ansible/local.yml",
-      "playbook_dir": "{{ template_dir }}/../../ansible/"
+      "playbook_dir": "{{ template_dir }}/../../ansible/",
+      "role_paths": "{{ template_dir }}/../../ansible/roles"
     }
   ]
 }

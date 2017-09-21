@@ -1,0 +1,10 @@
+---
+
+public_keys:
+  - corp_dev
+  - api1
+  - api2
+  - api3
+  - cron_dev
+  - zabbix
+  - farm_control_plane
