@@ -1,0 +1,14 @@
+---
+
+- name: Ensure required pip modules
+  pip:
+    name: "{{ item }}"
+  with_items:
+    - 'pytest'
+    - 'testinfra'
+  tags: testinfra
+
+- name: Enqueue role for pytest
+  set_fact:
+    testinfra_paths: '{{ testinfra_paths|default([]) + [ role_path + "/tests" ] }}'
+  tags: testinfra

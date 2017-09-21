@@ -4,6 +4,7 @@
     "aws_region": "us-east-1",
     "vault_version": "0.8.2",
     "consul_module_version": "v0.0.2",
+    "server_cm_version": "v3.31",
     "consul_version": "0.9.3",
     "github_oauth_token": "{{env `GITHUB_OAUTH_TOKEN`}}",
     "ca_public_key_path": null,
@@ -25,18 +26,30 @@
         "block-device-mapping.volume-type": "gp2",
         "root-device-type": "ebs"
       },
-      "owners": ["099720109477"],
-      "most_recent": true
+      "owners": ["844484402121"],
+      "most_recent": true,
+      "encrypt_boot": true
     },
     "ssh_username": "ubuntu"
-  }],
+  },
+    {
+      "name": "ubuntu16-test-image",
+      "type": "docker",
+      "image": "wpe-vault-test-image:{{ user `version` }}",
+      "pull": false,
+      "commit": true
+    }],
   "provisioners": [{
+    "type": "file",
+    "source": "{{template_dir}}/download-server-cm.sh",
+    "destination": "/tmp/download-server-cm"
+  },{
     "type": "shell",
     "inline": [
-      "git clone --branch v0.0.2 https://github.com/hashicorp/terraform-aws-vault.git /tmp/terraform-aws-vault",
-      "/tmp/terraform-aws-vault/modules/install-vault/install-vault --version {{user `vault_version`}}"
+      "sudo apt update",
+      "sudo apt install -y ansible python-pip"
     ],
-    "pause_before": "30s"
+    "only": ["ubuntu16-ami"]
   },{
     "type": "file",
     "source": "{{user `ca_public_key_path`}}",
@@ -52,25 +65,13 @@
   },{
     "type": "shell",
     "inline": [
-      "sudo mv /tmp/ca.crt.pem /opt/vault/tls/",
-      "sudo mv /tmp/vault.crt.pem /opt/vault/tls/",
-      "sudo mv /tmp/vault.key.pem /opt/vault/tls/",
-      "sudo chown vault:vault /opt/vault/tls/*",
-      "sudo chmod 600 /opt/vault/tls/*",
-      "sudo /tmp/terraform-aws-vault/modules/update-certificate-store/update-certificate-store --cert-file-path /opt/vault/tls/ca.crt.pem"
+      "echo /tmp/download-server-cm {{user `github_oauth_token`}} {{user `server_cm_version`}} /tmp/server-cm.tar.gz"
     ]
-  },{
-    "type": "shell",
-    "inline": [
-      "sudo apt-get install -y git"
-    ],
-    "only": ["ubuntu16-ami"]
-  },{
-    "type": "shell",
-    "inline": [
-      "git clone --branch {{user `consul_module_version`}} https://{{user `github_oauth_token`}}@github.com/hashicorp/terraform-aws-consul.git /tmp/terraform-aws-consul",
-      "/tmp/terraform-aws-consul/modules/install-consul/install-consul --version {{user `consul_version`}}",
-      "/tmp/terraform-aws-consul/modules/install-dnsmasq/install-dnsmasq"
-    ]
-  }]
+  },
+    {
+      "type": "ansible-local",
+      "playbook_file": "{{ template_dir }}/../../ansible/local.yml",
+      "playbook_dir": "{{ template_dir }}/../../ansible/"
+    }
+  ]
 }

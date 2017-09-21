@@ -1,0 +1,49 @@
+---
+### Package
+vault_version: "{{ lookup('env','VAULT_VERSION') | default('0.8.2', true) }}"
+vault_architecture_map:
+  # this first entry seems... redundant (but it's required for reasons)
+  amd64: amd64
+  x86_64: amd64
+  armv7l: arm
+  aarch64: arm64
+vault_architecture: "{{ vault_architecture_map[ansible_architecture] }}"
+vault_os: "{{ ansible_system|lower }}"
+vault_pkg: "vault_{{ vault_version }}_{{ vault_os }}_{{ vault_architecture }}.zip"
+vault_shasums: "vault_{{ vault_version }}_SHA256SUMS"
+vault_zip_url: "https://releases.hashicorp.com/vault/{{ vault_version }}/vault_{{ vault_version }}_{{ vault_os }}_{{ vault_architecture }}.zip"
+vault_checksum_file_url: "https://releases.hashicorp.com/vault/{{ vault_version }}/vault_{{ vault_version}}_SHA256SUMS"
+
+### For debian / ubuntu
+vault_os_packages:
+  - git
+  - unzip
+
+
+### Paths
+vault_bin_path: /usr/local/bin
+vault_config_path: /etc/vault.d
+vault_data_path: /var/vault
+vault_log_path: /var/log/vault
+vault_run_path: /var/run/vault
+
+
+
+### System user and group
+vault_manage_user: yes
+vault_user: vault
+vault_manage_group: no
+vault_group: bin
+
+### Vault settings
+vault_group_name: vault_instances
+
+vault_ssl_crt: /etc/wpengine/nginx/certs/star_wpengine_io_crt
+vault_ssl_key: /etc/wpengine/nginx/certs/star_wpengine_io_key
+
+vault_vpc_cidr: 172.0.0.1/32
+vault_https_server_name: vault.wpenginedev.com
+
+
+nginx_ssl_ciphers: "EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH"
+nginx_ssl_protocols: "TLSv1.1 TLSv1.2"

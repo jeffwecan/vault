@@ -1,0 +1,44 @@
+---
+
+
+
+- name: Ensure nginx config directories
+  file:
+    path: /etc/nginx/{{ item }}
+    state: directory
+  with_items:
+    - sites-available
+    - sites-enabled
+
+- name: Template vault nginx config
+  template:
+    src: "etc/nginx/sites-available/{{ item }}"
+    dest: "/etc/nginx/sites-available/{{ item }}"
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - vault.conf
+    - healthcheck.conf
+  notify:
+    - "nginx reload"
+
+- name: Symlink nginx config to sites-enabled
+  file:
+    src: "/etc/nginx/sites-available/{{ item }}"
+    dest: "/etc/nginx/sites-enabled/{{ item }}"
+    owner: root
+    group: root
+    state: link
+  with_items:
+    - vault.conf
+    - healthcheck.conf
+  notify:
+    - "nginx reload"
+
+- name: Disable default server block
+  file:
+    path: "/etc/nginx/sites-enabled/default"
+    state: absent
+  notify:
+    - "nginx reload"
