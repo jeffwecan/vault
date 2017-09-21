@@ -1,8 +1,4 @@
 {
-  "private_key_file_path": "artifacts/vault.key.pem",
-  "ca_public_key_file_path": "artifacts//vault.ca.crt.pem",
-  "public_key_file_path": "artifacts//vault.crt.pem",
-  "owner": "jeffrey.hogan",
   "ip_addresses": ["127.0.0.1"],
   "validity_period_hours": "8760",
   "organization_name": "WP Engine",
