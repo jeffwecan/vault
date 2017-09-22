@@ -7,12 +7,24 @@ all: test build-images deploy
 
 build-images: build-test-image build-ami
 
-test: test-image test-ansible
+test: test-packer test-ansible
+	docker run -v $(PWD)/terraform/modules/generate-tls-cert:/workspace -v $(PWD)/artifacts:/artifacts -w /workspace wpengine/terraform \
+		terraform destroy \
+		-var-file variables.json \
+		-var 'private_key_file_path=/artifacts/vault.key.pem' \
+		-var 'ca_public_key_file_path=/artifacts/vault.ca.crt.pem' \
+		-var 'public_key_file_path=/artifacts/vault.crt.pem' \
+		-var owner=$(TLS_OWNER) \
+		-force
 
-test-ansible:
-	@echo "TODO: test ansible. ansible-lint?"
+test-ansible: | build-ansible-lint-image
+	docker run \
+		-v $(PWD)/ansible:/workspace \
+		wpengine/ansible-lint:$(VERSION) \
+		-p -x ANSIBLE0004,ANSIBLE0006,ANSIBLE0016,ANSIBLE0018 \
+		/workspace/local.yml
 
-test-image: | build-test-image
+test-packer: | build-test-image
 	@echo "=====> I'm like calling packer and testing the results or something here <====="
 
 clean:
@@ -60,6 +72,11 @@ build-ami: | build-packer-image ensure-tls-certs-apply
 			-var 'ca_public_key_path=/artifacts/vault.ca.crt.pem' \
 			-var 'tls_public_key_path=/artifacts/vault.crt.pem' \
 			packer/vault-consul-ami/vault-consul.json
+
+build-ansible-lint-image:
+	docker build -t wpengine/ansible-lint:$(VERSION) docker/ansible-lint
+#	docker push jeffreymhogan/ubuntu-1604-test-image:$(VERSION)
+	#docker save -o artifacts/vault-test-image.tar wpengine/vault-test-image:$(VERSION)
 
 build-test-image-base:
 	docker build -t jeffreymhogan/ubuntu-1604-test-image:$(VERSION) docker/ubuntu-1604-test-image
