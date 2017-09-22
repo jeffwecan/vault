@@ -21,7 +21,7 @@ test-ansible: | build-ansible-lint-image
 	docker run \
 		-v $(PWD)/ansible:/workspace \
 		wpengine/ansible-lint:$(VERSION) \
-		-p -x ANSIBLE0004,ANSIBLE0006,ANSIBLE0016,ANSIBLE0018 \
+		-p -x ANSIBLE0004,ANSIBLE0006,ANSIBLE0016,ANSIBLE0018 -v \
 		/workspace/local.yml
 
 test-packer: | build-test-image
