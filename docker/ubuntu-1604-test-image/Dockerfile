@@ -2,6 +2,7 @@ FROM ubuntu:16.04
 
 RUN apt update
 RUN apt install -y sudo python-pip
+RUN pip install --upgrade pip
 RUN pip install ansible>=2.2
 RUN pip install junit_xml
 

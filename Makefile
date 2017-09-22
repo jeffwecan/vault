@@ -63,7 +63,7 @@ build-ami: | build-packer-image ensure-tls-certs-apply
 
 build-test-image-base:
 	docker build -t jeffreymhogan/ubuntu-1604-test-image:$(VERSION) docker/ubuntu-1604-test-image
-	docker push jeffreymhogan/ubuntu-1604-test-image:$(VERSION)
+#	docker push jeffreymhogan/ubuntu-1604-test-image:$(VERSION)
 	#docker save -o artifacts/vault-test-image.tar wpengine/vault-test-image:$(VERSION)
 
 build-packer-image: | build-test-image-base
