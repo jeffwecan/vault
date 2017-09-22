@@ -15,7 +15,6 @@ node('docker') {
 
                 stage('Test') {
                     sh 'make test'
-                    junit 'vault/artifacts/junit.xml'
                 }
             }
             finally {
