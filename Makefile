@@ -3,11 +3,26 @@ AMI_NAME		:= "vault-consul-ubuntu-$(VERSION)"
 SERVER_CM_TAG	:= "v3.31"
 TLS_OWNER		?= "root"
 
-all: test build-images deploy
+MARKDOWN_LINTER := wpengine/mdl
+
+all: lint test build-images deploy
+
+lint: markdownlint ansiblelint
+# Run markdown analysis tool.
+markdownlint: | pull-linters
+	@echo
+	# Running markdownlint against all markdown files in this project...
+	@docker run -v `pwd`:/workspace ${MARKDOWN_LINTER} /workspace
+	@echo
+	# Successfully linted Markdown.
+
+# Pull down our mdl image.
+pull-linters:
+	docker pull ${MARKDOWN_LINTER}
 
 build-images: build-test-image build-ami
 
-test: test-packer test-ansible
+test: test-packer
 	docker run -v $(PWD)/terraform/modules/generate-tls-cert:/workspace -v $(PWD)/artifacts:/artifacts -w /workspace wpengine/terraform \
 		terraform destroy \
 		-var-file variables.json \
@@ -17,7 +32,7 @@ test: test-packer test-ansible
 		-var owner=$(TLS_OWNER) \
 		-force
 
-test-ansible: | build-ansible-lint-image
+ansiblelint: | build-ansible-lint-image
 	docker run \
 		-v $(PWD)/ansible:/workspace \
 		wpengine/ansible-lint:$(VERSION) \
@@ -75,8 +90,6 @@ build-ami: | build-packer-image ensure-tls-certs-apply
 
 build-ansible-lint-image:
 	docker build -t wpengine/ansible-lint:$(VERSION) docker/ansible-lint
-#	docker push jeffreymhogan/ubuntu-1604-test-image:$(VERSION)
-	#docker save -o artifacts/vault-test-image.tar wpengine/vault-test-image:$(VERSION)
 
 build-test-image-base:
 	docker build -t jeffreymhogan/ubuntu-1604-test-image:$(VERSION) docker/ubuntu-1604-test-image
@@ -86,8 +99,8 @@ build-test-image-base:
 build-packer-image: | build-test-image-base
 	docker build -t wpengine/packer:$(VERSION) docker/packer
 
-build-test-image: | build-packer-image ensure-tls-certs-apply build-test-image-base
-	@echo "=====> Packer'ing up an AMI <====="
+build-test-image: #| build-packer-image ensure-tls-certs-apply build-test-image-base
+	@echo "=====> Packer'ing up an docker image <====="
 	docker run \
 		--rm \
 		-v /var/run/docker.sock:/var/run/docker.sock \
@@ -102,22 +115,8 @@ build-test-image: | build-packer-image ensure-tls-certs-apply build-test-image-b
 			-var 'tls_private_key_path=artifacts/vault.key.pem' \
 			-var 'ca_public_key_path=artifacts/vault.ca.crt.pem' \
 			-var 'tls_public_key_path=artifacts/vault.crt.pem' \
+			-var 'ansible_galaxy_host=10.27.116.241' \
 			packer/vault-consul-ami/vault-consul.json
-#	docker run \
-#		--privileged \
-#		-v $(PWD):/workspace \
-#		-v $(PWD)/artifacts:/artifacts \
-#		-w /workspace \
-#		--entrypoint /bin/sh
-#		wpengine/packer:$(VERSION) \
-#		/bin/packer build \
-#			-except=ubuntu16-ami \
-#			-var version=$(VERSION) \
-#			-var-file packer/vault-consul-ami/variables.json \
-#			-var 'tls_private_key_path=artifacts/vault.key.pem' \
-#			-var 'ca_public_key_path=artifacts/vault.ca.crt.pem' \
-#			-var 'tls_public_key_path=artifacts/vault.crt.pem' \
-#			packer/vault-consul-ami/vault-consul.json
 
 deploy: build-ami
 	@echo "Testing deploys?"

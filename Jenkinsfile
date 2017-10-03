@@ -13,9 +13,13 @@ node('docker') {
         withEnv(["IMAGE_TAG=${IMAGE_TAG}", "TLS_OWNER=${TLS_OWNER}"]) {
             try {
 
+                stage('Lint Markdown') {
+					sh 'make markdownlint'
+				}
+
                 stage('Lint Ansible') {
-                    sh 'make test-ansible'
-                }
+					sh 'make ansiblelint'
+				}
 
                 stage('Test Packer Template') {
                     sh 'make test-packer'
