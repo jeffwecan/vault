@@ -92,14 +92,13 @@ build-ansible-lint-image:
 	docker build -t wpengine/ansible-lint:$(VERSION) docker/ansible-lint
 
 build-test-image-base:
-	docker build -t jeffreymhogan/ubuntu-1604-test-image:$(VERSION) docker/ubuntu-1604-test-image
-#	docker push jeffreymhogan/ubuntu-1604-test-image:$(VERSION)
-	#docker save -o artifacts/vault-test-image.tar wpengine/vault-test-image:$(VERSION)
+	# This should go else where if we want to use it, maybe in a wpengine/ansible:16.04 image that also includes ansiblelint?
+	docker build -t wpengine/ubuntu-1604-test-image:$(VERSION) docker/ubuntu-1604-test-image
 
 build-packer-image: | build-test-image-base
 	docker build -t wpengine/packer:$(VERSION) docker/packer
 
-build-test-image: #| build-packer-image ensure-tls-certs-apply build-test-image-base
+build-test-image: | build-packer-image ensure-tls-certs-apply build-test-image-base
 	@echo "=====> Packer'ing up an docker image <====="
 	docker run \
 		--rm \
