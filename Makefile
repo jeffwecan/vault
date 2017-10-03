@@ -1,7 +1,9 @@
-VERSION         := $(shell git describe --tags --always)
-AMI_NAME		:= "vault-consul-ubuntu-$(VERSION)"
-SERVER_CM_TAG	:= "v3.31"
-TLS_OWNER		?= "root"
+VERSION         	:= $(shell git describe --tags --always)
+AMI_NAME			:= "vault-consul-ubuntu-$(VERSION)"
+SERVER_CM_TAG		:= "v3.31"
+TLS_OWNER			?= "root"
+PACKER_IMAGE		:= wpengine/packer
+PACKER_TEST_IMAGE	:= wpengine/ubuntu-1604-test-image
 
 MARKDOWN_LINTER := wpengine/mdl
 
@@ -93,10 +95,10 @@ build-ansible-lint-image:
 
 build-test-image-base:
 	# This should go else where if we want to use it, maybe in a wpengine/ansible:16.04 image that also includes ansiblelint?
-	docker build -t wpengine/ubuntu-1604-test-image:$(VERSION) docker/ubuntu-1604-test-image
+	docker build -t $(PACKER_TEST_IMAGE):$(VERSION) docker/ubuntu-1604-test-image
 
 build-packer-image: | build-test-image-base
-	docker build -t wpengine/packer:$(VERSION) docker/packer
+	docker build -t $(PACKER_IMAGE):$(VERSION) docker/packer
 
 build-test-image: | build-packer-image ensure-tls-certs-apply build-test-image-base
 	@echo "=====> Packer'ing up an docker image <====="
@@ -106,7 +108,7 @@ build-test-image: | build-packer-image ensure-tls-certs-apply build-test-image-b
 		-v $(PWD):/workspace \
 		-v $(PWD)/artifacts:/artifacts \
 		-w /workspace \
-		wpengine/packer:$(VERSION) \
+		$(PACKER_IMAGE):$(VERSION) \
 		build \
 			-except=ubuntu16-ami \
 			-var version=$(VERSION) \
@@ -114,7 +116,7 @@ build-test-image: | build-packer-image ensure-tls-certs-apply build-test-image-b
 			-var 'tls_private_key_path=artifacts/vault.key.pem' \
 			-var 'ca_public_key_path=artifacts/vault.ca.crt.pem' \
 			-var 'tls_public_key_path=artifacts/vault.crt.pem' \
-			-var 'ansible_galaxy_host=10.27.116.241' \
+			-var 'test_image_name=$(PACKER_TEST_IMAGE)' \
 			packer/vault-consul-ami/vault-consul.json
 
 deploy: build-ami
