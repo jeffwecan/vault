@@ -84,6 +84,8 @@ build-ami: | build-packer-image ensure-tls-certs-apply
 		-v $(PWD):/workspace \
 		-v $(PWD)/artifacts:/artifacts \
 		-w /workspace \
+		-e AWS_ACCESS_KEY_ID \
+		-e AWS_SECRET_ACCESS_KEY \
 		$(PACKER_IMAGE):$(VERSION) \
 			build \
 			-except=ubuntu:16.04 \
