@@ -1,8 +1,12 @@
 ---
 
-- name: Import testinfra tasks
-  import_tasks: ../../testinfra.yml
+#- name: Import testinfra tasks
+#  import_tasks: ../../testinfra.yml
 
+- name: Install pip
+  apt:
+    name: python-pip
+    state: present
 
 - name: Ensure vault group
   group:
