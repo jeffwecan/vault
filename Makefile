@@ -80,18 +80,19 @@ ensure-tls-certs-apply: ensure-artifacts-dir ensure-tls-certs-get
 
 build-ami: | build-packer-image ensure-tls-certs-apply
 	@echo "=====> Packer'ing up an AMI <====="
-#	docker run \
-#		-v $(PWD):/workspace \
-#		-v $(PWD)/artifacts:/artifacts \
-#		-w /workspace \
-#		wpengine/packer:$(VERSION) \
-#			build \
-#			-var version=$(VERSION) \
-#			-var-file packer/vault-consul-ami/variables.json \
-#			-var 'tls_private_key_path=/artifacts/vault.key.pem' \
-#			-var 'ca_public_key_path=/artifacts/vault.ca.crt.pem' \
-#			-var 'tls_public_key_path=/artifacts/vault.crt.pem' \
-#			packer/vault-consul-ami/vault-consul.json
+	docker run \
+		-v $(PWD):/workspace \
+		-v $(PWD)/artifacts:/artifacts \
+		-w /workspace \
+		$(PACKER_IMAGE):$(VERSION) \
+			build \
+			-except=ubuntu:16.04 \
+			-var version=$(VERSION) \
+			-var-file packer/vault-consul-ami/variables.json \
+			-var 'tls_private_key_path=/artifacts/vault.key.pem' \
+			-var 'ca_public_key_path=/artifacts/vault.ca.crt.pem' \
+			-var 'tls_public_key_path=/artifacts/vault.crt.pem' \
+			packer/vault-consul-ami/vault-consul.json
 
 build-ansible-lint-image:
 	docker build -t wpengine/ansible-lint:$(VERSION) docker/ansible-lint

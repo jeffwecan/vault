@@ -24,6 +24,10 @@ node('docker') {
                 stage('Test') {
                     sh 'make test'
                 }
+                if (env.BRANCH_NAME == 'terraform_vault') {
+                	sh 'make build-ami'
+
+                }
             }
             finally {
                 sh "echo finally'!'"
