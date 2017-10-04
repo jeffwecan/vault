@@ -6,6 +6,11 @@
 
 provider "aws" {
   region = "${var.aws_region}"
+  assume_role {
+    role_arn     = "${var.aws_role_arn}"
+    session_name = "terraform_vault"
+//    external_id  = "EXTERNAL_ID"
+  }
 }
 
 terraform {
@@ -14,16 +19,16 @@ terraform {
 
 data "aws_ami" "vault-consul" {
   most_recent      = true
-  executable_users = ["self"]
+//  executable_users = ["self"]
 
-  filter {
-    name   = "owner-alias"
-    values = ["self"]
-  }
+//  filter {
+//    name   = "owner-alias"
+//    values = ["self"]
+//  }
 
   filter {
     name   = "name"
-    values = ["vault-consul-ami*"]
+    values = ["vault-consul-ubuntu-*"]
   }
 
 //  name_regex = "^myami-\\d{3}"

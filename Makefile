@@ -135,19 +135,40 @@ display-ami:
 	$(eval AMI_ID := $(aws ec2 describe-images --region us-east-1 --filter "Name=name,Values=$(AMI_NAME)" --query 'Images[0].ImageId' --output text))
 	echo "AMI is: $(AMI_ID)"
 
-terraform-get:
+terraform-init:
 	docker run \
-		-v $(PWD)/terraform/aws:/workspace \
+		--workdir=/workspace \
+		-v $(PWD)/terraform/aws/development:/workspace \
+		-v $(HOME)/.ssh/github_rsa:/root/.ssh/id_rsa \
+		-v $(HOME)/.ssh/known_hosts:/root/.ssh/known_hosts \
 		-e GIT_TRACE=1 \
-        -v ~/.ssh/github_rsa:/root/.ssh/id_rsa \
-        -v ~/.ssh/known_hosts:/root/.ssh/known_hosts \
+		-e AWS_ACCESS_KEY_ID \
+		-e AWS_SECRET_ACCESS_KEY \
 		wpengine/terraform \
-		terraform get /workspace
+		terraform init .
+
+terraform-get: | terraform-init
+	docker run \
+		--workdir=/workspace \
+		-v $(PWD)/terraform/aws/development:/workspace \
+		-v $(HOME)/.ssh/github_rsa:/root/.ssh/id_rsa \
+		-v $(HOME)/.ssh/known_hosts:/root/.ssh/known_hosts \
+		-e GIT_TRACE=1 \
+		-e AWS_ACCESS_KEY_ID \
+		-e AWS_SECRET_ACCESS_KEY \
+		wpengine/terraform \
+		terraform get .
 
 terraform-plan: | terraform-get
 	docker run \
-		-v $(PWD)/terraform/aws:/workspace \
+		--workdir=/workspace \
+		-v $(PWD)/terraform/aws/development:/workspace \
 		-e GIT_SSH_COMMAND="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" \
+		-v $(HOME)/.ssh/github_rsa:/root/.ssh/id_rsa \
+		-v $(HOME)/.ssh/known_hosts:/root/.ssh/known_hosts \
+		-e GIT_TRACE=1 \
+		-e AWS_ACCESS_KEY_ID \
+		-e AWS_SECRET_ACCESS_KEY \
 		wpengine/terraform \
-		terraform plan /workspace
+		terraform plan .
 

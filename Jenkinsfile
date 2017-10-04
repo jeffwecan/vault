@@ -39,7 +39,7 @@ node('docker') {
 					//withCredentials(packerCredentials) {
 						stage('Deploy to Dev') {
 							terraform.plan {
-								terraformDir = "./terraform/aws/"
+								terraformDir = "./terraform/aws/development"
 								hipchatRoom = "Vault Monitoring"
 							}
 						}
@@ -49,7 +49,7 @@ node('docker') {
 					stage('Deploy to Dev') {
 						sh 'make terraform-get'
 						terraform.plan {
-							terraformDir = "./terraform/aws/"
+							terraformDir = "./terraform/aws/development"
 						}
 					}
                 }
