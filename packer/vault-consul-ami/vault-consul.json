@@ -19,6 +19,7 @@
     "name": "ubuntu16-ami",
     "region": "{{user `aws_region`}}",
     "type": "amazon-ebs",
+    "encrypt_boot": true,
     "source_ami_filter": {
       "filters": {
         "virtualization-type": "hvm",
@@ -28,8 +29,7 @@
         "root-device-type": "ebs"
       },
       "owners": ["844484402121"],
-      "most_recent": true,
-      "encrypt_boot": true
+      "most_recent": true
     },
     "ssh_username": "ubuntu"
   },
