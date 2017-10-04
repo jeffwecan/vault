@@ -3,7 +3,7 @@ AMI_NAME			:= "vault-consul-ubuntu-$(VERSION)"
 SERVER_CM_TAG		:= "v3.31"
 TLS_OWNER			?= "root"
 PACKER_IMAGE		:= wpengine/packer
-PACKER_TEST_IMAGE	:= wpengine/ubuntu-1604-test-image
+PACKER_TEST_IMAGE	:= wpengine/ansible
 
 MARKDOWN_LINTER := wpengine/mdl
 
@@ -24,7 +24,7 @@ pull-linters:
 
 build-images: build-test-image build-ami
 
-test: test-packer
+test: | test-packer
 	docker run -v $(PWD)/terraform/modules/generate-tls-cert:/workspace -v $(PWD)/artifacts:/artifacts -w /workspace wpengine/terraform \
 		terraform destroy \
 		-var-file variables.json \
@@ -43,6 +43,9 @@ ansiblelint: | build-ansible-lint-image
 
 test-packer: | build-test-image
 	@echo "=====> I'm like calling packer and testing the results or something here <====="
+	docker run -v $(PWD)/tests/testinfra:/tests \
+		wpengine/vault-packer:$(VERSION) \
+		py.test -v /tests
 
 clean:
 	rm -rvf artifacts/*
@@ -77,18 +80,18 @@ ensure-tls-certs-apply: ensure-artifacts-dir ensure-tls-certs-get
 
 build-ami: | build-packer-image ensure-tls-certs-apply
 	@echo "=====> Packer'ing up an AMI <====="
-	docker run \
-		-v $(PWD):/workspace \
-		-v $(PWD)/artifacts:/artifacts \
-		-w /workspace \
-		wpengine/packer:$(VERSION) \
-			build \
-			-var version=$(VERSION) \
-			-var-file packer/vault-consul-ami/variables.json \
-			-var 'tls_private_key_path=/artifacts/vault.key.pem' \
-			-var 'ca_public_key_path=/artifacts/vault.ca.crt.pem' \
-			-var 'tls_public_key_path=/artifacts/vault.crt.pem' \
-			packer/vault-consul-ami/vault-consul.json
+#	docker run \
+#		-v $(PWD):/workspace \
+#		-v $(PWD)/artifacts:/artifacts \
+#		-w /workspace \
+#		wpengine/packer:$(VERSION) \
+#			build \
+#			-var version=$(VERSION) \
+#			-var-file packer/vault-consul-ami/variables.json \
+#			-var 'tls_private_key_path=/artifacts/vault.key.pem' \
+#			-var 'ca_public_key_path=/artifacts/vault.ca.crt.pem' \
+#			-var 'tls_public_key_path=/artifacts/vault.crt.pem' \
+#			packer/vault-consul-ami/vault-consul.json
 
 build-ansible-lint-image:
 	docker build -t wpengine/ansible-lint:$(VERSION) docker/ansible-lint
@@ -96,6 +99,10 @@ build-ansible-lint-image:
 build-test-image-base:
 	# This should go else where if we want to use it, maybe in a wpengine/ansible:16.04 image that also includes ansiblelint?
 	docker build -t $(PACKER_TEST_IMAGE):$(VERSION) docker/ubuntu-1604-test-image
+
+run-test-image-base: | build-test-image-base
+	# This should go else where if we want to use it, maybe in a wpengine/ansible:16.04 image that also includes ansiblelint?
+	docker run -it $(PACKER_TEST_IMAGE):$(VERSION) /bin/bash
 
 build-packer-image: | build-test-image-base
 	docker build -t $(PACKER_IMAGE):$(VERSION) docker/packer

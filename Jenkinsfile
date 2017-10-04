@@ -21,8 +21,8 @@ node('docker') {
 					sh 'make ansiblelint'
 				}
 
-                stage('Test Packer Template') {
-                    sh 'make test-packer'
+                stage('Test') {
+                    sh 'make test'
                 }
             }
             finally {

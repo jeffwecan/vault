@@ -9,7 +9,8 @@
     "github_oauth_token": "{{env `GITHUB_OAUTH_TOKEN`}}",
     "ca_public_key_path": null,
     "tls_public_key_path": null,
-    "tls_private_key_path": null
+    "tls_private_key_path": null,
+    "version": ""
   },
   "builders": [{
     "ami_name": "vault-consul-ubuntu-{{ user `version` | clean_ami_name}}",
@@ -41,7 +42,8 @@
       "changes": [
     "ENV WPE_DEPLOY_LOG_DIR /artifacts",
     "ENV JUNIT_OUTPUT_DIR /test-results",
-    "VOLUME artifacts/test-results /test-results"
+    "VOLUME artifacts/test-results /test-results",
+        "CMD /usr/bin/supervisord"
       ]
     }],
   "provisioners": [{
@@ -80,5 +82,14 @@
       "role_paths": "{{ template_dir }}/../../ansible/roles",
       "command": "ANSIBLE_FORCE_COLOR=1 PYTHONUNBUFFERED=1 WPE_DEPLOY_LOG_DIR=/artifacts ANSIBLE_CALLBACK_WHITELIST='wpe_junit' ANSIBLE_CALLBACK_PLUGINS=/ansible-callbacks ansible-playbook -vvv"
     }
+  ],
+  "post-processors": [
+    [
+      {
+        "type": "docker-tag",
+        "repository": "wpengine/vault-packer",
+        "tag": "{{ user `version` }}"
+      }
+    ]
   ]
 }

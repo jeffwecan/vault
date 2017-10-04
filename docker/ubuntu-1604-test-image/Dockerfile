@@ -14,6 +14,10 @@ COPY ansible_callbacks/wpe_junit.py /ansible-callbacks/wpe_junit.py
 RUN mkdir -p /etc/ansible
 RUN ansible -c local localhost -m ini_file -a 'path=/etc/ansible/ansible.cfg section=general option=callback_plugins value=~/.ansible/plugins/callback:/usr/share/ansible/plugins/callback'
 RUN ansible -c local localhost -m ini_file -a 'path=/etc/ansible/ansible.cfg section=general option=callback_whitelist value=wpe_junit'
+
+RUN pip install molecule
+RUN pip install testinfra
+
 #RUN echo '[general]\ncallback_plugins = ~/.ansible/plugins/callback:/usr/share/ansible/plugins/callback' >> /etc/ansible/ansible.cfg
 # name: Ensure "fav=lemonade is in section "[drinks]" in specified file
 #  ini_file:
