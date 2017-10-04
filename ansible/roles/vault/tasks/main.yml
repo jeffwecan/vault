@@ -3,11 +3,6 @@
 #- name: Import testinfra tasks
 #  import_tasks: ../../testinfra.yml
 
-- name: Install pip
-  apt:
-    name: python-pip
-    state: present
-
 - name: Ensure vault group
   group:
     name: "{{ vault_group }}"
@@ -21,7 +16,6 @@
     createhome: no
     shell: /usr/sbin/nologin
     state: present
-
 
 - name: Import install vault tasks
   import_tasks: install.yml

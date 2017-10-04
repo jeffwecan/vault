@@ -13,10 +13,10 @@
     "version": ""
   },
   "builders": [{
+    "name": "vault-ubuntu-16.04-ami",
     "ami_name": "vault-consul-ubuntu-{{ user `version` | clean_ami_name}}",
     "ami_description": "An Ubuntu 16.04 AMI that has Vault and Consul installed.",
     "instance_type": "t2.micro",
-    "name": "ubuntu16-ami",
     "region": "{{user `aws_region`}}",
     "type": "amazon-ebs",
     "encrypt_boot": true,
@@ -34,7 +34,7 @@
     "ssh_username": "ubuntu"
   },
     {
-      "name": "ubuntu:16.04",
+      "name": "vault-ubuntu-16.04-docker",
       "type": "docker",
       "image": "{{user `test_image_name`}}:{{ user `version` }}",
       "pull": false,
@@ -54,22 +54,40 @@
     "type": "shell",
     "inline": [
       "sudo apt update",
-      "sudo apt install -y ansible python-pip"
+      "sudo apt install -y python-pip",
+      "sudo pip install ansible",
+      "sudo pip install junit_xml",
+      "mkdir -p ~/.ansible/plugins/callback/",
+      "mkdir /tmp/artifacts/"
     ],
-    "only": ["ubuntu16-ami"]
-  },{
+    "only": ["vault-ubuntu-16.04-ami"]
+  },
+    {
     "type": "file",
     "source": "{{user `ca_public_key_path`}}",
     "destination": "/tmp/ca.crt.pem"
-  },{
+  },
+    {
     "type": "file",
     "source": "{{user `tls_public_key_path`}}",
     "destination": "/tmp/vault.crt.pem"
-  },{
+  },
+    {
     "type": "file",
     "source": "{{user `tls_private_key_path`}}",
     "destination": "/tmp/vault.key.pem"
-  },{
+  },
+    {
+    "type": "file",
+    "source": "{{ template_dir }}/../../ansible/callback_plugins/wpe_base.py",
+    "destination": "~/.ansible/plugins/callback/wpe_base.py"
+  },
+    {
+    "type": "file",
+    "source": "{{ template_dir }}/../../ansible/callback_plugins/wpe_junit.py",
+    "destination": "~/.ansible/plugins/callback/wpe_junit.py"
+  },
+    {
     "type": "shell",
     "inline": [
       "echo /tmp/download-server-cm {{user `github_oauth_token`}} {{user `server_cm_version`}} /tmp/server-cm.tar.gz"
@@ -80,7 +98,7 @@
       "playbook_file": "{{ template_dir }}/../../ansible/local.yml",
       "playbook_dir": "{{ template_dir }}/../../ansible/",
       "role_paths": "{{ template_dir }}/../../ansible/roles",
-      "command": "ANSIBLE_FORCE_COLOR=1 PYTHONUNBUFFERED=1 WPE_DEPLOY_LOG_DIR=/artifacts ANSIBLE_CALLBACK_WHITELIST='wpe_junit' ANSIBLE_CALLBACK_PLUGINS=/ansible-callbacks ansible-playbook -vvv"
+      "command": "ANSIBLE_FORCE_COLOR=1 PYTHONUNBUFFERED=1 WPE_DEPLOY_LOG_DIR=/tmp/artifacts ANSIBLE_CALLBACK_WHITELIST='wpe_junit' ANSIBLE_CALLBACK_PLUGINS=/ansible-callbacks ansible-playbook -vvv --become"
     }
   ],
   "post-processors": [
@@ -88,7 +106,8 @@
       {
         "type": "docker-tag",
         "repository": "wpengine/vault-packer",
-        "tag": "{{ user `version` }}"
+        "tag": "{{ user `version` }}",
+        "only": ["vault-ubuntu-16.04-docker"]
       }
     ]
   ]

@@ -7,8 +7,7 @@ RUN pip install ansible>=2.2
 RUN pip install junit_xml
 
 
-COPY ansible_callbacks/wpe_base.py /usr/share/ansible/plugins/callback/wpe_base.py
-COPY ansible_callbacks/wpe_junit.py /usr/share/ansible/plugins/callback/wpe_junit.py
+
 COPY ansible_callbacks/wpe_base.py /ansible-callbacks/wpe_base.py
 COPY ansible_callbacks/wpe_junit.py /ansible-callbacks/wpe_junit.py
 RUN mkdir -p /etc/ansible

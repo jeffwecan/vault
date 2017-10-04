@@ -26,16 +26,23 @@ node('docker') {
                      // sh 'make test'
 					 sh 'echo TODO: uncomment make test'
                 }
-                if (env.BRANCH_NAME == 'terraform_vault') {
+                if (env.BRANCH_NAME == 'terraform_vault') {  // if BRANCH_NAME == some_dev_branch and/or some_master_branch?
 					def packerCredentials = [
 						string(credentialsId: 'AWS_ACCESS_KEY_ID_DEV', variable: 'AWS_ACCESS_KEY_ID'),
 						string(credentialsId: 'AWS_SECRET_ACCESS_KEY_DEV', variable: 'AWS_SECRET_ACCESS_KEY'),
 					]
-					withCredentials(packerCredentials) {
-						stage('Build AMI') {
-							sh 'make build-ami'
+//					withCredentials(packerCredentials) {
+//						stage('Build AMI') {
+//							sh 'make build-ami'
+//						}
+//					}
+					//withCredentials(packerCredentials) {
+						stage('Deploy to Dev') {
+							terraform.plan {
+								terraformDir = "./terraform/aws/"
+							}
 						}
-					}
+					//}
                 }
             }
             finally {

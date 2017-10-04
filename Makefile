@@ -88,7 +88,7 @@ build-ami: | build-packer-image ensure-tls-certs-apply
 		-e AWS_SECRET_ACCESS_KEY \
 		$(PACKER_IMAGE):$(VERSION) \
 			build \
-			-except=ubuntu:16.04 \
+			-except=vault-ubuntu-16.04-docker \
 			-var version=$(VERSION) \
 			-var-file packer/vault-consul-ami/variables.json \
 			-var 'tls_private_key_path=/artifacts/vault.key.pem' \
@@ -107,7 +107,7 @@ run-test-image-base: | build-test-image-base
 	# This should go else where if we want to use it, maybe in a wpengine/ansible:16.04 image that also includes ansiblelint?
 	docker run -it $(PACKER_TEST_IMAGE):$(VERSION) /bin/bash
 
-build-packer-image: | build-test-image-base
+build-packer-image:
 	docker build -t $(PACKER_IMAGE):$(VERSION) docker/packer
 
 build-test-image: | build-packer-image ensure-tls-certs-apply build-test-image-base
@@ -120,7 +120,7 @@ build-test-image: | build-packer-image ensure-tls-certs-apply build-test-image-b
 		-w /workspace \
 		$(PACKER_IMAGE):$(VERSION) \
 		build \
-			-except=ubuntu16-ami \
+			-except=vault-ubuntu-16.04-ami \
 			-var version=$(VERSION) \
 			-var-file packer/vault-consul-ami/variables.json \
 			-var 'tls_private_key_path=artifacts/vault.key.pem' \
@@ -129,8 +129,10 @@ build-test-image: | build-packer-image ensure-tls-certs-apply build-test-image-b
 			-var 'test_image_name=$(PACKER_TEST_IMAGE)' \
 			packer/vault-consul-ami/vault-consul.json
 
-deploy: build-ami
+display-ami:
 	@echo "Testing deploys?"
-	$(eval AMI_ID := $(aws ec2 describe-images --filter "Name=name,Values=$(AMI_NAME)" --query 'Images[0].ImageId' --output text))
+#	aws ec2 describe-images --region us-east-1 --filter "Name=name,Values=$(AMI_NAME)" --query 'Images[0].ImageId' --output text
+	$(eval AMI_ID := $(aws ec2 describe-images --region us-east-1 --filter "Name=name,Values=$(AMI_NAME)" --query 'Images[0].ImageId' --output text))
+	echo "AMI is: $(AMI_ID)"
 
 
