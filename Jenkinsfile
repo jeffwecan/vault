@@ -36,16 +36,18 @@ node('docker') {
 //							sh 'make build-ami'
 //						}
 //					}
-					withCredentials(packerCredentials) {
+					//withCredentials(packerCredentials) {
 						stage('Deploy to Dev') {
 							terraform.plan {
 								terraformDir = "./terraform/aws/"
+								hipchatRoom = "Vault Monitoring"
 							}
 						}
-					}
+					//}
                 } else {
            			// Just do a plan
 					stage('Deploy to Dev') {
+						sh 'make terraform-get'
 						terraform.plan {
 							terraformDir = "./terraform/aws/"
 						}

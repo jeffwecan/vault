@@ -135,9 +135,19 @@ display-ami:
 	$(eval AMI_ID := $(aws ec2 describe-images --region us-east-1 --filter "Name=name,Values=$(AMI_NAME)" --query 'Images[0].ImageId' --output text))
 	echo "AMI is: $(AMI_ID)"
 
-plan:
+terraform-get:
 	docker run \
 		-v $(PWD)/terraform/aws:/workspace \
+		-e GIT_TRACE=1 \
+        -v ~/.ssh/github_rsa:/root/.ssh/id_rsa \
+        -v ~/.ssh/known_hosts:/root/.ssh/known_hosts \
+		wpengine/terraform \
+		terraform get /workspace
+
+terraform-plan: | terraform-get
+	docker run \
+		-v $(PWD)/terraform/aws:/workspace \
+		-e GIT_SSH_COMMAND="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" \
 		wpengine/terraform \
 		terraform plan /workspace
 
