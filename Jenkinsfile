@@ -36,13 +36,20 @@ node('docker') {
 //							sh 'make build-ami'
 //						}
 //					}
-					//withCredentials(packerCredentials) {
+					withCredentials(packerCredentials) {
 						stage('Deploy to Dev') {
 							terraform.plan {
 								terraformDir = "./terraform/aws/"
 							}
 						}
-					//}
+					}
+                } else {
+           			// Just do a plan
+					stage('Deploy to Dev') {
+						terraform.plan {
+							terraformDir = "./terraform/aws/"
+						}
+					}
                 }
             }
             finally {

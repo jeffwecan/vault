@@ -12,6 +12,24 @@ terraform {
   required_version = ">= 0.9.3"
 }
 
+data "aws_ami" "vault-consul" {
+  most_recent      = true
+  executable_users = ["self"]
+
+  filter {
+    name   = "owner-alias"
+    values = ["self"]
+  }
+
+  filter {
+    name   = "name"
+    values = ["vault-consul-ami*"]
+  }
+
+//  name_regex = "^myami-\\d{3}"
+  owners     = ["self"]
+}
+
 # ---------------------------------------------------------------------------------------------------------------------
 # DEPLOY THE VAULT SERVER CLUSTER
 # ---------------------------------------------------------------------------------------------------------------------
@@ -25,7 +43,7 @@ module "vault_cluster" {
   cluster_size  = "${var.vault_cluster_size}"
   instance_type = "${var.vault_instance_type}"
 
-  ami_id    = "${var.ami_id}"
+  ami_id    = "${data.aws_ami.vault-consul.id}"
   user_data = "${data.template_file.user_data_vault_cluster.rendered}"
 
   s3_bucket_name          = "${var.s3_bucket_name}"
@@ -86,7 +104,7 @@ module "consul_cluster" {
   cluster_tag_key   = "${var.consul_cluster_tag_key}"
   cluster_tag_value = "${var.consul_cluster_name}"
 
-  ami_id    = "${var.ami_id}"
+  ami_id    = "${data.aws_ami.vault-consul.id}"
   user_data = "${data.template_file.user_data_consul.rendered}"
 
   vpc_id     = "${data.aws_vpc.default.id}"

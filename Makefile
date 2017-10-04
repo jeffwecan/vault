@@ -135,4 +135,9 @@ display-ami:
 	$(eval AMI_ID := $(aws ec2 describe-images --region us-east-1 --filter "Name=name,Values=$(AMI_NAME)" --query 'Images[0].ImageId' --output text))
 	echo "AMI is: $(AMI_ID)"
 
+plan:
+	docker run \
+		-v $(PWD)/terraform/aws:/workspace \
+		wpengine/terraform \
+		terraform plan /workspace
 
