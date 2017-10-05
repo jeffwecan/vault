@@ -9,53 +9,70 @@ node('docker') {
         String  IMAGE_TAG = ":${BUILD_NUMBER}.${GIT_COMMIT}"
         String  IMAGE_NAME = "vault${IMAGE_TAG}"
 		String	TLS_OWNER = "root"
+		String	hipchatRoom = "Vault Monitoring"
         // IMAGE_TAG is used in docker-compose to ensure uniqueness of containers and networks.
         withEnv(["IMAGE_TAG=${IMAGE_TAG}", "TLS_OWNER=${TLS_OWNER}"]) {
             try {
-
                 stage('Lint Markdown') {
 					sh 'make markdownlint'
 				}
 
                 stage('Lint Ansible') {
-					//sh 'make ansiblelint'
-					sh 'echo TODO: uncomment make ansiblelint'
+					sh 'make ansiblelint'
+					//sh 'echo TODO: uncomment make ansiblelint'
 				}
 
                 stage('Test') {
                      // sh 'make test'
 					 sh 'echo TODO: uncomment make test'
                 }
-                if (env.BRANCH_NAME == 'terraform_vault') {  // if BRANCH_NAME == some_dev_branch and/or some_master_branch?
+                if (env.BRANCH_NAME == 'master') {  // if BRANCH_NAME == some_dev_branch and/or some_master_branch?
 					def packerCredentials = [
 						string(credentialsId: 'AWS_ACCESS_KEY_ID_DEV', variable: 'AWS_ACCESS_KEY_ID'),
 						string(credentialsId: 'AWS_SECRET_ACCESS_KEY_DEV', variable: 'AWS_SECRET_ACCESS_KEY'),
 					]
-//					withCredentials(packerCredentials) {
-//						stage('Build AMI') {
-//							sh 'make build-ami'
-//						}
-//					}
-					//withCredentials(packerCredentials) {
-						stage('Deploy to Dev') {
-							terraform.plan {
-								terraformDir = "./terraform/aws/development"
-								hipchatRoom = "Vault Monitoring"
-							}
+					withCredentials(packerCredentials) {
+						stage('Build AMI') {
+							sh 'make build-ami'
 						}
-					//}
-                } else {
-           			// Just do a plan
+					}
 					stage('Deploy to Dev') {
-						sh 'make terraform-get'
 						terraform.plan {
 							terraformDir = "./terraform/aws/development"
+							hipchatRoom = hipchatRoom
+						}
+					}
+					stage('Deploy to Production') {
+						terraform.plan {
+							terraformDir = "./terraform/aws/production"
+							hipchatRoom = hipchatRoom
+						}
+					}
+                } else {
+					// Just do terraform plan
+					stage('Terraform Plan - Dev') {
+						terraform.plan {
+							terraformDir = "./terraform/aws/development"
+							hipchatRoom = hipchatRoom
+						}
+					}
+					stage('Terraform Plan - Prod') {
+						terraform.plan {
+							terraformDir = "./terraform/aws/production"
+							hipchatRoom = hipchatRoom
 						}
 					}
                 }
-            }
-            finally {
-                sh "echo finally'!'"
+            } catch (error) {
+				if (env.BRANCH_NAME == 'terraform_vault') {
+					hipchat.notify {
+						room = hipchatRoom
+						status = 'FAILED'
+					}
+				}
+            	throw error
+            } finally {
+				workspace.cleanUp()
             }
         }
     }
