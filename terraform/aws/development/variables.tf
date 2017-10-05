@@ -23,7 +23,7 @@ variable "ssh_key_name" {
 
 variable "aws_role_arn" {
   description = "AWS role ARN to assume when doing deployments"
-  default = "arn:aws:iam::844484402121:role/wpengine/robots/TerraformStateMaintainer"
+  default = "arn:aws:iam::844484402121:role/wpengine/robots/TerraformApplier"
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
