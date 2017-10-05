@@ -49,6 +49,7 @@ test-packer: | build-test-image
 
 clean:
 	rm -rvf artifacts/*
+	find . -name '.terraform' -type d -exec rm -rfv {} \;
 
 	docker run -v $(PWD)/terraform/modules/generate-tls-cert:/workspace -v $(PWD)/artifacts:/artifacts -w /workspace wpengine/terraform \
 		terraform destroy \

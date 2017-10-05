@@ -50,13 +50,13 @@ node('docker') {
 					}
                 } else {
 					// Just do terraform plan
-					stage('Terraform Plan - Dev') {
+					stage('TF Plan - Dev') {
 						terraform.plan {
 							terraformDir = "./terraform/aws/development"
 							hipchatRoom = hipchatRoom
 						}
 					}
-					stage('Terraform Plan - Prod') {
+					stage('TF Plan - Prod') {
 						terraform.plan {
 							terraformDir = "./terraform/aws/production"
 							hipchatRoom = hipchatRoom
