@@ -18,8 +18,8 @@ node('docker') {
 				}
 
                 stage('Lint Ansible') {
-					sh 'make ansiblelint'
-					//sh 'echo TODO: uncomment make ansiblelint'
+					//sh 'make ansiblelint'
+					sh 'echo TODO: uncomment make ansiblelint'
 				}
 
                 stage('Test') {
@@ -56,9 +56,9 @@ node('docker') {
 							hipchatRoom = hipchatRoom
 						}
 					}
-					stage('TF Plan - Prod') {
+					stage('TF Plan - Corp') {
 						terraform.plan {
-							terraformDir = "./terraform/aws/production"
+							terraformDir = "./terraform/aws/corporate"
 							hipchatRoom = hipchatRoom
 						}
 					}
