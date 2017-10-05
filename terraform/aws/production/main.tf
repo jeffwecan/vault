@@ -8,7 +8,8 @@ provider "aws" {
   region = "${var.aws_region}"
   assume_role {
     role_arn     = "${var.aws_role_arn}"
-    session_name = "terraform_vault_development"
+    session_name = "terraform_vault_production"
+//    external_id  = "EXTERNAL_ID"
   }
 }
 

@@ -13,7 +13,7 @@
 
 variable "s3_bucket_name" {
   description = "The name of an S3 bucket to create and use as a storage backend. Note: S3 bucket names must be *globally* unique."
-  default = "vault.wpenginedev.com"
+  default = "vault.wpengine.io"
 }
 
 variable "ssh_key_name" {
@@ -23,7 +23,7 @@ variable "ssh_key_name" {
 
 variable "aws_role_arn" {
   description = "AWS role ARN to assume when doing deployments"
-  default = "arn:aws:iam::844484402121:role/wpengine/robots/TerraformStateMaintainer"
+  default = "arn:aws:iam::770273818880:role/wpengine/robots/TerraformStateMaintainer"
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
