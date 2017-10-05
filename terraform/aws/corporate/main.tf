@@ -17,7 +17,16 @@ terraform {
   required_version = ">= 0.9.3"
 }
 
-data "aws_ami" "vault-consul" {
+//data "aws_ami_ids" "ubuntu" {
+//  owners = ["099720109477"]
+//
+//  filter {
+//    name   = "name"
+//    values = ["ubuntu/images/ubuntu-*-*-amd64-server-*"]
+//  }
+//}
+
+data "aws_ami" "vault-consul-dev" {
   most_recent      = true
 //  executable_users = ["self"]
 
@@ -35,6 +44,17 @@ data "aws_ami" "vault-consul" {
   owners     = ["self"]
 }
 
+//resource "aws_ami_copy" "vault-consul-corp" {
+//  name              = "vault-consul-ubuntu-{{ user `version` | clean_ami_name}}"
+//  description       = "An Ubuntu 16.04 AMI that has Vault and Consul installed.",
+//  source_ami_id     = "${data.aws_ami.vault-consul-dev.id}"
+//  source_ami_region = "${var.aws_region}"
+//
+//  tags {
+//    Name = "vault-consul-ubuntu"
+//  }
+//}
+
 # ---------------------------------------------------------------------------------------------------------------------
 # DEPLOY THE VAULT SERVER CLUSTER
 # ---------------------------------------------------------------------------------------------------------------------
@@ -48,7 +68,7 @@ module "vault_cluster" {
   cluster_size  = "${var.vault_cluster_size}"
   instance_type = "${var.vault_instance_type}"
 
-  ami_id    = "${data.aws_ami.vault-consul.id}"
+  ami_id    = "${aws_ami_copy.vault-consul-corp.id}"
   user_data = "${data.template_file.user_data_vault_cluster.rendered}"
 
   s3_bucket_name          = "${var.s3_bucket_name}"
@@ -109,7 +129,7 @@ module "consul_cluster" {
   cluster_tag_key   = "${var.consul_cluster_tag_key}"
   cluster_tag_value = "${var.consul_cluster_name}"
 
-  ami_id    = "${data.aws_ami.vault-consul.id}"
+  ami_id    = "${aws_ami_copy.vault-consul-corp.id}"
   user_data = "${data.template_file.user_data_consul.rendered}"
 
   vpc_id     = "${data.aws_vpc.default.id}"

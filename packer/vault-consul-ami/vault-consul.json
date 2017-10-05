@@ -10,9 +10,11 @@
     "ca_public_key_path": null,
     "tls_public_key_path": null,
     "tls_private_key_path": null,
-    "version": ""
+    "version": "",
+    "aws_profile": "packer"
   },
-  "builders": [{
+  "builders": [
+    {
     "name": "vault-ubuntu-16.04-ami",
     "ami_name": "vault-consul-ubuntu-{{ user `version` | clean_ami_name}}",
     "ami_description": "An Ubuntu 16.04 AMI that has Vault and Consul installed.",

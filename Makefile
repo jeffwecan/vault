@@ -4,6 +4,7 @@ SERVER_CM_TAG		:= "v3.31"
 TLS_OWNER			?= "root"
 PACKER_IMAGE		:= wpengine/packer
 PACKER_TEST_IMAGE	:= wpengine/ansible
+ACCOUNTS			:= production corporate
 
 MARKDOWN_LINTER := wpengine/mdl
 
@@ -81,6 +82,8 @@ ensure-tls-certs-apply: ensure-artifacts-dir ensure-tls-certs-get
 
 build-ami: | build-packer-image ensure-tls-certs-apply
 	@echo "=====> Packer'ing up an AMI <====="
+	# TODO add packer profile to jenkins nodes IAM instance role
+#	echo '[profile packer]\nrole_arn = arn:aws:iam::663279119313:role/wpengine/robots/PackerBuilder >> ~/.aws/config' && \
 	docker run \
 		-v $(PWD):/workspace \
 		-v $(PWD)/artifacts:/artifacts \
@@ -136,10 +139,11 @@ display-ami:
 	$(eval AMI_ID := $(aws ec2 describe-images --region us-east-1 --filter "Name=name,Values=$(AMI_NAME)" --query 'Images[0].ImageId' --output text))
 	echo "AMI is: $(AMI_ID)"
 
-terraform-init:
+terraform-init-: $(addprefix terraform-init-, $(ACCOUNTS))
+terraform-init-%:
 	docker run \
 		--workdir=/workspace \
-		-v $(PWD)/terraform/aws/development:/workspace \
+		-v $(PWD)/terraform/aws/$(*):/workspace \
 		-v $(HOME)/.ssh/github_rsa:/root/.ssh/id_rsa \
 		-v $(HOME)/.ssh/known_hosts:/root/.ssh/known_hosts \
 		-e GIT_TRACE=1 \
@@ -148,10 +152,11 @@ terraform-init:
 		wpengine/terraform \
 		terraform init .
 
-terraform-get: | terraform-init
+terraform-get-: $(addprefix terraform-get-, $(ACCOUNTS))
+terraform-get-%: | terraform-init-%
 	docker run \
 		--workdir=/workspace \
-		-v $(PWD)/terraform/aws/development:/workspace \
+		-v $(PWD)/terraform/aws/$(*):/workspace \
 		-v $(HOME)/.ssh/github_rsa:/root/.ssh/id_rsa \
 		-v $(HOME)/.ssh/known_hosts:/root/.ssh/known_hosts \
 		-e GIT_TRACE=1 \
@@ -160,10 +165,11 @@ terraform-get: | terraform-init
 		wpengine/terraform \
 		terraform get .
 
-terraform-plan: | terraform-get
+terraform-plan-: $(addprefix terraform-plan-, $(ACCOUNTS))
+terraform-plan-%: | terraform-get-%
 	docker run \
 		--workdir=/workspace \
-		-v $(PWD)/terraform/aws/development:/workspace \
+		-v $(PWD)/terraform/aws/$(*):/workspace \
 		-e GIT_SSH_COMMAND="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" \
 		-v $(HOME)/.ssh/github_rsa:/root/.ssh/id_rsa \
 		-v $(HOME)/.ssh/known_hosts:/root/.ssh/known_hosts \
