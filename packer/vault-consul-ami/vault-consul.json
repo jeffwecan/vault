@@ -6,7 +6,6 @@
     "consul_module_version": "v0.0.2",
     "server_cm_version": "v3.31",
     "consul_version": "0.9.3",
-    "github_oauth_token": "{{env `GITHUB_OAUTH_TOKEN`}}",
     "ca_public_key_path": null,
     "tls_public_key_path": null,
     "tls_private_key_path": null,
@@ -77,22 +76,6 @@
     "type": "file",
     "source": "{{user `tls_private_key_path`}}",
     "destination": "/tmp/vault.key.pem"
-  },
-    {
-    "type": "file",
-    "source": "{{ template_dir }}/../../ansible/callback_plugins/wpe_base.py",
-    "destination": "~/.ansible/plugins/callback/wpe_base.py"
-  },
-    {
-    "type": "file",
-    "source": "{{ template_dir }}/../../ansible/callback_plugins/wpe_junit.py",
-    "destination": "~/.ansible/plugins/callback/wpe_junit.py"
-  },
-    {
-    "type": "shell",
-    "inline": [
-      "echo /tmp/download-server-cm {{user `github_oauth_token`}} {{user `server_cm_version`}} /tmp/server-cm.tar.gz"
-    ]
   },
     {
       "type": "ansible-local",

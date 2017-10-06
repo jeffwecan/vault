@@ -18,14 +18,13 @@ node('docker') {
 				}
 
                 stage('Lint Ansible') {
-					//sh 'make ansiblelint'
-					sh 'echo TODO: uncomment make ansiblelint'
+					sh 'make ansiblelint'
 				}
 
                 stage('Test') {
-                     // sh 'make test'
-					 sh 'echo TODO: uncomment make test'
+                     sh 'make test'
                 }
+
                 if (env.BRANCH_NAME == 'terraform_vault') {  // if BRANCH_NAME == some_dev_branch and/or some_master_branch?
 					def packerCredentials = [
 						string(credentialsId: 'AWS_ACCESS_KEY_ID_DEV', variable: 'AWS_ACCESS_KEY_ID'),
@@ -33,6 +32,7 @@ node('docker') {
 					]
 					withCredentials(packerCredentials) {
 						stage('Build AMI') {
+							sh 'echo Saving on time by not building the AMI atm...'
 							sh 'make build-ami'
 						}
 					}

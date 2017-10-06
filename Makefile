@@ -3,7 +3,7 @@ AMI_NAME			:= "vault-consul-ubuntu-$(VERSION)"
 SERVER_CM_TAG		:= "v3.31"
 TLS_OWNER			?= "root"
 PACKER_IMAGE		:= wpengine/packer
-PACKER_TEST_IMAGE	:= wpengine/ansible
+ANSIBLE_TEST_IMAGE	:= wpengine/ansible
 ACCOUNTS			:= production corporate
 
 MARKDOWN_LINTER := wpengine/mdl
@@ -35,10 +35,10 @@ test: | test-packer
 		-var owner=$(TLS_OWNER) \
 		-force
 
-ansiblelint: | build-ansible-lint-image
+ansiblelint:
 	docker run \
 		-v $(PWD)/ansible:/workspace \
-		wpengine/ansible-lint:$(VERSION) \
+		$(ANSIBLE_TEST_IMAGE):latest \
 		-p -x ANSIBLE0004,ANSIBLE0006,ANSIBLE0016,ANSIBLE0018 -v \
 		/workspace/local.yml
 
@@ -82,15 +82,13 @@ ensure-tls-certs-apply: ensure-artifacts-dir ensure-tls-certs-get
 
 build-ami: | build-packer-image ensure-tls-certs-apply
 	@echo "=====> Packer'ing up an AMI <====="
-	# TODO add packer profile to jenkins nodes IAM instance role
-#	echo '[profile packer]\nrole_arn = arn:aws:iam::663279119313:role/wpengine/robots/PackerBuilder >> ~/.aws/config' && \
 	docker run \
 		-v $(PWD):/workspace \
 		-v $(PWD)/artifacts:/artifacts \
 		-w /workspace \
 		-e AWS_ACCESS_KEY_ID \
 		-e AWS_SECRET_ACCESS_KEY \
-		$(PACKER_IMAGE):$(VERSION) \
+		$(PACKER_IMAGE):latest \
 			build \
 			-except=vault-ubuntu-16.04-docker \
 			-var version=$(VERSION) \
@@ -99,22 +97,13 @@ build-ami: | build-packer-image ensure-tls-certs-apply
 			-var 'ca_public_key_path=/artifacts/vault.ca.crt.pem' \
 			-var 'tls_public_key_path=/artifacts/vault.crt.pem' \
 			packer/vault-consul-ami/vault-consul.json
+	# TODO add packer profile to jenkins nodes IAM instance role
 
-build-ansible-lint-image:
-	docker build -t wpengine/ansible-lint:$(VERSION) docker/ansible-lint
-
-build-test-image-base:
+run-test-image-base:
 	# This should go else where if we want to use it, maybe in a wpengine/ansible:16.04 image that also includes ansiblelint?
-	docker build -t $(PACKER_TEST_IMAGE):$(VERSION) docker/ubuntu-1604-test-image
+	docker run -it $(ANSIBLE_TEST_IMAGE):latest /bin/bash
 
-run-test-image-base: | build-test-image-base
-	# This should go else where if we want to use it, maybe in a wpengine/ansible:16.04 image that also includes ansiblelint?
-	docker run -it $(PACKER_TEST_IMAGE):$(VERSION) /bin/bash
-
-build-packer-image:
-	docker build -t $(PACKER_IMAGE):$(VERSION) docker/packer
-
-build-test-image: | build-packer-image ensure-tls-certs-apply build-test-image-base
+build-test-image: | ensure-tls-certs-apply
 	@echo "=====> Packer'ing up an docker image <====="
 	docker run \
 		--rm \
@@ -122,7 +111,7 @@ build-test-image: | build-packer-image ensure-tls-certs-apply build-test-image-b
 		-v $(PWD):/workspace \
 		-v $(PWD)/artifacts:/artifacts \
 		-w /workspace \
-		$(PACKER_IMAGE):$(VERSION) \
+		$(PACKER_IMAGE):latest \
 		build \
 			-except=vault-ubuntu-16.04-ami \
 			-var version=$(VERSION) \
@@ -130,7 +119,7 @@ build-test-image: | build-packer-image ensure-tls-certs-apply build-test-image-b
 			-var 'tls_private_key_path=artifacts/vault.key.pem' \
 			-var 'ca_public_key_path=artifacts/vault.ca.crt.pem' \
 			-var 'tls_public_key_path=artifacts/vault.crt.pem' \
-			-var 'test_image_name=$(PACKER_TEST_IMAGE)' \
+			-var 'test_image_name=$(ANSIBLE_TEST_IMAGE)' \
 			packer/vault-consul-ami/vault-consul.json
 
 display-ami:
@@ -192,6 +181,21 @@ terraform-apply-%: | terraform-plan-%
 		-e AWS_SECRET_ACCESS_KEY \
 		wpengine/terraform \
 		terraform apply .
+
+terraform-destroy-: $(addprefix terraform-destroy-, $(ACCOUNTS))
+terraform-destroy-%: | terraform-get-%
+	docker run \
+		-it \
+		--workdir=/workspace \
+		-v $(PWD)/terraform/aws/$(*):/workspace \
+		-e GIT_SSH_COMMAND="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" \
+		-v $(HOME)/.ssh/github_rsa:/root/.ssh/id_rsa \
+		-v $(HOME)/.ssh/known_hosts:/root/.ssh/known_hosts \
+		-e GIT_TRACE=1 \
+		-e AWS_ACCESS_KEY_ID \
+		-e AWS_SECRET_ACCESS_KEY \
+		wpengine/terraform \
+		terraform destroy .
 
 smoke-: $(addprefix smoke-, $(ACCOUNTS))
 smoke-%: |
