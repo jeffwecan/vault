@@ -2,11 +2,13 @@ VERSION         	:= $(shell git describe --tags --always)
 AMI_NAME			:= "vault-consul-ubuntu-$(VERSION)"
 SERVER_CM_TAG		:= "v3.31"
 TLS_OWNER			?= "root"
-PACKER_IMAGE		:= wpengine/packer
-ANSIBLE_TEST_IMAGE	:= wpengine/ansible
-ACCOUNTS			:= development corporate
 
-MARKDOWN_LINTER := wpengine/mdl
+MARKDOWN_LINTER 	:= wpengine/mdl
+YAML_LINTER			:= wpengine/yamllint
+TERRAFORM_IMAGE		:= wpengine/terraform
+PACKER_IMAGE		:= jeffreymhogan/packer
+ANSIBLE_TEST_IMAGE	:= jeffreymhogan/ansible
+ACCOUNTS			:= development corporate
 
 # default is meant to generally map to Jenkinsfile/pipeline for anything other than the master branch
 default: lint test terraform-plan
@@ -40,35 +42,44 @@ ansible-lint:
 	# Successfully linted ansible.
 
 yamllint: | lint-packer-template
-	@echo
-	# Running yamllint against all yaml in this project... or not... (.terraform get ends up with a bunch of malformed yaml as-is)
-	#docker run --rm \
-	#	--volume $(PWD):/workspace \
-	#	wpengine/yamllint:latest \
-	#	/workspace
-	@echo
-	# Successfully linted yaml.
+	@echo # TODO: think about linting other yaml things here? maybe exclude the yaml that *could* be pulled down by terraform get and placed in .terraform subidrs
 
 lint-packer-template:
 	@echo
 	# Running yamllint against packer template
 	docker run --rm \
 		--volume $(PWD)/packer:/workspace \
-		wpengine/yamllint:latest \
+		$(YAML_LINTER):latest \
 			/workspace
 	@echo
 	# Successfully linted yaml.
 
 # ~*~*~*~* Test Tasks *~*~*~*~
 test-packer: | packer-build-image
-	docker run --volume $(PWD)/tests/testinfra:/tests \
+	docker run --rm \
+		--volume $(PWD)/tests/testinfra:/tests \
 		wpengine/vault-packer:$(VERSION) \
 		py.test -v /tests
 
 # ~*~*~*~* Smoke Tasks *~*~*~*~
+build-smoke-image:
+	docker build -t vault-smokes:$(VERSION) tests/smokes/
+
 smoke-: $(addprefix smoke-, $(ACCOUNTS))
-smoke-%: |
-	echo "This is where we would smoke $(*) if we got em"
+
+smoke-development: | build-smoke-image
+	docker run --rm \
+		--volume $(PWD)/artifacts:/artifacts \
+		--volume $(PWD)/tests:/workspace/tests \
+		--env SMOKE_DOMAIN=vault.wpenginedev.com \
+		vault-smokes:$(VERSION)
+
+smoke-corporate: | build-smoke-image
+	docker run --rm \
+		--volume $(PWD)/artifacts:/artifacts \
+		--volume $(PWD)/tests:/workspace/tests \
+		--env SMOKE_DOMAIN=vault.wpengine.io \
+		vault-smokes:$(VERSION)
 
 # ~*~*~*~* Utility Tasks *~*~*~*~
 clean: | ensure-tls-certs-get
@@ -80,7 +91,7 @@ clean: | ensure-tls-certs-get
 		--volume $(PWD)/terraform/modules/generate-tls-cert:/workspace \
 		--volume $(PWD)/artifacts:/artifacts \
 		--workdir=/workspace \
-		wpengine/terraform \
+		$(TERRAFORM_IMAGE) \
 		terraform destroy \
 			-var-file variables.json \
 			-var 'private_key_file_path=/artifacts/vault.key.pem' \
@@ -96,13 +107,14 @@ ensure-tls-certs-init:
 	docker run --rm \
 		--volume $(PWD)/terraform/modules/generate-tls-cert:/workspace \
 		--workdir=/workspace \
-		wpengine/terraform \
+		$(TERRAFORM_IMAGE) \
 		terraform init
 
 ensure-tls-certs-get: ensure-tls-certs-init
 	docker run --rm \
 		--volume $(PWD)/terraform/modules/generate-tls-cert:/workspace \
-		--workdir=/workspace wpengine/terraform \
+		--workdir=/workspace \
+		$(TERRAFORM_IMAGE) \
 		terraform get
 
 ensure-tls-certs-apply: ensure-artifacts-dir ensure-tls-certs-get
@@ -110,7 +122,8 @@ ensure-tls-certs-apply: ensure-artifacts-dir ensure-tls-certs-get
 	docker run --rm \
 		--volume $(PWD)/terraform/modules/generate-tls-cert:/workspace \
 		--volume $(PWD)/artifacts:/artifacts \
-		--workdir=/workspace wpengine/terraform \
+		--workdir=/workspace \
+		$(TERRAFORM_IMAGE) \
 		terraform apply \
 		-var-file variables.json \
 		-var 'private_key_file_path=/artifacts/vault.key.pem' \
@@ -120,16 +133,16 @@ ensure-tls-certs-apply: ensure-artifacts-dir ensure-tls-certs-get
 
 packer-yaml-to-json:
 	@echo
-	# Running yamllint against packer template
+	# Generating JSON version of YAML packer template
 	docker run --rm \
 		-i \
 		--entrypoint="" \
 		--workdir=/workspace \
 		--volume $(PWD)/packer:/workspace \
-		wpengine/yamllint:latest \
+		$(YAML_LINTER):latest \
 			python /workspace/yaml2json.py vault-consul-ami/vault-consul.yaml
 	@echo
-	# Successfully linted yaml.
+	# Successfully converted YAML packer template to JSON
 
 # ~*~*~*~* Packer Tasks *~*~*~*~
 packer-build-image: | packer-yaml-to-json ensure-tls-certs-apply
@@ -180,7 +193,7 @@ terraform-init-%:
 		--env GIT_TRACE=1 \
 		--env AWS_ACCESS_KEY_ID \
 		--env AWS_SECRET_ACCESS_KEY \
-		wpengine/terraform \
+		$(TERRAFORM_IMAGE) \
 		terraform init .
 
 terraform-get-: $(addprefix terraform-get-, $(ACCOUNTS))
@@ -193,7 +206,7 @@ terraform-get-%: | terraform-init-%
 		--env GIT_TRACE=1 \
 		--env AWS_ACCESS_KEY_ID \
 		--env AWS_SECRET_ACCESS_KEY \
-		wpengine/terraform \
+		$(TERRAFORM_IMAGE) \
 		terraform get .
 
 terraform-plan-: $(addprefix terraform-plan-, $(ACCOUNTS))
@@ -207,7 +220,7 @@ terraform-plan-%: | terraform-get-%
 		--env GIT_TRACE=1 \
 		--env AWS_ACCESS_KEY_ID \
 		--env AWS_SECRET_ACCESS_KEY \
-		wpengine/terraform \
+		$(TERRAFORM_IMAGE) \
 		terraform plan .
 
 terraform-apply-: $(addprefix terraform-apply-, $(ACCOUNTS))
@@ -221,7 +234,7 @@ terraform-apply-%: | terraform-plan-%
 		--env GIT_TRACE=1 \
 		--env AWS_ACCESS_KEY_ID \
 		--env AWS_SECRET_ACCESS_KEY \
-		wpengine/terraform \
+		$(TERRAFORM_IMAGE) \
 		terraform apply .
 
 terraform-destroy-: $(addprefix terraform-destroy-, $(ACCOUNTS))
@@ -236,5 +249,5 @@ terraform-destroy-%: | terraform-get-%
 		--env GIT_TRACE=1 \
 		--env AWS_ACCESS_KEY_ID \
 		--env AWS_SECRET_ACCESS_KEY \
-		wpengine/terraform \
+		$(TERRAFORM_IMAGE) \
 		terraform destroy .

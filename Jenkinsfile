@@ -29,7 +29,7 @@ node('docker') {
                      sh 'make test'
                 }
 
-                if (env.BRANCH_NAME == 'terraform_vault') {  // if BRANCH_NAME == some_dev_branch and/or some_master_branch?
+                if (env.BRANCH_NAME == 'master') {  // if BRANCH_NAME == some_dev_branch and/or some_master_branch?
 					def packerCredentials = [
 						string(credentialsId: 'AWS_ACCESS_KEY_ID_DEV', variable: 'AWS_ACCESS_KEY_ID'),
 						string(credentialsId: 'AWS_SECRET_ACCESS_KEY_DEV', variable: 'AWS_SECRET_ACCESS_KEY'),
@@ -81,7 +81,7 @@ node('docker') {
 					}
                 }
             } catch (error) {
-				if (env.BRANCH_NAME == 'terraform_vault') {
+				if (env.BRANCH_NAME == 'master') {
 					hipchat.notify {
 						room = hipchatRoom
 						status = 'FAILED'
