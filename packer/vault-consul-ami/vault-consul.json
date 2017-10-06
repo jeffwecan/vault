@@ -10,8 +10,7 @@
     "ca_public_key_path": null,
     "tls_public_key_path": null,
     "tls_private_key_path": null,
-    "version": "",
-    "aws_profile": "packer"
+    "version": ""
   },
   "builders": [
     {

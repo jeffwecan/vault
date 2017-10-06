@@ -26,7 +26,7 @@ node('docker') {
                      // sh 'make test'
 					 sh 'echo TODO: uncomment make test'
                 }
-                if (env.BRANCH_NAME == 'master') {  // if BRANCH_NAME == some_dev_branch and/or some_master_branch?
+                if (env.BRANCH_NAME == 'terraform_vault') {  // if BRANCH_NAME == some_dev_branch and/or some_master_branch?
 					def packerCredentials = [
 						string(credentialsId: 'AWS_ACCESS_KEY_ID_DEV', variable: 'AWS_ACCESS_KEY_ID'),
 						string(credentialsId: 'AWS_SECRET_ACCESS_KEY_DEV', variable: 'AWS_SECRET_ACCESS_KEY'),
@@ -37,17 +37,30 @@ node('docker') {
 						}
 					}
 					stage('Deploy to Dev') {
-						terraform.plan {
-							terraformDir = "./terraform/aws/development"
-							hipchatRoom = hipchatRoom
+						// need dev credentials to launch encrypted AMI? can we encrypt the AMIs with a shared vault AMI key???
+						withCredentials(packerCredentials) {
+							terraform.apply {
+								terraformDir = "./terraform/aws/development"
+								hipchatRoom = hipchatRoom
+							}
 						}
 					}
+
+					stage('Smoke Dev') {
+						sh 'make smoke-dev'
+					}
+
 					stage('Deploy to Production') {
 						terraform.plan {
-							terraformDir = "./terraform/aws/production"
+							terraformDir = "./terraform/aws/corporate"
 							hipchatRoom = hipchatRoom
 						}
 					}
+
+					stage('Smoke Production') {
+						sh 'make smoke-production'
+					}
+
                 } else {
 					// Just do terraform plan
 					stage('TF Plan - Dev') {

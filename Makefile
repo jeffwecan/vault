@@ -179,3 +179,20 @@ terraform-plan-%: | terraform-get-%
 		wpengine/terraform \
 		terraform plan .
 
+terraform-apply-: $(addprefix terraform-apply-, $(ACCOUNTS))
+terraform-apply-%: | terraform-plan-%
+	docker run \
+		--workdir=/workspace \
+		-v $(PWD)/terraform/aws/$(*):/workspace \
+		-e GIT_SSH_COMMAND="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" \
+		-v $(HOME)/.ssh/github_rsa:/root/.ssh/id_rsa \
+		-v $(HOME)/.ssh/known_hosts:/root/.ssh/known_hosts \
+		-e GIT_TRACE=1 \
+		-e AWS_ACCESS_KEY_ID \
+		-e AWS_SECRET_ACCESS_KEY \
+		wpengine/terraform \
+		terraform apply .
+
+smoke-: $(addprefix smoke-, $(ACCOUNTS))
+smoke-%: |
+	echo "This is where we would smoke $(*) if we got em"

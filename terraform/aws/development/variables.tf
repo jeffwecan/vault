@@ -13,7 +13,7 @@
 
 variable "s3_bucket_name" {
   description = "The name of an S3 bucket to create and use as a storage backend. Note: S3 bucket names must be *globally* unique."
-  default = "vault.wpenginedev.com"
+  default = "terravault.wpenginedev.com"
 }
 
 variable "ssh_key_name" {
@@ -24,6 +24,11 @@ variable "ssh_key_name" {
 variable "aws_role_arn" {
   description = "AWS role ARN to assume when doing deployments"
   default = "arn:aws:iam::844484402121:role/wpengine/robots/TerraformApplier"
+}
+
+variable "cm_cidr" {
+    description = "IP address for dev-cm"
+    default = "104.196.19.141/32"
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -38,17 +43,17 @@ variable "aws_region" {
 
 variable "vault_cluster_name" {
   description = "What to name the Vault server cluster and all of its associated resources"
-  default     = "vault-example"
+  default     = "terraform-consul"
 }
 
 variable "consul_cluster_name" {
   description = "What to name the Consul server cluster and all of its associated resources"
-  default     = "consul-example"
+  default     = "terraform-consul"
 }
 
 variable "vault_cluster_size" {
   description = "The number of Vault server nodes to deploy. We strongly recommend using 3 or 5."
-  default     = 3
+  default     = 1
 }
 
 variable "consul_cluster_size" {
@@ -73,10 +78,5 @@ variable "consul_cluster_tag_key" {
 
 variable "force_destroy_s3_bucket" {
   description = "If you set this to true, when you run terraform destroy, this tells Terraform to delete all the objects in the S3 bucket used for backend storage. You should NOT set this to true in production or you risk losing all your data! This property is only here so automated tests of this module can clean up after themselves."
-  default     = false
-}
-
-variable "dev_cm_ip" {
-    description = "IP address for dev-cm"
-    default = "0.0.2"
+  default     = true
 }

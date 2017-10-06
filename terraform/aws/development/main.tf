@@ -1,7 +1,6 @@
 # ---------------------------------------------------------------------------------------------------------------------
 # DEPLOY A VAULT SERVER CLUSTER AND A CONSUL SERVER CLUSTER IN AWS
-# This is an example of how to use the vault-cluster module to deploy a Vault cluster in AWS. This cluster uses Consul,
-# running in a separate cluster, as its storage backend.
+# This cluster uses Consul, running in a separate cluster, as its storage backend.
 # ---------------------------------------------------------------------------------------------------------------------
 
 provider "aws" {
@@ -39,8 +38,6 @@ data "aws_ami" "vault-consul" {
 # ---------------------------------------------------------------------------------------------------------------------
 
 module "vault_cluster" {
-  # When using these modules in your own templates, you will need to use a Git URL with a ref attribute that pins you
-  # to a specific version of the modules, such as the following example:
   source = "git::git@github.com:hashicorp/terraform-aws-vault.git//modules/vault-cluster?ref=v0.0.2"
 
   cluster_name  = "${var.vault_cluster_name}"
@@ -59,8 +56,8 @@ module "vault_cluster" {
   # To make testing easier, we allow requests from any IP address here but in a production deployment, we *strongly*
   # recommend you limit this to the IP address ranges of known, trusted servers inside your VPC.
 
-  allowed_ssh_cidr_blocks            = ["0.0.0.0/0"]
-  allowed_inbound_cidr_blocks        = ["0.0.0.0/0"]
+  allowed_ssh_cidr_blocks            = ["${var.cm_cidr}"]
+  allowed_inbound_cidr_blocks        = ["${var.cm_cidr}"]
   allowed_inbound_security_group_ids = []
   ssh_key_name                       = "${var.ssh_key_name}"
 }
@@ -117,8 +114,8 @@ module "consul_cluster" {
   # To make testing easier, we allow Consul and SSH requests from any IP address here but in a production
   # deployment, we strongly recommend you limit this to the IP address ranges of known, trusted servers inside your VPC.
 
-  allowed_ssh_cidr_blocks     = ["0.0.0.0/0"]
-  allowed_inbound_cidr_blocks = ["0.0.0.0/0"]
+  allowed_ssh_cidr_blocks            = ["${var.cm_cidr}"]
+  allowed_inbound_cidr_blocks = ["${var.cm_cidr}"]
   ssh_key_name                = "${var.ssh_key_name}"
 }
 
