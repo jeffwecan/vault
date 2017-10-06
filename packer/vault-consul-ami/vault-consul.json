@@ -1,98 +1,94 @@
 {
-  "min_packer_version": "0.12.0",
-  "variables": {
-    "aws_region": "us-east-1",
-    "vault_version": "0.8.2",
-    "consul_module_version": "v0.0.2",
-    "server_cm_version": "v3.31",
-    "consul_version": "0.9.3",
-    "ca_public_key_path": null,
-    "tls_public_key_path": null,
-    "tls_private_key_path": null,
-    "version": ""
-  },
   "builders": [
     {
-    "name": "vault-ubuntu-16.04-ami",
-    "ami_name": "vault-consul-ubuntu-{{ user `version` | clean_ami_name}}",
-    "ami_description": "An Ubuntu 16.04 AMI that has Vault and Consul installed.",
-    "instance_type": "t2.micro",
-    "region": "{{user `aws_region`}}",
-    "type": "amazon-ebs",
-    "encrypt_boot": true,
-    "source_ami_filter": {
-      "filters": {
-        "virtualization-type": "hvm",
-        "architecture": "x86_64",
-        "name": "*ubuntu-xenial-16.04-amd64-server-*",
-        "block-device-mapping.volume-type": "gp2",
-        "root-device-type": "ebs"
+      "ami_description": "An Ubuntu 16.04 AMI that has Vault and Consul installed.",
+      "ami_name": "vault-consul-ubuntu-{{ user `version` | clean_ami_name}}",
+      "encrypt_boot": true,
+      "instance_type": "t2.micro",
+      "name": "vault-ubuntu-16.04-ami",
+      "region": "{{user `aws_region`}}",
+      "source_ami_filter": {
+        "filters": {
+          "architecture": "x86_64",
+          "block-device-mapping.volume-type": "gp2",
+          "name": "*ubuntu-xenial-16.04-amd64-server-*",
+          "root-device-type": "ebs",
+          "virtualization-type": "hvm"
+        },
+        "most_recent": true,
+        "owners": [
+          "099720109477"
+        ]
       },
-      "owners": ["099720109477"],
-      "most_recent": true
+      "ssh_username": "ubuntu",
+      "type": "amazon-ebs"
     },
-    "ssh_username": "ubuntu"
-  },
     {
-      "name": "vault-ubuntu-16.04-docker",
-      "type": "docker",
-      "image": "{{user `test_image_name`}}:{{ user `version` }}",
-      "pull": false,
-      "commit": true,
       "changes": [
-    "ENV WPE_DEPLOY_LOG_DIR /artifacts",
-    "ENV JUNIT_OUTPUT_DIR /test-results",
-    "VOLUME artifacts/test-results /test-results",
+        "ENV WPE_DEPLOY_LOG_DIR /artifacts",
+        "ENV JUNIT_OUTPUT_DIR /test-results",
+        "VOLUME artifacts/test-results /test-results",
         "CMD /usr/bin/supervisord"
-      ]
-    }],
-  "provisioners": [{
-    "type": "file",
-    "source": "{{template_dir}}/download-server-cm.sh",
-    "destination": "/tmp/download-server-cm"
-  },{
-    "type": "shell",
-    "inline": [
-      "sudo apt update",
-      "sudo apt install -y python-pip",
-      "sudo pip install ansible",
-      "sudo pip install junit_xml",
-      "mkdir -p ~/.ansible/plugins/callback/",
-      "mkdir /tmp/artifacts/"
-    ],
-    "only": ["vault-ubuntu-16.04-ami"]
-  },
-    {
-    "type": "file",
-    "source": "{{user `ca_public_key_path`}}",
-    "destination": "/tmp/ca.crt.pem"
-  },
-    {
-    "type": "file",
-    "source": "{{user `tls_public_key_path`}}",
-    "destination": "/tmp/vault.crt.pem"
-  },
-    {
-    "type": "file",
-    "source": "{{user `tls_private_key_path`}}",
-    "destination": "/tmp/vault.key.pem"
-  },
-    {
-      "type": "ansible-local",
-      "playbook_file": "{{ template_dir }}/../../ansible/local.yml",
-      "playbook_dir": "{{ template_dir }}/../../ansible/",
-      "role_paths": "{{ template_dir }}/../../ansible/roles",
-      "command": "ANSIBLE_FORCE_COLOR=1 PYTHONUNBUFFERED=1 WPE_DEPLOY_LOG_DIR=/tmp/artifacts ANSIBLE_CALLBACK_WHITELIST='wpe_junit' ANSIBLE_CALLBACK_PLUGINS=/ansible-callbacks ansible-playbook -vvv --become"
+      ],
+      "commit": true,
+      "image": "{{user `test_image_name`}}:latest",
+      "name": "vault-ubuntu-16.04-docker",
+      "pull": false,
+      "type": "docker"
     }
   ],
+  "min_packer_version": "0.12.0",
   "post-processors": [
-    [
-      {
-        "type": "docker-tag",
-        "repository": "wpengine/vault-packer",
-        "tag": "{{ user `version` }}",
-        "only": ["vault-ubuntu-16.04-docker"]
-      }
-    ]
-  ]
+    {
+      "only": [
+        "vault-ubuntu-16.04-docker"
+      ],
+      "repository": "wpengine/vault-packer",
+      "tag": "{{ user `version` }}",
+      "type": "docker-tag"
+    }
+  ],
+  "provisioners": [
+    {
+      "inline": [
+        "sudo apt update",
+        "sudo apt dist-upgrade",
+        "sudo apt install -y python-pip",
+        "sudo pip install ansible"
+      ],
+      "type": "shell"
+    },
+    {
+      "destination": "/tmp/ca.crt.pem",
+      "source": "{{user `ca_public_key_path`}}",
+      "type": "file"
+    },
+    {
+      "destination": "/tmp/vault.crt.pem",
+      "source": "{{user `tls_public_key_path`}}",
+      "type": "file"
+    },
+    {
+      "destination": "/tmp/vault.key.pem",
+      "source": "{{user `tls_private_key_path`}}",
+      "type": "file"
+    },
+    {
+      "playbook_dir": "{{ template_dir }}/../../ansible/",
+      "playbook_file": "{{ template_dir }}/../../ansible/local.yml",
+      "role_paths": "{{ template_dir }}/../../ansible/roles",
+      "type": "ansible-local"
+    }
+  ],
+  "variables": {
+    "aws_region": "us-east-1",
+    "ca_public_key_path": null,
+    "consul_module_version": "v0.0.2",
+    "consul_version": "0.9.3",
+    "server_cm_version": "v3.31",
+    "tls_private_key_path": null,
+    "tls_public_key_path": null,
+    "vault_version": "0.8.2",
+    "version": ""
+  }
 }

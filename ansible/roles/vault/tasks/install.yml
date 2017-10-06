@@ -23,7 +23,7 @@
   when: not vault_checksum.stat.exists | bool
 
 - name: Get Vault package checksum
-  local_action: shell grep "{{ vault_pkg }}" "{{ role_path }}/files/{{ vault_shasums }}" | awk '{print $1}'
+  command: grep "{{ vault_pkg }}" "{{ role_path }}/files/{{ vault_shasums }}" | awk '{print $1}'
   become: no
   run_once: true
   register: vault_sha256

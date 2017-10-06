@@ -1,1 +1,3 @@
 .terraform
+# we store our cannonical packer templates in yaml only
+packer/**/*.json

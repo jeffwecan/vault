@@ -4,75 +4,113 @@ SERVER_CM_TAG		:= "v3.31"
 TLS_OWNER			?= "root"
 PACKER_IMAGE		:= wpengine/packer
 ANSIBLE_TEST_IMAGE	:= wpengine/ansible
-ACCOUNTS			:= production corporate
+ACCOUNTS			:= development corporate
 
 MARKDOWN_LINTER := wpengine/mdl
 
-all: lint test build-images deploy
+# default is meant to generally map to Jenkinsfile/pipeline for anything other than the master branch
+default: lint test terraform-plan
 
-lint: markdownlint ansiblelint
+# all is meant to generally map to Jenkinsfile/pipeline for the master branch (minus deploying to prod ;P)
+all: lint test packer-build-ami terraform-apply-development smoke-development
+
+lint: markdownlint ansible-lint yamllint
+test: test-packer
+
+# ~*~*~*~* Linter Tasks *~*~*~*~
 # Run markdown analysis tool.
-markdownlint: | pull-linters
+markdownlint:
 	@echo
 	# Running markdownlint against all markdown files in this project...
-	@docker run -v `pwd`:/workspace ${MARKDOWN_LINTER} /workspace
+	docker run --rm \
+		--volume $(PWD):/workspace \
+		${MARKDOWN_LINTER} /workspace
 	@echo
 	# Successfully linted Markdown.
 
-# Pull down our mdl image.
-pull-linters:
-	docker pull ${MARKDOWN_LINTER}
-
-build-images: build-test-image build-ami
-
-test: | test-packer
-	docker run -v $(PWD)/terraform/modules/generate-tls-cert:/workspace -v $(PWD)/artifacts:/artifacts -w /workspace wpengine/terraform \
-		terraform destroy \
-		-var-file variables.json \
-		-var 'private_key_file_path=/artifacts/vault.key.pem' \
-		-var 'ca_public_key_file_path=/artifacts/vault.ca.crt.pem' \
-		-var 'public_key_file_path=/artifacts/vault.crt.pem' \
-		-var owner=$(TLS_OWNER) \
-		-force
-
-ansiblelint:
-	docker run \
-		-v $(PWD)/ansible:/workspace \
+ansible-lint:
+	@echo
+	# Running ansible-lint against all ansible playbooks in this project...
+	docker run --rm \
+		--volume $(PWD)/ansible:/workspace \
 		$(ANSIBLE_TEST_IMAGE):latest \
-		-p -x ANSIBLE0004,ANSIBLE0006,ANSIBLE0016,ANSIBLE0018 -v \
+		ansible-lint -p -x ANSIBLE0004,ANSIBLE0006,ANSIBLE0016,ANSIBLE0018 -v \
 		/workspace/local.yml
+	@echo
+	# Successfully linted ansible.
 
-test-packer: | build-test-image
-	@echo "=====> I'm like calling packer and testing the results or something here <====="
-	docker run -v $(PWD)/tests/testinfra:/tests \
+yamllint: | lint-packer-template
+	@echo
+	# Running yamllint against all yaml in this project... or not... (.terraform get ends up with a bunch of malformed yaml as-is)
+	#docker run --rm \
+	#	--volume $(PWD):/workspace \
+	#	wpengine/yamllint:latest \
+	#	/workspace
+	@echo
+	# Successfully linted yaml.
+
+lint-packer-template:
+	@echo
+	# Running yamllint against packer template
+	docker run --rm \
+		--volume $(PWD)/packer:/workspace \
+		wpengine/yamllint:latest \
+			/workspace
+	@echo
+	# Successfully linted yaml.
+
+# ~*~*~*~* Test Tasks *~*~*~*~
+test-packer: | packer-build-image
+	docker run --volume $(PWD)/tests/testinfra:/tests \
 		wpengine/vault-packer:$(VERSION) \
 		py.test -v /tests
 
-clean:
-	rm -rvf artifacts/*
-	find . -name '.terraform' -type d -exec rm -rfv {} \;
+# ~*~*~*~* Smoke Tasks *~*~*~*~
+smoke-: $(addprefix smoke-, $(ACCOUNTS))
+smoke-%: |
+	echo "This is where we would smoke $(*) if we got em"
 
-	docker run -v $(PWD)/terraform/modules/generate-tls-cert:/workspace -v $(PWD)/artifacts:/artifacts -w /workspace wpengine/terraform \
+# ~*~*~*~* Utility Tasks *~*~*~*~
+clean: | ensure-tls-certs-get
+	rm -rvf artifacts/*
+	find packer \! -name 'variables.json' -a -name '*.json' -print
+#	find . -name '.terraform' -type d -exec rm -rfv {} \;
+
+	docker run --rm \
+		--volume $(PWD)/terraform/modules/generate-tls-cert:/workspace \
+		--volume $(PWD)/artifacts:/artifacts \
+		--workdir=/workspace \
+		wpengine/terraform \
 		terraform destroy \
-		-var-file variables.json \
-		-var 'private_key_file_path=/artifacts/vault.key.pem' \
-		-var 'ca_public_key_file_path=/artifacts/vault.ca.crt.pem' \
-		-var 'public_key_file_path=/artifacts/vault.crt.pem' \
-		-var owner=$(TLS_OWNER) \
-		-force
+			-var-file variables.json \
+			-var 'private_key_file_path=/artifacts/vault.key.pem' \
+			-var 'ca_public_key_file_path=/artifacts/vault.ca.crt.pem' \
+			-var 'public_key_file_path=/artifacts/vault.crt.pem' \
+			-var owner=$(TLS_OWNER) \
+			-force
 
 ensure-artifacts-dir:
 	mkdir -p artifacts
 
 ensure-tls-certs-init:
-	docker run -v $(PWD)/terraform/modules/generate-tls-cert:/workspace -w /workspace wpengine/terraform terraform init
+	docker run --rm \
+		--volume $(PWD)/terraform/modules/generate-tls-cert:/workspace \
+		--workdir=/workspace \
+		wpengine/terraform \
+		terraform init
 
 ensure-tls-certs-get: ensure-tls-certs-init
-	docker run -v $(PWD)/terraform/modules/generate-tls-cert:/workspace -w /workspace wpengine/terraform terraform get
+	docker run --rm \
+		--volume $(PWD)/terraform/modules/generate-tls-cert:/workspace \
+		--workdir=/workspace wpengine/terraform \
+		terraform get
 
 ensure-tls-certs-apply: ensure-artifacts-dir ensure-tls-certs-get
 	@echo "=====> Using private-tls-cert module to ensure certs <====="
-	docker run -v $(PWD)/terraform/modules/generate-tls-cert:/workspace -v $(PWD)/artifacts:/artifacts -w /workspace wpengine/terraform \
+	docker run --rm \
+		--volume $(PWD)/terraform/modules/generate-tls-cert:/workspace \
+		--volume $(PWD)/artifacts:/artifacts \
+		--workdir=/workspace wpengine/terraform \
 		terraform apply \
 		-var-file variables.json \
 		-var 'private_key_file_path=/artifacts/vault.key.pem' \
@@ -80,37 +118,27 @@ ensure-tls-certs-apply: ensure-artifacts-dir ensure-tls-certs-get
 		-var 'public_key_file_path=/artifacts/vault.crt.pem' \
 		-var owner=$(TLS_OWNER)
 
-build-ami: | build-packer-image ensure-tls-certs-apply
-	@echo "=====> Packer'ing up an AMI <====="
-	docker run \
-		-v $(PWD):/workspace \
-		-v $(PWD)/artifacts:/artifacts \
-		-w /workspace \
-		-e AWS_ACCESS_KEY_ID \
-		-e AWS_SECRET_ACCESS_KEY \
-		$(PACKER_IMAGE):latest \
-			build \
-			-except=vault-ubuntu-16.04-docker \
-			-var version=$(VERSION) \
-			-var-file packer/vault-consul-ami/variables.json \
-			-var 'tls_private_key_path=/artifacts/vault.key.pem' \
-			-var 'ca_public_key_path=/artifacts/vault.ca.crt.pem' \
-			-var 'tls_public_key_path=/artifacts/vault.crt.pem' \
-			packer/vault-consul-ami/vault-consul.json
-	# TODO add packer profile to jenkins nodes IAM instance role
+packer-yaml-to-json:
+	@echo
+	# Running yamllint against packer template
+	docker run --rm \
+		-i \
+		--entrypoint="" \
+		--workdir=/workspace \
+		--volume $(PWD)/packer:/workspace \
+		wpengine/yamllint:latest \
+			python /workspace/yaml2json.py vault-consul-ami/vault-consul.yaml
+	@echo
+	# Successfully linted yaml.
 
-run-test-image-base:
-	# This should go else where if we want to use it, maybe in a wpengine/ansible:16.04 image that also includes ansiblelint?
-	docker run -it $(ANSIBLE_TEST_IMAGE):latest /bin/bash
-
-build-test-image: | ensure-tls-certs-apply
+# ~*~*~*~* Packer Tasks *~*~*~*~
+packer-build-image: | packer-yaml-to-json ensure-tls-certs-apply
 	@echo "=====> Packer'ing up an docker image <====="
-	docker run \
-		--rm \
-		-v /var/run/docker.sock:/var/run/docker.sock \
-		-v $(PWD):/workspace \
-		-v $(PWD)/artifacts:/artifacts \
-		-w /workspace \
+	docker run --rm \
+		--volume /var/run/docker.sock:/var/run/docker.sock \
+		--volume $(PWD):/workspace \
+		--volume $(PWD)/artifacts:/artifacts \
+		--workdir=/workspace \
 		$(PACKER_IMAGE):latest \
 		build \
 			-except=vault-ubuntu-16.04-ami \
@@ -122,35 +150,49 @@ build-test-image: | ensure-tls-certs-apply
 			-var 'test_image_name=$(ANSIBLE_TEST_IMAGE)' \
 			packer/vault-consul-ami/vault-consul.json
 
-display-ami:
-	@echo "Testing deploys?"
-#	aws ec2 describe-images --region us-east-1 --filter "Name=name,Values=$(AMI_NAME)" --query 'Images[0].ImageId' --output text
-	$(eval AMI_ID := $(aws ec2 describe-images --region us-east-1 --filter "Name=name,Values=$(AMI_NAME)" --query 'Images[0].ImageId' --output text))
-	echo "AMI is: $(AMI_ID)"
+packer-build-ami: | packer-yaml-to-json ensure-tls-certs-apply
+	@echo "=====> Packer'ing up an AMI <====="
+	docker run --rm \
+		--volume $(PWD):/workspace \
+		--volume $(PWD)/artifacts:/artifacts \
+		--workdir=/workspace \
+		--env AWS_ACCESS_KEY_ID \
+		--env AWS_SECRET_ACCESS_KEY \
+		$(PACKER_IMAGE):latest \
+			build \
+			-except=vault-ubuntu-16.04-docker \
+			-var version=$(VERSION) \
+			-var-file packer/vault-consul-ami/variables.json \
+			-var 'tls_private_key_path=/artifacts/vault.key.pem' \
+			-var 'ca_public_key_path=/artifacts/vault.ca.crt.pem' \
+			-var 'tls_public_key_path=/artifacts/vault.crt.pem' \
+			packer/vault-consul-ami/vault-consul.json
+	# TODO add packer profile to jenkins nodes IAM instance role
 
+# ~*~*~*~* Terraform Tasks *~*~*~*~
 terraform-init-: $(addprefix terraform-init-, $(ACCOUNTS))
 terraform-init-%:
-	docker run \
+	docker run --rm \
 		--workdir=/workspace \
-		-v $(PWD)/terraform/aws/$(*):/workspace \
-		-v $(HOME)/.ssh/github_rsa:/root/.ssh/id_rsa \
-		-v $(HOME)/.ssh/known_hosts:/root/.ssh/known_hosts \
-		-e GIT_TRACE=1 \
-		-e AWS_ACCESS_KEY_ID \
-		-e AWS_SECRET_ACCESS_KEY \
+		--volume $(PWD)/terraform/aws/$(*):/workspace \
+		--volume $(HOME)/.ssh/github_rsa:/root/.ssh/id_rsa \
+		--volume $(HOME)/.ssh/known_hosts:/root/.ssh/known_hosts \
+		--env GIT_TRACE=1 \
+		--env AWS_ACCESS_KEY_ID \
+		--env AWS_SECRET_ACCESS_KEY \
 		wpengine/terraform \
 		terraform init .
 
 terraform-get-: $(addprefix terraform-get-, $(ACCOUNTS))
 terraform-get-%: | terraform-init-%
-	docker run \
+	docker run --rm \
 		--workdir=/workspace \
-		-v $(PWD)/terraform/aws/$(*):/workspace \
-		-v $(HOME)/.ssh/github_rsa:/root/.ssh/id_rsa \
-		-v $(HOME)/.ssh/known_hosts:/root/.ssh/known_hosts \
-		-e GIT_TRACE=1 \
-		-e AWS_ACCESS_KEY_ID \
-		-e AWS_SECRET_ACCESS_KEY \
+		--volume $(PWD)/terraform/aws/$(*):/workspace \
+		--volume $(HOME)/.ssh/github_rsa:/root/.ssh/id_rsa \
+		--volume $(HOME)/.ssh/known_hosts:/root/.ssh/known_hosts \
+		--env GIT_TRACE=1 \
+		--env AWS_ACCESS_KEY_ID \
+		--env AWS_SECRET_ACCESS_KEY \
 		wpengine/terraform \
 		terraform get .
 
@@ -158,13 +200,13 @@ terraform-plan-: $(addprefix terraform-plan-, $(ACCOUNTS))
 terraform-plan-%: | terraform-get-%
 	docker run \
 		--workdir=/workspace \
-		-v $(PWD)/terraform/aws/$(*):/workspace \
-		-e GIT_SSH_COMMAND="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" \
-		-v $(HOME)/.ssh/github_rsa:/root/.ssh/id_rsa \
-		-v $(HOME)/.ssh/known_hosts:/root/.ssh/known_hosts \
-		-e GIT_TRACE=1 \
-		-e AWS_ACCESS_KEY_ID \
-		-e AWS_SECRET_ACCESS_KEY \
+		--volume $(PWD)/terraform/aws/$(*):/workspace \
+		--env GIT_SSH_COMMAND="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" \
+		--volume $(HOME)/.ssh/github_rsa:/root/.ssh/id_rsa \
+		--volume $(HOME)/.ssh/known_hosts:/root/.ssh/known_hosts \
+		--env GIT_TRACE=1 \
+		--env AWS_ACCESS_KEY_ID \
+		--env AWS_SECRET_ACCESS_KEY \
 		wpengine/terraform \
 		terraform plan .
 
@@ -172,13 +214,13 @@ terraform-apply-: $(addprefix terraform-apply-, $(ACCOUNTS))
 terraform-apply-%: | terraform-plan-%
 	docker run \
 		--workdir=/workspace \
-		-v $(PWD)/terraform/aws/$(*):/workspace \
-		-e GIT_SSH_COMMAND="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" \
-		-v $(HOME)/.ssh/github_rsa:/root/.ssh/id_rsa \
-		-v $(HOME)/.ssh/known_hosts:/root/.ssh/known_hosts \
-		-e GIT_TRACE=1 \
-		-e AWS_ACCESS_KEY_ID \
-		-e AWS_SECRET_ACCESS_KEY \
+		--volume $(PWD)/terraform/aws/$(*):/workspace \
+		--env GIT_SSH_COMMAND="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" \
+		--volume $(HOME)/.ssh/github_rsa:/root/.ssh/id_rsa \
+		--volume $(HOME)/.ssh/known_hosts:/root/.ssh/known_hosts \
+		--env GIT_TRACE=1 \
+		--env AWS_ACCESS_KEY_ID \
+		--env AWS_SECRET_ACCESS_KEY \
 		wpengine/terraform \
 		terraform apply .
 
@@ -187,16 +229,12 @@ terraform-destroy-%: | terraform-get-%
 	docker run \
 		-it \
 		--workdir=/workspace \
-		-v $(PWD)/terraform/aws/$(*):/workspace \
-		-e GIT_SSH_COMMAND="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" \
-		-v $(HOME)/.ssh/github_rsa:/root/.ssh/id_rsa \
-		-v $(HOME)/.ssh/known_hosts:/root/.ssh/known_hosts \
-		-e GIT_TRACE=1 \
-		-e AWS_ACCESS_KEY_ID \
-		-e AWS_SECRET_ACCESS_KEY \
+		--volume $(PWD)/terraform/aws/$(*):/workspace \
+		--env GIT_SSH_COMMAND="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" \
+		--volume $(HOME)/.ssh/github_rsa:/root/.ssh/id_rsa \
+		--volume $(HOME)/.ssh/known_hosts:/root/.ssh/known_hosts \
+		--env GIT_TRACE=1 \
+		--env AWS_ACCESS_KEY_ID \
+		--env AWS_SECRET_ACCESS_KEY \
 		wpengine/terraform \
 		terraform destroy .
-
-smoke-: $(addprefix smoke-, $(ACCOUNTS))
-smoke-%: |
-	echo "This is where we would smoke $(*) if we got em"

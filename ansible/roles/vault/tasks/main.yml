@@ -17,8 +17,8 @@
     shell: /usr/sbin/nologin
     state: present
 
-- name: Import install vault tasks
-  import_tasks: install.yml
+#- name: Import install vault tasks
+#  include: install.yml
 
 # DEPRECATED EH???
 #- name: Gather about currently running instance
@@ -26,7 +26,7 @@
 #  when: packer_builder_type is not defined or packer_builder_type == 'amazon-ebs'
 
 - name: Import nginx tasks
-  import_tasks: nginx.yml
+  include: nginx.yml
 
 - name: Ensure vault config directory
   file:

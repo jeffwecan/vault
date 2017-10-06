@@ -21,6 +21,10 @@ node('docker') {
 					sh 'make ansiblelint'
 				}
 
+                stage('Lint Yaml') {
+					sh 'make yamllint'
+				}
+
                 stage('Test') {
                      sh 'make test'
                 }

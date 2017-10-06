@@ -1,0 +1,71 @@
+min_packer_version: 0.12.0
+variables:
+  aws_region: us-east-1
+  vault_version: 0.8.2
+  consul_module_version: v0.0.2
+  server_cm_version: v3.31
+  consul_version: 0.9.3
+  ca_public_key_path: null
+  tls_public_key_path: null
+  tls_private_key_path: null
+  version: ''
+builders:
+  - name: vault-ubuntu-16.04-ami
+    ami_name: vault-consul-ubuntu-{{ user `version` | clean_ami_name}}
+    ami_description: An Ubuntu 16.04 AMI that has Vault and Consul installed.
+    instance_type: t2.micro
+    region: '{{user `aws_region`}}'
+    type: amazon-ebs
+    encrypt_boot: true
+    source_ami_filter:
+      filters:
+        virtualization-type: hvm
+        architecture: x86_64
+        name: '*ubuntu-xenial-16.04-amd64-server-*'
+        block-device-mapping.volume-type: gp2
+        root-device-type: ebs
+      owners:
+        - 099720109477
+      most_recent: true
+    ssh_username: ubuntu
+  - name: vault-ubuntu-16.04-docker
+    type: docker
+    image: '{{user `test_image_name`}}:latest'
+    pull: false
+    commit: true
+    changes:
+      - ENV WPE_DEPLOY_LOG_DIR /artifacts
+      - ENV JUNIT_OUTPUT_DIR /test-results
+      - VOLUME artifacts/test-results /test-results
+      - CMD /usr/bin/supervisord
+provisioners:
+  - type: shell
+    inline:
+      - sudo apt update
+      - sudo apt dist-upgrade
+      - sudo apt install -y python-pip
+      - sudo pip install ansible
+#      - sudo pip install junit_xml
+#      - mkdir -p ~/.ansible/plugins/callback/
+#      - mkdir /tmp/artifacts/
+  - type: file
+    source: '{{user `ca_public_key_path`}}'
+    destination: /tmp/ca.crt.pem
+  - type: file
+    source: '{{user `tls_public_key_path`}}'
+    destination: /tmp/vault.crt.pem
+  - type: file
+    source: '{{user `tls_private_key_path`}}'
+    destination: /tmp/vault.key.pem
+  - type: ansible-local
+    playbook_file: '{{ template_dir }}/../../ansible/local.yml'
+    playbook_dir: '{{ template_dir }}/../../ansible/'
+    role_paths: '{{ template_dir }}/../../ansible/roles'
+#    command: ANSIBLE_FORCE_COLOR=1 PYTHONUNBUFFERED=1 WPE_DEPLOY_LOG_DIR=/tmp/artifacts
+#        ANSIBLE_CALLBACK_PLUGINS=/ansible-callbacks ansible-playbook -vvv --become
+post-processors:
+  - type: docker-tag
+    repository: wpengine/vault-packer
+    tag: '{{ user `version` }}'
+    only:
+      - vault-ubuntu-16.04-docker
