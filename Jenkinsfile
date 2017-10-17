@@ -14,16 +14,8 @@ node('docker') {
         // IMAGE_TAG is used in docker-compose to ensure uniqueness of containers and networks.
         withEnv(["IMAGE_TAG=${IMAGE_TAG}", "TLS_OWNER=${TLS_OWNER}"]) {
             try {
-                stage('Lint Markdown') {
-					sh 'make markdownlint'
-				}
-
-                stage('Lint Ansible') {
-					sh 'make ansible-lint'
-				}
-
-                stage('Lint Yaml') {
-					sh 'make yamllint'
+                stage('Lint') {
+					sh 'make lint'
 				}
 
                 stage('Test') {
