@@ -10,6 +10,7 @@ node('docker') {
         String  IMAGE_NAME = "vault${IMAGE_TAG}"
 		String	TLS_OWNER = "root"
 		String	hipchatRoom = "Vault Monitoring"
+		String	masterBranch = "terraform_vault" // some day master?
         // IMAGE_TAG is used in docker-compose to ensure uniqueness of containers and networks.
         withEnv(["IMAGE_TAG=${IMAGE_TAG}", "TLS_OWNER=${TLS_OWNER}"]) {
             try {
@@ -29,7 +30,7 @@ node('docker') {
                      sh 'make test'
                 }
 
-                if (env.BRANCH_NAME == 'master') {  // if BRANCH_NAME == some_dev_branch and/or some_master_branch?
+                if (env.BRANCH_NAME == masterBranch) {  // if BRANCH_NAME == some_dev_branch and/or some_master_branch?
 					def packerCredentials = [
 						string(credentialsId: 'AWS_ACCESS_KEY_ID_DEV', variable: 'AWS_ACCESS_KEY_ID'),
 						string(credentialsId: 'AWS_SECRET_ACCESS_KEY_DEV', variable: 'AWS_SECRET_ACCESS_KEY'),
@@ -54,7 +55,7 @@ node('docker') {
 						sh 'make smoke-dev'
 					}
 
-					stage('Deploy to Production') {
+					stage('Deploy(plan) to Production') {
 						terraform.plan {
 							terraformDir = "./terraform/aws/corporate"
 							hipchatRoom = hipchatRoom
@@ -81,7 +82,7 @@ node('docker') {
 					}
                 }
             } catch (error) {
-				if (env.BRANCH_NAME == 'master') {
+				if (env.BRANCH_NAME == masterBranch) {
 					hipchat.notify {
 						room = hipchatRoom
 						status = 'FAILED'
