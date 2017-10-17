@@ -69,7 +69,7 @@ provisioners:
       - '{{ template_dir }}/../../ansible/server_cm_roles/zabbix-agent/'
       - '{{ template_dir }}/../../ansible/server_cm_roles/ldap-client/'
       - '{{ template_dir }}/../../ansible/server_cm_roles/security/'
-#    command: 'ANSIBLE_FORCE_COLOR=1 PYTHONUNBUFFERED=1 ansible-playbook -vvv'
+    command: 'ANSIBLE_FORCE_COLOR=1 PYTHONUNBUFFERED=1 ansible-playbook -vvv'
 #    command: ANSIBLE_FORCE_COLOR=1 PYTHONUNBUFFERED=1 WPE_DEPLOY_LOG_DIR=/tmp/artifacts
 #        ANSIBLE_CALLBACK_PLUGINS=/ansible-callbacks ansible-playbook -vvv --become
 post-processors:
