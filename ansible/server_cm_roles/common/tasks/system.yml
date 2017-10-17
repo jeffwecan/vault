@@ -6,8 +6,13 @@
 - name: Ensure /etc/localtime symlink
   file: src=/usr/share/zoneinfo/{{ localtime }} dest=/etc/localtime owner=root group=root state=link force=yes
 
-- name: ensure /etc/timezone...
-  template: src=etc/timezone dest=/etc/timezone owner=root group=root mode=0644
+#- name: ensure /etc/timezone...
+#  template:
+#    src: etc/timezone
+#    dest: /etc/timezone
+#    owner: root
+#    group: root
+#    mode: 0644
 
 #- name: ensure /etc/resolv.conf
 #  template:
