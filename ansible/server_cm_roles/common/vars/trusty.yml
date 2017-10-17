@@ -1,0 +1,32 @@
+---
+# Ubuntu 14.04 Trusty Tahr variables
+
+apache_packages:
+    - apache2-mpm-prefork
+    - apache2
+
+percona_version: 5.6
+
+php_cli_version: 5.5
+php_cli_conf_path: /etc/php5/cli
+php_cli_avail_path: /etc/php5/mods-available
+
+php_wpcli_version: 5.5
+
+php_usr_lib: /usr/lib/php5/20121212
+
+php_packages:
+    - php5-cli
+    - php5-curl
+    - php5-dev
+    - php5-gd
+    - php5-imap
+    - php5-ldap
+    - php5-memcached
+    - php5-memcache
+    - php5-mcrypt
+    - php5-mysql
+    - php5-runkit
+    - php5-xmlrpc
+    - php5-xsl
+    - libssh2-php

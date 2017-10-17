@@ -1,0 +1,18 @@
+{% for network in cluster.networks %}
+{%   if network.startswith("10.") %}
+{%     set parts = network.split('.') %}
+{%     set ssh_network = "{}.{}.192.0/18".format(parts[0], parts[1]) %}
+{%     if my.server.type == 'apache' %}
+-I INPUT -s {{ ssh_network }} -p tcp --dport 11211 -m comment --comment "330 ALLOW MEMCACHE FROM Shared VPC" -j ACCEPT
+-I INPUT -s {{ ssh_network }} -p tcp --dport 9002 -m comment --comment "330 ALLOW VARNISH FROM Shared VPC" -j ACCEPT
+{%     elif my.server.type == 'storage' %}
+-I INPUT -s {{ ssh_network }} -p tcp --dport 2049 -m comment --comment "330 ALLOW NFS FROM Shared VPC" -j ACCEPT
+-I INPUT -s {{ ssh_network }} -p udp --dport 2049 -m comment --comment "330 ALLOW NFS FROM Shared VPC" -j ACCEPT
+-I INPUT -s {{ ssh_network }} -p udp --dport 111 -m comment --comment "330 ALLOW NFS FROM Shared VPC" -j ACCEPT
+-I INPUT -s {{ ssh_network }} -p tcp --dport 111 -m comment --comment "330 ALLOW NFS FROM Shared VPC" -j ACCEPT
+-I INPUT -s {{ ssh_network }} -p tcp --dport 38465:38467 -m comment --comment "330 ALLOW Gluster NFS FROM Shared VPC" -j ACCEPT
+-I INPUT -s {{ ssh_network }} -p tcp --dport 24007:24010 -m comment --comment "330 ALLOW Gluster NFS FROM Shared VPC" -j ACCEPT
+-I INPUT -s {{ ssh_network }} -p tcp --dport 49152:65535 -m comment --comment "330 ALLOW Gluster NFS FROM Shared VPC" -j ACCEPT
+{%     endif %}
+{%   endif %}
+{% endfor %}

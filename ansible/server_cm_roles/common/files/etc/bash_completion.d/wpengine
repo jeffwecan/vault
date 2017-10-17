@@ -1,0 +1,12 @@
+function _wpe_sites()
+{
+      ls /nas/wp/www/sites/ 2>/dev/null
+}
+
+function _wpe()
+{
+        local cur prev words cword
+        _get_comp_words_by_ref cur prev
+        COMPREPLY=( $( compgen -W '$(_wpe_sites)' -- ${cur} ))
+}
+complete -F _wpe wpe

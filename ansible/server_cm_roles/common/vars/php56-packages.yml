@@ -1,0 +1,72 @@
+---
+# PHP 5.5 specific variables (override of common/defaults)
+php_apache_version: 5.5
+php_apache_module: php5
+php_apache_conf_path: /etc/php5/apache2
+php_apache_avail_path: /etc/php5/mods-available
+php_apache_pecl_modules: []
+
+php_cgi_version: 5.5
+php_cgi_conf_path: /etc/php5/cgi
+php_cgi_avail_path: /etc/php5/mods-available
+
+php_cli_version: 5.5
+php_cli_conf_path: /etc/php5/cli
+php_cli_avail_path: /etc/php5/mods-available
+
+php_wpcli_version: 5.5
+
+php_usr_lib: /usr/lib/php5/20121212
+
+php_web_packages:
+    - libapache2-mod-php5
+    - php5-imagick
+    - php5-redis
+    - php5-runkit
+    - php5-xdebug
+    - php5-ioncube-loader
+    - php5.6-runkit
+    - libapache2-mod-php5.6
+    - php-imagick
+    - php-redis
+    - php-xdebug
+    - php5.6-ioncube-loader
+
+php_packages:
+    - php5-cli
+    - php5-curl
+    - php5-dev
+    - php5-gd
+    - php5-imap
+    - php5-ldap
+    - php5-memcached
+    - php5-memcache
+    - php5-mcrypt
+    - php5-mysql
+    - php5-runkit
+    - php5-xmlrpc
+    - php5-xsl
+    - php-ssh2
+    - libssh2-php
+    - php5.6-cli
+    - php5.6-dev
+    - php5.6-bcmath
+    - php5.6-bz2
+    - php5.6-curl
+    - php5.6-dba
+    - php5.6-gd
+    - php5.6-imap
+    - php5.6-intl
+    - php5.6-ldap
+    - php5.6-mbstring
+    - php5.6-mcrypt
+    - php5.6-memcached
+    - php5.6-runkit
+    - php5.6-soap
+    - php5.6-xmlrpc
+    - php5.6-xsl
+    - php5.6-zip
+
+php_mysql_packages:
+    - php5-mysql
+    - php5.6-mysql

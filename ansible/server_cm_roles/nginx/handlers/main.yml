@@ -1,0 +1,27 @@
+---
+
+- name: nginx provisioning restart
+  service: name=nginx state=restarted
+  when: packer_builder_type is defined and packer_builder_type != "docker" and stat_cm_initial_flag.stat.exists
+
+- name: nginx reload
+  service: name=nginx state=reloaded
+  when: packer_builder_type is defined and packer_builder_type != "docker"
+
+- name: nginx upgrade configtest
+  command: nginx -t
+  ignore_errors: yes
+  register: nginx_config_test
+  changed_when: nginx_config_test.rc == 0
+  notify: nginx upgrade restart
+  when: nginx_version is defined
+
+- name: nginx upgrade restart
+  service: name=nginx state=restarted
+  when: nginx_version is defined
+
+- name: nginx start
+  service:
+    name: nginx
+    state: started
+  when: packer_builder_type is defined and packer_builder_type != "docker"

@@ -1,0 +1,5 @@
+---
+
+- name: debian iptables reload
+  command: /etc/network/if-pre-up.d/iptablesload
+  when: ansible_os_family == "Debian"

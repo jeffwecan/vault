@@ -1,0 +1,144 @@
+---
+
+imagemagick_etc_dir: ImageMagick
+
+percona_version: 5.5
+
+# Local logging
+apache_log_base: /var/log/apache2
+
+sysctl_fs_file_max: 131072
+sysctl_shmall: 2097152
+sysctl_shmmax: 1073741824
+sysctl_max_dgram_qlen: 1000
+
+overdrive1_ip: 52.72.94.186
+
+phpmyadmin_ips:
+- { ip: 52.207.184.58, hostname: phpmyadmin1.wpengine.io }
+- { ip: 52.3.39.45, hostname: phpmyadmin2.wpengine.io }
+
+cron_jobs: []
+group_packages: []
+
+timezone: Etc/UTC
+localtime: UTC
+
+datacenter_group: ""
+
+bash_timeout: 3600
+
+# These are defined in group_vars/* for groups of hosts:
+group_pip_packages: []
+group_pip3_packages: []
+
+# Additional pip packages we should install for a particular host.
+# These are defined in host_vars/$hostname.yml
+host_pip_packages: []
+host_pip3_packages: []
+
+# These are defined in group_vars/* for groups of hosts:
+group_gem_packages: []
+
+# List of tuples (e.g. {ip: 192.0.2.1, name: example-nat}) to be whitelisted for magic school bus
+magic_school_bus_whitelist: []
+
+# some corporate machines need more than our default
+php_cli_memory_limit: 2G
+
+php_cli_alternatives:
+  - { name: "php", path: "/usr/bin/php5" }
+  - { name: "phpize", path: "/usr/bin/phpize5" }
+  - { name: "php-config", path: "/usr/bin/php-config5" }
+
+php_cli_pecl_modules: []
+
+remove_php_packages: []
+
+php_web_packages:
+    - php5-ioncube-loader
+
+php_packages:
+    - php5-cli
+    - php5-curl
+    - php5-dev
+    - php5-gd
+    - php5-imap
+    - php5-ldap
+    - php5-memcached
+    - php5-memcache
+    - php5-mcrypt
+    - php5-mysql
+    - php5-runkit
+    - php5-xmlrpc
+    - libssh2-php
+
+rsyslogd_packages:
+    - rsyslog
+    - rsyslog-relp
+
+# tmpreaper default values
+tmpreaper_protect_extra: "/tmp/#sql_*"
+tmpreaper_dirs: "/tmp/. /var/tmp/. /var/spool/proxsmtp/."
+tmpreaper_delay: 256
+tmpreaper_options: ""
+tmpreaper_time: 7d
+
+# Microservice Discovery Done Poorly:
+# Domain Mapper
+dms_base_url: https://dms.wpengine.io
+
+# Microservice Discovery Still Done Poorly:
+# Rassle
+rassle_base_url: https://rassle.wpengine.io
+
+fluentd_log_level: fatal
+fluentd_gcp_key: '{{ creds.fluentd.gcp_key }}'
+fluentd_shared_key: '{{ creds.fluentd.shared_key }}'
+fluentd_user: '{{ creds.fluentd.user }}'
+fluentd_pass: '{{ creds.fluentd.pass }}'
+fluentd_syslog_port: 5140
+fluentd_bq_flush_interval: 1
+fluentd_flush_interval: 3s
+fluentd_accesslog_dataset: access_logs
+fluentd_syslog_dataset: syslogs
+fluentd_log_dataset: fluentd_logs
+fluentd_apacheerrorlog_dataset: apache_error_logs
+fluentd_project: wp-engine-data
+fluentd_wpcli_dataset: wpcli
+
+api2_client: "https://api2.wpengine.com"
+
+postfix_domain: wpengine.com
+# CMWP-748: support multiple creds sources during staggered rollout
+# TODO: delete these variables and reference mail.wpengine.com credentials directly in main.cf template
+postfix_relay_username: '{{ creds.mailgun.postfix_relay_username }}'
+postfix_relay_password: '{{ creds.mailgun.postfix_relay_password }}'
+
+td_agent_pin_version: '2'  # current stable major ver for fluentd (v0.12)
+td_agent_gemfile_path: /etc/td-agent/Gemfile
+td_agent_gem_path: /opt/td-agent/embedded/bundler/{{ td_agent_pin_version }}
+
+#cluster: {}
+my:
+  server:
+    name: "wpengine-common-server"
+  cluster: {}
+
+creds:
+  mailgun:
+    postfix_relay_username: ''
+    postfix_relay_password: ''
+  postfix: {}
+  dev_mystaging_wpengine_com:
+    site: 'derp'
+  dms: {}
+
+wpengine_domain: wpenginedev.com
+
+is_development: true
+is_farm: true
+postfix_msg_size_limit: 10240000
+is_vagrant: false
+
+fluentd_enabled: false

@@ -1,0 +1,67 @@
+# See /usr/share/postfix/main.cf.dist for a commented, more complete version
+
+smtpd_banner = $myhostname ESMTP $mail_name (Ubuntu)
+biff = no
+readme_directory = no
+
+# appending .domain is the MUA's job.
+append_dot_mydomain = no
+
+# TLS parameters
+# See /usr/share/doc/postfix/TLS_README.gz in the postfix-doc package for
+# information on enabling SSL in the smtp client.
+#smtpd_tls_CAfile=/etc/ssl/certs/ca-certificates.crt
+#smtpd_tls_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem
+#smtpd_tls_key_file=/etc/ssl/private/ssl-cert-snakeoil.key
+#smtpd_use_tls=yes
+#smtpd_tls_session_cache_database = btree:${data_directory}/smtpd_scache
+#smtp_tls_session_cache_database = btree:${data_directory}/smtp_scache
+
+# Custom settings
+myhostname = {{ my.server.name }}
+myorigin = {{ postfix_domain }}
+append_at_myorigin = no
+{% if is_development is defined and is_development %}{# Disable external relaying in dev #}
+mydestination = $myhostname, pcre:/etc/postfix/virtual_domains.pcre
+virtual_alias_maps = pcre:/etc/postfix/virtual_aliases.pcre
+relayhost =
+{% else %}{# BEGIN not is_development is defined and is_development #}
+{# Common SASL / TLS / etc settings for Mailgun and SendGrid both #}
+smtp_use_tls = yes
+smtp_sasl_auth_enable = yes
+smtp_sender_dependent_authentication = yes
+smtp_sasl_security_options = noanonymous
+smtp_tls_security_level = may
+local_transport = error:local deliver is disabled
+{% if is_farm %}{# Configure Mailgun for farm servers #}
+relayhost = [smtp.mailgun.org]:2525
+smtp_sasl_password_maps = static:{{ postfix_relay_username }}:{{ postfix_relay_password }}
+smtp_tls_CAfile=/etc/postfix/ssl/GeoTrust_Global_CA.pem
+{% elif creds.postfix is defined %}{# Configure SendGrid for Corporate #}
+relayhost = [{{ creds.postfix.relay_address }}]:{% if 'gce' in group_names %}2525{% else %}{{ creds.postfix.relay_port }}{% endif %}
+{# newline required because of above trailing jinja endif #}
+
+smtp_sasl_password_maps = pcre:/etc/postfix/relay.pcre
+smtp_tls_CAfile=/etc/postfix/ssl/gd_bundle.crt
+{% endif %}{# End of Mailgun/SendGrid ifcheck #}
+{% endif %}{# END not is_development #}
+
+unknown_local_recipient_reject_code = 550
+content_filter = filter:[127.0.0.1]:10025
+receive_override_options = no_address_mappings
+
+mailbox_size_limit = 0
+recipient_delimiter = +
+
+inet_interfaces = all
+inet_protocols = all
+
+message_size_limit = {{ postfix_msg_size_limit }}
+header_size_limit = 4096000
+
+header_checks = pcre:/etc/postfix/headers.pcre
+sender_canonical_maps = pcre:/etc/postfix/sender.pcre
+recipient_canonical_maps = pcre:/etc/postfix/recipient.pcre
+{% if ansible_distribution_version|float >= 16.04 %}
+compatibility_level = 2
+{% endif %}

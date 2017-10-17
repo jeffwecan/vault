@@ -1,0 +1,24 @@
+#!/bin/bash
+# This is the script that loads iptables rules for a server.
+# Global rules live in /etc/wpengine/iptables|ip6tables/
+# Site-specific rules live in /nas/config/iptables|ip6tables/
+#
+# The find command below finds all files in the two paths listed,
+# sorts them by their basenames, then cats all of their contents into iptables-restore
+
+rm -f /etc/iptables.rules
+
+# Reload IPv4 iptables rules
+# /nas doesn't always exist when this script is run, so don't scan the dir if it does not exist.
+[[ -d /nas/config/iptables ]] && site_configs='/nas/config/iptables/' || site_configs=''
+find /etc/wpengine/iptables/ $site_configs -type f -not -name '.*' 2>/dev/null \
+| while read i; do dirname $i | tr '\n' ' '; basename $i; done \
+| sort -nk2 | tr ' ' '/' | xargs cat | /sbin/iptables-restore
+
+# Reload IPv6 iptables rules
+[[ -d /nas/config/ip6tables ]] && site_configs='/nas/config/ip6tables/' || site_configs=''
+find /etc/wpengine/ip6tables/ $site_configs -type f -not -name '.*' 2>/dev/null \
+| while read i; do dirname $i | tr '\n' ' '; basename $i; done \
+| sort -nk2 | tr ' ' '/' | xargs cat | /sbin/ip6tables-restore
+
+exit 0

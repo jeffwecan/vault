@@ -1,0 +1,26 @@
+---
+
+- name: /etc/security/pwquality.conf
+  copy:
+    src: etc/security/pwquality.conf
+    dest: /etc/security/pwquality.conf
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Create local cracklib dictionary path
+  file:
+    path: /usr/local/share/dict
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Copy local cracklib dictionary
+  copy:
+    src: usr/local/share/dict/cracklib
+    dest: /usr/local/share/dict/cracklib
+    owner: root
+    group: root
+    mode: 0644
+

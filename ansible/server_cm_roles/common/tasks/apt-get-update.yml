@@ -1,0 +1,31 @@
+---
+
+# This task is meant to replace apt: ... update_cache=yes
+# Instead of specifying update_cache in all of your apt: tasks,
+# include this task to call `apt-get update` only once.
+# Transient apt failures are one of the most frequent failures we see, so these
+# tasks try to mitigate that by retrying a few times.
+#
+# This task does NOT fail if apt-get update fails, so (hopefully, temporary)
+# failures in your apt sources shouldn't fail the whole Ansible playbook.
+
+- name: "Wait for apt lock (2 min)"
+  command: "timeout -k 9s 5s bash -c '! fuser -u /var/lib/dpkg/lock'"
+  register: result
+  until: result.rc == 0
+  retries: 12
+  delay: 10
+  changed_when: False
+  tags: packages
+  check_mode: no
+
+- name: apt-get update
+  apt:
+    update_cache: yes
+  when: ansible_os_family == "Debian"
+  register: result
+  until: result.failed is not defined
+  retries: 3
+  delay: 30
+  tags:
+    - packages

@@ -1,0 +1,66 @@
+---
+
+- name: Install rkhunter...
+  action: "{{ ansible_pkg_mgr }} state=installed name={{ item }}"
+  with_items:
+   - rkhunter
+
+- name: Ensure /etc/rsyslog.d/rkhunter.conf...
+  copy:
+    src: "etc/rsyslog.d/rkhunter.conf"
+    dest: "/etc/rsyslog.d/rkhunter.conf"
+    owner: "root"
+    group: "root"
+    mode: 0644
+  notify: Restart rsyslog
+
+- name: Change rkhunter email recipient for cron...
+  lineinfile:
+    dest: "/etc/default/rkhunter"
+    regexp: '^REPORT_EMAIL='
+#    line: "REPORT_EMAIL='techops-us@wpengine.com'"
+    line: "REPORT_EMAIL=''"
+
+- name: Enable daily rkhunter scans for cron...
+  lineinfile:
+    dest: "/etc/default/rkhunter"
+    regexp: '^CRON_DAILY_RUN='
+    line: "CRON_DAILY_RUN=yes"
+
+- name: Enable weekly rkhunter DB updates for cron...
+  lineinfile:
+    dest: "/etc/default/rkhunter"
+    regexp: '^CRON_DB_UPDATE='
+    line: "CRON_DB_UPDATE=yes"
+
+- name: Set rkhunter niceness for cron...
+  lineinfile:
+    dest: "/etc/default/rkhunter"
+    regexp: '^NICE='
+    line: "NICE=1"
+
+- name: Change rkhunter email recipient for rkhunter.conf...
+  lineinfile:
+    dest: "/etc/rkhunter.conf"
+    regexp: '^MAIL-ON-WARNING='
+#    line: "MAIL-ON-WARNING='techops-us@wpengine.com'"
+    line: "MAIL-ON-WARNING=''"
+
+- name: Set rkhunter syslog level...
+  lineinfile:
+    dest: "/etc/rkhunter.conf"
+    regexp: '^USE_SYSLOG='
+    line: "USE_SYSLOG=authpriv.warning"
+
+- name: Make rkhunter allow ssh as root...
+  lineinfile:
+    dest: "/etc/rkhunter.conf"
+    regexp: '^ALLOW_SSH_ROOT_USER='
+    line: "ALLOW_SSH_ROOT_USER=yes"
+
+- name: Make rkhunter allow remote syslog...
+  lineinfile:
+    dest: "/etc/rkhunter.conf"
+    regexp: '^ALLOW_SYSLOG_REMOTE_LOGGING='
+    line: "ALLOW_SYSLOG_REMOTE_LOGGING=1"
+

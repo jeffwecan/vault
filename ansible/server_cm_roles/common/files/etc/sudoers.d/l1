@@ -1,0 +1,10 @@
+User_Alias WPEL1 = %l1,%l2,%l3
+
+WPEL1 ALL=(root) \
+        /bin/netstat, \
+        /usr/bin/mytop
+
+WPEL1 ALL=(root) NOEXEC: \
+        /usr/bin/vi, \
+        /usr/bin/vim, \
+        /usr/bin/view

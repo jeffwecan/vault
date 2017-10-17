@@ -1,0 +1,22 @@
+- name: Install package
+  apt:
+    pkg: tmpreaper
+    state: present
+    update_cache: yes
+    cache_valid_time: "{{ cache_valid_time }}"
+
+- name: Push config file
+  template:
+    src: etc/tmpreaper.conf
+    dest: /etc/tmpreaper.conf
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Push cron.daily wrapper script
+  copy:
+    src: etc/cron.daily/tmpreaper
+    dest: /etc/cron.daily/tmpreaper
+    owner: root
+    group: root
+    mode: 0755

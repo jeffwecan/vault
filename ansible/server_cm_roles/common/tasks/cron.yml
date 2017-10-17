@@ -1,0 +1,29 @@
+---
+
+- name: Set /etc/crontab SHELL to bash
+  lineinfile:
+    line: 'SHELL=/bin/bash'
+    regexp: '^SHELL='
+    dest: /etc/crontab
+
+- name: Setup cron jobs
+  cron:
+    name: "{{ item.name }}"
+    job: "{{ item.job|default('') }}"
+    minute: "{{ item.minute|default('*') }}"
+    hour: "{{ item.hour|default('*') }}"
+    day: "{{ item.day|default('*') }}"
+    month: "{{ item.month|default('*') }}"
+    weekday: "{{ item.weekday|default('*') }}"
+    user: "{{ item.user|default('root') }}"
+    state: "{{ item.state|default('present') }}"
+  with_items: "{{ cron_jobs }}"
+
+- name: Use /bin/bash as the shell for cron jobs
+  lineinfile:
+    dest: "/var/spool/cron/crontabs/{{ item.user|default('root') }}"
+    insertbefore: BOF
+    line: "SHELL=/bin/bash"
+    state: present
+  with_items: "{{ cron_jobs }}"
+  when: "{{ cron_jobs | length }} > 0"

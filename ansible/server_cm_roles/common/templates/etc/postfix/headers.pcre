@@ -1,0 +1,7 @@
+{% if cluster.use_mailgun is defined %}
+/^Received:/ PREPEND X-Mailgun-Native-Send: yes
+{% else %}
+/^Received:/ PREPEND X-SendGrid-User: wpengine-{{ my.server.name }}
+{% endif %}
+/^X-WPE-Internal-ID:/ INFO
+/^X-Mailer:/ INFO

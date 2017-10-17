@@ -1,0 +1,3 @@
+# [original envelope To pattern]		[will be rewritten to]
+/^root$/                    sys@{{ wpengine_domain }}
+/^root@{{ postfix_domain }}$/               sys@{{ wpengine_domain }}

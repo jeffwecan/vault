@@ -5,11 +5,36 @@
 - name: Vault
   hosts: all
   connection: local
-  user: root
+  become_user: root
+  become: yes
+  become_method: sudo
 
   vars:
     - cache_valid_time: 600
     - nginx_wildcard_certificates: []
+    - use_manual_hosts: true
+    - is_farm: false
+    - failover_domain: "wpenginedev.com"
+    - pod_base: "wpenginedev.com"
+    - api1: "https://api.wpenginedev.com"
+    - api: "api.wpenginedev.com"
+    - api_domain: "api.wpenginedev.com"
+    - api2_client: "https://api2.wpenginedev.com"
+    - my:
+        server:
+          name: "{{ packer_build_name }}"
+          type: vault
+        cluster:
+          id: 1
+          datacenter: "{{ packer_builder_type }}"
+        roles: { vault: 1 }
+    - cluster:
+          datacenter: "{{ packer_builder_type }}"
+#    - creds:
+#        mailgun: {}
+#        postfix: {}
+#    - wpengine_domain: wpenginedev.com
+    - register_with_zabbix: false
 
   pre_tasks:
 #    - include: shared-load-vars.yml
@@ -22,12 +47,12 @@
   # CAUTION: Applying a when to a role also applies it to all the role's dependencies and handlers. A skipped role may
   # prevent the handlers or additional dependencies on that role from being executed later
   roles:
-#    - { role: common, tags: common }
-#    - { role: nginx }
-#    - { role: ldap-client, when: not is_vagrant }
+    - { role: common, tags: role_common }
+    - { role: nginx }
+    - { role: ldap-client, when: not is_vagrant }
     - { role: vault, tags: role_vault }
-#    - { role: security, tags: security }
-#    - { role: zabbix-agent, tags: zabbix, when: register_with_zabbix }
+    - { role: security, tags: security }
+    - { role: zabbix-agent, tags: zabbix, when: register_with_zabbix }
 
 #  post_tasks:
 #    - include: shared-post-tasks.yml

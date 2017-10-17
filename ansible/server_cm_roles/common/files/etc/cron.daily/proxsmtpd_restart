@@ -1,0 +1,2 @@
+#!/bin/sh
+service proxsmtp --full-restart 2>&1 | logger -t PROXSMTPD_RESTART

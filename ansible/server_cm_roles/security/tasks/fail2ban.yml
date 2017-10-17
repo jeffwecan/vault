@@ -1,0 +1,24 @@
+---
+# Installs fail2ban
+
+- name: Install fail2ban
+  apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+    cache_valid_time: "{{ cache_valid_time }}"
+  with_items:
+    - fail2ban
+
+- name: Push fail2ban jail config
+  template:
+    src=etc/fail2ban/jail.local
+    dest=/etc/fail2ban/jail.local
+  notify: Restart fail2ban
+
+- name: Ensure service is started and enabled
+  service:
+    name=fail2ban
+    state=started
+    enabled=yes
+

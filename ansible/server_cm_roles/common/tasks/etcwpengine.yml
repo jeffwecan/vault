@@ -1,0 +1,85 @@
+---
+
+- name: ensure /etc/wpengine/... directories
+  file: path=/etc/wpengine/{{ item }} state=directory owner=root group=root mode=0755
+  with_items:
+    - bin
+    - bin/lib
+    - bin/lib/php
+    - bin/lib/python
+    - disabled
+    - enabled
+    - cron
+
+- name: ensure www-wpe user...
+  user:
+    name: www-wpe
+    comment: "WP Engine Internal"
+    shell: /bin/bash
+    system: yes
+    createhome: yes
+    home: /home/www-wpe
+    groups: sudo
+    update_password: always
+    password: "*"
+  tags:
+    - creds
+    - shadow
+
+- name: ensure www-wpe user home private...
+  file:
+    path: /home/www-wpe
+    state: directory
+    owner: www-wpe
+    group: www-wpe
+    mode: 0750
+
+#- name: Template /etc/wpengine/wpe.cnf
+#  template:
+#    src=etc/wpengine/wpe.cnf
+#    dest=/etc/wpengine/wpe.cnf
+#    owner=root
+#    group=www-wpe
+#    mode=0640
+#  tags: wpe_cnf
+
+- name: ensure scripts in bin
+  copy: src=etc/wpengine/bin/{{ item }} dest=/etc/wpengine/bin/{{ item }} owner=root group=root mode=0755
+  with_items:
+    - ajax.php
+    - disable-apache-coredump.sh
+    - disk-space.sh
+    - dismod-wrapper.sh
+    - enmod-wrapper.sh
+    - ips-hosts
+    - json_value.py
+    - mysql.sh
+    - queues.php
+    - source
+    - cfg.sh
+    - hits.sh
+    - poor_profiler
+    - staging-site-backup.sh
+    - check-feature-enabled
+    - check-feature-not-disabled
+    - sanitize
+
+- name: ensure scripts in bin/lib/php
+  copy: src=etc/wpengine/bin/lib/php/{{ item }} dest=/etc/wpengine/bin/lib/php/{{ item }} owner=root group=root mode=0755
+  with_items:
+    - ajax-logger.php
+    - class.apache.php
+    - class.cronfixer.php
+    - class.db.php
+
+- name: ensure scripts in bin/lib/python
+  copy: src=etc/wpengine/bin/lib/python/{{ item }} dest=/etc/wpengine/bin/lib/python/{{ item }} owner=root group=root mode=0755
+  with_items:
+    - apache.py
+    - counter.py
+    - counter.pyc
+
+- name: clean up deprecated scripts
+  file: path=/etc/wpengine/bin/{{ item }} state=absent
+  with_items:
+    - new_relic.sh

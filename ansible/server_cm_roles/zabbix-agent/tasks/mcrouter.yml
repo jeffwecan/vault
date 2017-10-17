@@ -1,0 +1,13 @@
+---
+
+- name: Copy zabbix userparameter file for mcrouter
+  copy:
+    src: etc/zabbix/zabbix_agentd.d/userparameter_mcrouter.conf
+    dest: /etc/zabbix/zabbix_agentd.d/userparameter_mcrouter.conf
+    owner: zabbix
+    group: zabbix
+    mode: 0644
+  notify:
+    - zabbix agent restart
+  tags:
+    - zabbix

@@ -1,0 +1,96 @@
+---
+
+- name: systemctl daemon-reload
+  command: systemctl daemon-reload
+  when: ansible_service_mgr is defined and ansible_service_mgr == "systemd"
+
+- name: ssh restart
+  service: name=ssh state=restarted enabled=yes
+  when: packer_builder_type is defined and packer_builder_type != "docker"
+
+- name: ntp restart
+  service: name=ntp state=restarted enabled=yes
+
+- name: update-rc ntp
+  command: update-rc.d ntp defaults
+
+- name: nagios-nrpe-server restart
+  service: name=nagios-nrpe-server state=restarted
+
+- name: mysql restart
+  service: name=mysql state=restarted enabled=yes
+  # When we're bootstrapping PXC, we shouldn't restart mysql.
+  # We'll do it manually in that case.
+  when: xtradb_cluster_bootstrap is not defined or xtradb_cluster_bootstrap == "0"
+
+- name: rsyslog restart
+  service: name=rsyslog state=restarted enabled=yes
+
+# note: this needs to be before apparmor reload
+# this is because handlers are executed in the order in which they appear in this file (!!)
+# http://stackoverflow.com/questions/35130051/order-of-notify-handlers
+- name: reconfigure nasbox
+  command: dpkg-reconfigure -phigh wpengine-nasbox
+
+- name: apparmor reload
+  service: name=apparmor state=reloaded enabled=yes
+  when: "'corporate' not in group_names"
+  notify: apparmor-check
+
+- name: apparmor restart
+  service: name=apparmor state=restarted enabled=yes
+  notify: apparmor-check
+
+# The apparmor "service" (init.d script) will fail silently in the case when
+# apparmor modules are not installed. Fail here so we know that the install is
+# not complete.
+- name: apparmor-check
+  command: aa-status --enabled
+  # I'd love to put a tags: here, so that you'd explicitly have to --skip-tags
+  # to continue.  Unfortunately, handlers can't have tags. ;(
+  # Instead, we'll ignore errors.  At least it'll get reported in ansible output?
+  ignore_errors: yes
+
+- name: apache2 reload
+  service: name=apache2 state=reloaded enabled=yes
+  ignore_errors: true
+
+- name: apache2 restart
+  service: name=apache2 state=restarted enabled=yes
+  ignore_errors: true
+
+- name: sysctl reload
+  command: /sbin/sysctl -p
+  when: packer_builder_type is defined and packer_builder_type != "docker"
+
+- name: rc.local reload
+  command: /etc/rc.local
+
+- include: postfix.yml
+- include: iptables.yml
+
+- name: server reboot
+  command: /sbin/reboot
+  when: not is_vagrant and "amazon" not in group_names
+
+- name: apt-get update
+  apt:
+    update_cache: yes
+
+- name: sysstat restart
+  service: name=sysstat state=restarted
+
+- name: etc_hosts first run
+  command: python /etc/wpengine/bin/etc_hosts.py FIRST_RUN
+  when: not is_vagrant
+
+- name: nginx restart
+  service: name=nginx state=restarted
+  when: "my.roles.web is defined"
+
+- name: systemd reload
+  command: systemctl daemon-reload
+
+- name: td-agent restart
+  service: name=td-agent state=restarted enabled=yes
+

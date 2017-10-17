@@ -1,0 +1,35 @@
+# Don't forget, %l2 %l3 also can perform %l1 actions
+
+User_Alias WPEL2 = %l2,%l3
+
+WPEL2 ALL=(root) \
+        /etc/init.d/apache2, \
+        /etc/init.d/memcached, \
+        /etc/init.d/nginx, \
+        /etc/init.d/varnish, \
+        /etc/wpengine/bin/ms-cli.phar, \
+        /etc/wpengine/bin/nova.phar, \
+        /nas/wp/admin, \
+        /nas/wp/ec2/cluster, \
+        /sbin/iptables -nL, \
+        /usr/bin/crontab -l, \
+        /usr/bin/diff, \
+        /usr/bin/iotop, \
+        /usr/bin/lsof, \
+        /usr/bin/md5sum, \
+        /usr/bin/mysql, \
+        /usr/bin/mysqlcheck, \
+        /usr/bin/mysqldump, \
+        /usr/bin/php, \
+        /usr/bin/s3cmd, \
+        /usr/bin/screen, \
+        /usr/bin/sdiff, \
+        /usr/bin/sftp, \
+        /usr/bin/ssh, \
+        /usr/bin/varnishlog, \
+        /usr/bin/varnishstat, \
+        /usr/bin/zip, \
+        /usr/sbin/apparmor_status, \
+        /usr/local/bin/m2p_trust_step_1_keygen.sh, \
+        /usr/local/bin/m2p_trust_step_2_pubkey.sh, \
+        /usr/local/bin/m2p_trust_step_3_cleanup.sh

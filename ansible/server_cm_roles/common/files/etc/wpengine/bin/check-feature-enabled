@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# Check that a feature flag is enabled. This is handy for feature-flagging
+# non-PHP code (scripts, cron jobs, etc).
+#
+# To use:
+# check-feature-enabled feature && do-the-thing
+
+if [ "$#" -ne 1 ]; then
+    echo "Must specify feature flag"
+    exit 1
+fi
+
+# No file in disabled and file in enabled. This doesn't account for default, which
+# is always assumed to be disabled.
+[[ ! -f "/etc/wpengine/disabled/$1" ]] && [[ -f "/etc/wpengine/enabled/$1" ]]
+
+# exit

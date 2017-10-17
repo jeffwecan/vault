@@ -1,0 +1,19 @@
+---
+
+- name: /etc/logrotate.d/syslog
+  template: src=etc/logrotate.d/rsyslog dest=/etc/logrotate.d/rsyslog owner=root group=root mode=0644
+
+- name: ensure logrotate entry for /var/log/apache-killed-by-wpe.log
+  copy: src=etc/logrotate.d/apache-killed-by-wpe dest=/etc/logrotate.d/apache-killed-by-wpe owner=root group=root mode=0644
+  when: my.roles.web is defined
+
+- name: ensure logrotate entry for /var/log/mysql-killed-by-wpe.log
+  copy: src=etc/logrotate.d/mysql-killed-by-wpe dest=/etc/logrotate.d/mysql-killed-by-wpe owner=root group=root mode=0644
+  when: my.roles.utility is defined
+
+- name: Delete harmful dpkg-dist files
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_fileglob:
+    - /etc/logrotate.d/*.dpkg-dist

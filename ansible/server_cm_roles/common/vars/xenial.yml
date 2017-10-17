@@ -1,0 +1,89 @@
+---
+# Ubuntu 16.04 Xenial Xerus variables
+
+imagemagick_etc_dir: ImageMagick-6
+
+percona_version: 5.7
+
+php_apache_version: 7.0
+php_apache_module: php7.0
+php_apache_conf_path: /etc/php/7.0/apache2
+php_apache_conf_module_path: "{{ php_apache_conf_path }}/conf.d"
+php_apache_avail_path: /etc/php/7.0/mods-available
+
+php_cgi_version: 7.0
+php_cgi_conf_path: /etc/php/7.0/cgi
+php_cgi_avail_path: /etc/php/7.0/mods-available
+
+php_cli_version: 5.5
+php_cli_conf_path: /etc/php5/cli
+php_cli_avail_path: /etc/php5/mods-available
+
+php_cli_alternatives:
+  - { name: "php", path: "/usr/bin/php5" }
+  - { name: "phpize", path: "/usr/bin/phpize5" }
+  - { name: "php-config", path: "/usr/bin/php-config5" }
+
+php_wpcli_version: 7.0
+php_wpcli_conf_path: /etc/php/7.0/cli
+php_wpcli_avail_path: /etc/php/7.0/mods-available
+php_wpcli_binary: /usr/bin/php7.0
+
+php_cli_pecl_modules: []
+
+php_usr_lib: /usr/lib/php/20151012
+
+php_mysql_packages:
+    - php7.0-mysql
+
+php_web_packages:
+    - libapache2-mod-php7.0
+    - php-imagick
+    - php-xdebug
+    - php7.0-ioncube-loader
+
+php_apache_mods_disabled:
+    - xdebug
+
+php_apache_pecl_modules: []
+# NOTE: PECL toolchain is configured for 5.5, see php_cli_alternatives
+
+php_packages:
+    - php7.0-cli
+    - php7.0-dev
+    - php7.0-bcmath
+    - php7.0-bz2
+    - php7.0-curl
+    - php7.0-dba
+    - php7.0-gd
+    - php7.0-imap
+    - php7.0-intl
+    - php7.0-ldap
+    - php7.0-mbstring
+    - php7.0-mcrypt
+    - php7.0-mysql
+    - php7.0-soap
+    - php7.0-uopz
+    - php7.0-xmlrpc
+    - php7.0-xsl
+    - php7.0-zip
+    - php-memcached
+    - php-redis
+    - php-ssh2
+    - php5.5-cli
+    - php5.5-dev
+    - php5.5-curl
+    - php5.5-gd
+    - php5.5-imap
+    - php5.5-ldap
+    - php5.5-mcrypt
+    - php5.5-memcache
+    - php5.5-mysql
+    - php5.5-xmlrpc
+    - php5.5-xsl
+
+rsyslogd_packages:
+    - rsyslog
+    - rsyslog-relp
+
+varnish_version: 4

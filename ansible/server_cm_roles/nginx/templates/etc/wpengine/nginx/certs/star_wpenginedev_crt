@@ -1,0 +1,3 @@
+{{ star_wpenginedev.certificate }}
+{{ star_wpenginedev.primary_ca_certificate }}
+{{ star_wpenginedev.second_ca_certificate }}

@@ -1,0 +1,30 @@
+# /etc/profile: system-wide .profile file for the Bourne shell (sh(1))
+# and Bourne compatible shells (bash(1), ksh(1), ash(1), ...).
+
+if [ "$PS1" ]; then
+  if [ "$BASH" ]; then
+    if [ -f /etc/bash.bashrc ]; then
+        . /etc/bash.bashrc
+    fi
+  fi
+fi
+
+if [ -d /etc/profile.d ]; then
+  for i in /etc/profile.d/*.sh; do
+    if [ -r $i ]; then
+      . $i
+    fi
+  done
+  unset i
+fi
+
+umask 022
+
+function log2syslog
+{
+   declare COMMAND
+   COMMAND=$(fc -ln -0)
+   logger -p local1.notice -t bash -i -- "${USER}:${COMMAND}"
+}
+trap log2syslog DEBUG
+

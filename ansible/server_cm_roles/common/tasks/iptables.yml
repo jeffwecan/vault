@@ -1,0 +1,72 @@
+---
+
+- name: install our iptables rules
+  copy:
+    src: etc/network/if-pre-up.d/iptablesload
+    dest: /etc/network/if-pre-up.d/iptablesload
+    mode: 0755
+  when: ansible_os_family == "Debian"
+  notify:
+    - debian iptables reload
+
+- name: ensure /etc/wpengine/iptables/
+  file: path=/etc/wpengine/iptables state=directory owner=root group=root mode=0755
+
+#- name: ensure default iptables
+#  template: src=etc/wpengine/iptables/{{ item }} dest=/etc/wpengine/iptables/{{ item }} owner=root group=root mode=0644
+#  with_items:
+#    - 000-header
+#    - 100-blacklist
+#    - 300-whitelist
+#    - 400-output-drops
+#    - 410-ssh-drops
+#    - 450-logging
+#    - 500-footer
+#    - README
+#  notify:
+#    - debian iptables reload
+#  tags:
+#    - bootstrap_web
+#    - bootstrap_storage
+#    - bootstrap_utility
+
+- name: ensure /etc/wpengine/ip6tables/
+  file: path=/etc/wpengine/ip6tables state=directory owner=root group=root mode=0755
+
+#- name: ensure default ip6tables
+#  template: src=etc/wpengine/ip6tables/{{ item }} dest=/etc/wpengine/ip6tables/{{ item }} owner=root group=root mode=0644
+#  with_items:
+#    - 000-header
+#    - 300-whitelist
+#    - 450-logging
+#    - 500-footer
+#  notify:
+#    - debian iptables reload
+
+- name: ensure semi-hourly cron for iptables
+  cron: name="reload iptables cron" minute="*/30" user="root" job="/bin/bash /etc/network/if-pre-up.d/iptablesload" cron_file=iptablesload
+  when: "{{ do_iptablesload_cron|default(true) }}"
+  tags: iptablesload
+
+#- name: ensure iptables
+#  template: src=etc/wpengine/iptables/310-cluster dest=/etc/wpengine/iptables/310-cluster owner=root group=root mode=0644
+#  notify: debian iptables reload
+#  when: cluster.ips is defined
+#  tags:
+#    - modify_cluster
+#    - bootstrap_web
+#    - bootstrap_storage
+#    - bootstrap_utility
+
+#- name: ensure network ranges in iptables
+#  template: src=etc/wpengine/iptables/310-networks dest=/etc/wpengine/iptables/310-networks owner=root group=root mode=0644
+#  notify: debian iptables reload
+
+#- name: ensure iptables for shared ssh vpc
+#  template: src=etc/wpengine/iptables/330-ssh-vpc dest=/etc/wpengine/iptables/330-ssh-vpc owner=root group=root mode=0644
+#  notify: debian iptables reload
+#  when: "'amazon' in group_names and cluster.networks is defined and my.server.type in ['apache', 'storage']"
+#  tags:
+#    - modify_cluster
+#    - bootstrap_web
+#    - bootstrap_storage

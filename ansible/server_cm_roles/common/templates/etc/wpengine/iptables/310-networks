@@ -1,0 +1,12 @@
+{% if 'corporate' not in group_names %}
+-A INPUT -s 172.16.0.0/12 -j ACCEPT -m comment --comment "Allow 172.16.0.0 - 172.31.255.25"
+{% endif %}
+{% if cluster.networks is defined and cluster.networks|length>0 and my.cluster.id > 0 %}
+# Allow web servers in this cluster
+{% for ip in cluster.networks %}
+-A INPUT -s {{ ip }} -j ACCEPT -m comment --comment "Network Ranges"
+{% endfor %}
+{% endif %}
+{% if my.roles.vault is defined or my.roles.consul is defined %}
+-A INPUT -s 172.31.84.0/24 -m comment --comment "VAULT CLUSTER NETWORKING" -j ACCEPT
+{% endif %}

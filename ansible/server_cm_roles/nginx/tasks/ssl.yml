@@ -1,0 +1,71 @@
+---
+
+- name: Ensure /etc/wpengine/nginx/ subdirectories
+  file:
+    dest: /etc/wpengine/nginx/{{ item }}
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+  with_items:
+    - certs
+
+- name: Ensure wildcard certificate
+  template:
+    src: etc/wpengine/nginx/certs/{{ item }}
+    dest: /etc/wpengine/nginx/certs/{{ item }}
+    owner: root
+    group: root
+    mode: 0644
+  with_items: "{{ nginx_wildcard_certificates }}"
+  notify: nginx reload
+
+#TODO CMWP-773: ship a live cet to vagrants and deprecate self-signed CA
+- name: Ensure self-signed wildcard certificates are trusted in Vagrants
+  template:
+    src: etc/wpengine/nginx/ca-bundle/{{ item }}
+    dest: /usr/local/share/ca-certificates/{{ item }}.crt
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - star_wpengine_crt
+    - star_wpengine_crt_2
+    - star_staging_wpengine_crt
+    - star_staging_wpengine_crt_2
+    - star_wpenginedev_crt
+    - star_wpenginedev_crt_2
+  register: ca_certificates
+  when: is_vagrant
+
+- name: Update root certificate database in Vagrants so that it trusts self-signed certs
+  command: update-ca-certificates --fresh
+  when:
+    - is_vagrant
+    - ca_certificates.changed
+
+- name: Copy SSL certificate for *.wpengine.io into place
+  template:
+    src: etc/wpengine/nginx/certs/{{ item }}
+    dest: /etc/wpengine/nginx/certs/{{ item }}
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - star_wpengine_io_crt
+    - star_wpengine_io_key
+  when: requires_star_wpengine_io_cert
+  notify: nginx reload
+
+- name: Generate custom dhparams
+  command: openssl dhparam -out /etc/wpengine/nginx/certs/dhparam.pem 2048
+  args:
+    creates: /etc/wpengine/nginx/certs/dhparam.pem
+
+- name: Ensure dhparam permissions
+  file:
+    path: /etc/wpengine/nginx/certs/dhparam.pem
+    state: file
+    owner: root
+    group: www-data
+    mode: 0640

@@ -1,0 +1,11 @@
+# [original envelope From pattern]	[will be rewritten to]
+/^root$/                                             root@{{ my.server.name }}.{{ postfix_domain }}
+/^root@{{ postfix_domain }}$/                        root@{{ my.server.name }}.{{ postfix_domain }}
+/^www-data$/                                         noreply@{{ postfix_domain }}
+/^www-data@{{ postfix_domain }}$/                    noreply@{{ postfix_domain }}
+{# SRE-10: migrating production from wpengine.com to mail.wpengine.com #}
+{% if wpengine_domain != postfix_domain %}
+/^root@{{ wpengine_domain }}$/                       root@{{ my.server.name }}.{{ postfix_domain }}
+/^www-data@{{ wpengine_domain }}$/                   noreply@{{ postfix_domain }}
+/^([a-zA-Z0-9_\-\.\+]+)@{{ wpengine_domain }}$/      ${1}@{{ postfix_domain }}
+{% endif %}

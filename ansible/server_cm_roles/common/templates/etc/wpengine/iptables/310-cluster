@@ -1,0 +1,6 @@
+{% if cluster.ips is defined and cluster.ips|length>0 and my.cluster.id > 0 %}
+# Allow web servers in this cluster
+{% for ip in cluster.ips %}
+-A INPUT -s {{ ip }} -j ACCEPT -m comment --comment "CLUSTER {{ my.cluster.id }} "
+{% endfor %}
+{% endif %}

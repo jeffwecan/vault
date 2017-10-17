@@ -1,0 +1,47 @@
+---
+
+- name: Force root profile directories permissions
+  file:
+    path={{ item }}
+    state=directory
+    owner=root
+    group=root
+    mode=0700
+  with_items:
+    - "/root"
+    - "/root/.ssh"
+
+- name: Remove the root password
+  user:
+    name=root
+    update_password=always
+    password="*"
+  tags:
+    - creds
+    - shadow
+
+- name: Template root dotfiles
+  template:
+    src={{ item.src }}
+    dest={{ item.dest }}
+    owner=root
+    group=root
+    mode={{ item.mode }}
+  with_items:
+    - { src: root/profile,              dest: /root/.profile,               mode: 644 }
+    - { src: root/selected_editor,      dest: /root/.selected_editor,       mode: 644 }
+#    - { src: root/ssh/authorized_keys,  dest: /root/.ssh/authorized_keys,   mode: 600 } TODO: do we care about authorizing anyone besides cm?
+  tags:
+    - authorized_keys
+    - bootstrap_web
+    - bootstrap_storage
+    - bootstrap_utility
+
+- name: Place root bashrc
+  copy:
+    src=root/bashrc
+    dest=/root/.bashrc
+    mode=0700
+    owner=root
+    group=root
+  when: "'corporate' not in group_names"
