@@ -77,6 +77,7 @@
       "type": "file"
     },
     {
+      "command": "ANSIBLE_FORCE_COLOR=1 PYTHONUNBUFFERED=1 ansible-playbook -vvv",
       "playbook_dir": "{{ template_dir }}/../../ansible/",
       "playbook_file": "{{ template_dir }}/../../ansible/local.yml",
       "role_paths": [

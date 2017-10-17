@@ -242,7 +242,7 @@
     owner: root
     group: root
     mode: 0755
-  when: ansible_distribution == "Ubuntu"
+  when: packer_builder_type is defined and packer_builder_type != "docker" and ansible_distribution == "Ubuntu"  # failed: "msg": "absolute paths are required"
   tags:
     - packages
 
