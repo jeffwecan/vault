@@ -56,6 +56,9 @@
         "sudo apt install -y python-pip",
         "sudo pip install ansible"
       ],
+      "only": [
+        "vault-ubuntu-16.04-ami"
+      ],
       "type": "shell"
     },
     {
@@ -76,7 +79,14 @@
     {
       "playbook_dir": "{{ template_dir }}/../../ansible/",
       "playbook_file": "{{ template_dir }}/../../ansible/local.yml",
-      "role_paths": "{{ template_dir }}/../../ansible/roles",
+      "role_paths": [
+        "{{ template_dir }}/../../ansible/roles/vault/",
+        "{{ template_dir }}/../../ansible/server_cm_roles/common/",
+        "{{ template_dir }}/../../ansible/server_cm_roles/nginx/",
+        "{{ template_dir }}/../../ansible/server_cm_roles/zabbix-agent/",
+        "{{ template_dir }}/../../ansible/server_cm_roles/ldap-client/",
+        "{{ template_dir }}/../../ansible/server_cm_roles/security/"
+      ],
       "type": "ansible-local"
     }
   ],
