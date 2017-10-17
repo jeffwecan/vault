@@ -6,8 +6,8 @@ TLS_OWNER			?= "root"
 MARKDOWN_LINTER 	:= wpengine/mdl
 YAML_LINTER			:= wpengine/yamllint
 TERRAFORM_IMAGE		:= wpengine/terraform
-PACKER_IMAGE		:= jeffreymhogan/packer
-ANSIBLE_TEST_IMAGE	:= jeffreymhogan/ansible
+PACKER_IMAGE		:= wpengine/packer
+ANSIBLE_TEST_IMAGE	:= wpengine/ansible
 ACCOUNTS			:= development corporate
 
 # default is meant to generally map to Jenkinsfile/pipeline for anything other than the master branch
@@ -131,7 +131,7 @@ ensure-tls-certs-apply: ensure-artifacts-dir ensure-tls-certs-get
 		-var 'public_key_file_path=/artifacts/vault.crt.pem' \
 		-var owner=$(TLS_OWNER)
 
-packer-yaml-to-json:
+packer-yaml-to-json: | lint-packer-template
 	@echo
 	# Generating JSON version of YAML packer template
 	docker run --rm \
@@ -211,7 +211,7 @@ terraform-get-%: | terraform-init-%
 
 terraform-plan-: $(addprefix terraform-plan-, $(ACCOUNTS))
 terraform-plan-%: | terraform-get-%
-	docker run \
+	docker run --rm \
 		--workdir=/workspace \
 		--volume $(PWD)/terraform/aws/$(*):/workspace \
 		--env GIT_SSH_COMMAND="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" \
@@ -225,7 +225,7 @@ terraform-plan-%: | terraform-get-%
 
 terraform-apply-: $(addprefix terraform-apply-, $(ACCOUNTS))
 terraform-apply-%: | terraform-plan-%
-	docker run \
+	docker run --rm \
 		--workdir=/workspace \
 		--volume $(PWD)/terraform/aws/$(*):/workspace \
 		--env GIT_SSH_COMMAND="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" \
@@ -239,7 +239,7 @@ terraform-apply-%: | terraform-plan-%
 
 terraform-destroy-: $(addprefix terraform-destroy-, $(ACCOUNTS))
 terraform-destroy-%: | terraform-get-%
-	docker run \
+	docker run --rm \
 		-it \
 		--workdir=/workspace \
 		--volume $(PWD)/terraform/aws/$(*):/workspace \
@@ -250,4 +250,7 @@ terraform-destroy-%: | terraform-get-%
 		--env AWS_ACCESS_KEY_ID \
 		--env AWS_SECRET_ACCESS_KEY \
 		$(TERRAFORM_IMAGE) \
-		terraform destroy .
+		terraform \
+		 destroy \
+		 -var 'aws_role_arn=arn:aws:iam::844484402121:role/wpengine/robots/TerraformDestroyer' \
+		 .
