@@ -37,8 +37,7 @@ node('docker') {
 					]
 					withCredentials(packerCredentials) {
 						stage('Build AMI') {
-							sh 'echo Saving on time by not building the AMI atm...'
-							sh 'make build-ami'
+							sh 'make packer-build-ami'
 						}
 					}
 					stage('Deploy to Dev') {
