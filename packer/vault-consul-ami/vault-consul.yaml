@@ -39,7 +39,7 @@ provisioners:
   - type: shell
     inline:
       - sudo apt update
-      - sudo apt dist-upgrade
+      - DEBIAN_FRONTEND=noninteractive sudo apt -y dist-upgrade
   - type: shell
     inline:
       - sudo apt install -y python-pip
