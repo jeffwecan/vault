@@ -62,8 +62,12 @@
   ufw:
     state: enabled
     rule: allow
-    name: "Nginx Full"
+    from_ip: "{{ item }}"
+    to_port: "443"
   register: ufw_nginx
+  with_items:
+    - "0.0.0.0/0"  # Replace with ELB IP or hmmm
+    - "::"
 
 - name: Allow Zabbix
   ufw:
