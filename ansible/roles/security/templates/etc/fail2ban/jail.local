@@ -1,0 +1,36 @@
+# {{ ansible_managed }}
+#
+# Fail2ban configuration file.
+#
+# This file overrides values set in /etc/fail2ban/jail.conf.
+#
+
+[DEFAULT]
+ignoreip = 127.0.0.1/8 10.0.0.0/8 172.16.0.0/12 192.168.0.0/24{% for subnet in fail2ban_whitelist + api_server_ips + office_ips %} {{ subnet.ip }}/{{ subnet.netmask|default(32) }}{% endfor %}
+
+
+{% for service in fail2ban_services if service.role == 'all' or service.role in my.roles %}
+[{{ service.name }}]
+{% if service.enabled is defined %}
+enabled = {{ service.enabled }}
+{% endif %}
+{% if service.port is defined %}
+port = {{ service.port }}
+{% endif %}
+{% if service.filter is defined %}
+filter = {{ service.filter }}
+{% endif %}
+{% if service.bantime is defined %}
+bantime = {{ service.bantime }}
+{% endif %}
+{% if service.findtime is defined %}
+findtime = {{ service.findtime }}
+{% endif %}
+{% if service.maxretry is defined %}
+maxretry = {{ service.maxretry }}
+{% endif %}
+{% if service.logpath is defined %}
+logpath = {{ service.logpath }}
+{% endif %}
+
+{% endfor %}

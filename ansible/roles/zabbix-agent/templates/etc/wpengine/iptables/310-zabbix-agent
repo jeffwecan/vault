@@ -1,0 +1,5 @@
+# Allow zabbix server
+-A INPUT -s {{ zabbix_server_ip }} -p tcp -m multiport --dports 6789,10050 -m comment --comment "zabbix.wpengine.com" -j ACCEPT
+{% if zabbix_proxy_ip is defined %}
+-A INPUT -s {{ zabbix_proxy_ip }} -p tcp -m multiport --dports 6789,10050 -m comment --comment "{{ zabbix_proxy_region|default('Zabbix Proxy') }}" -j ACCEPT
+{% endif %}

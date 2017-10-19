@@ -1,0 +1,13 @@
+---
+
+- name: restart sssd
+  service: name=sssd state=restarted
+  when: packer_builder_type is defined and packer_builder_type != "docker"
+
+- name: aa-enforce sssd
+  command: aa-enforce /usr/sbin/sssd
+
+- name: pam-auth-update
+  command: bash /usr/local/sbin/wpengine-pam-auth-update.sh
+  register: pam_auth_update
+  changed_when: "'CHANGED' in pam_auth_update.stdout"

@@ -1,0 +1,39 @@
+---
+
+- name: Force root profile directories permissions
+  file:
+    path={{ item }}
+    state=directory
+    owner=root
+    group=root
+    mode=0700
+  with_items:
+    - "/root"
+    - "/root/.ssh"
+
+- name: Remove the root password
+  user:
+    name=root
+    update_password=always
+    password="*"
+  tags:
+    - creds
+    - shadow
+
+- name: Template root dotfiles
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: root
+    group: root
+    mode: "{{ item.mode }}"
+  with_items:
+    - { src: root/profile,              dest: /root/.profile,               mode: 644 }
+    - { src: root/selected_editor,      dest: /root/.selected_editor,       mode: 644 }
+
+- name: Copy ubuntu's authorized_keys to root
+  copy:
+    src: /home/ubuntu/.ssh/authorized_keys
+    dest: /root/.ssh/authorized_keys
+  tags:
+    - authorized_keys

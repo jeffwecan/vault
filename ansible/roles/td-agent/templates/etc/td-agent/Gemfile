@@ -1,0 +1,16 @@
+# {{ ansible_managed }}
+# Gemfile for td-agent v3.X
+# frozen_string_literal: true
+source "https://rubygems.org"
+
+group :additional_gems do
+    gem 'fluent-plugin-grep'
+    gem 'fluent-plugin-record-modifier'
+    gem 'fluent-plugin-secure-forward'
+
+    gem 'fluent-plugin-bigquery'
+    gem 'fluent-plugin-formatter_sprintf'
+
+    gem 'googleauth', '~> 0.5.3' # TOPS-4820 - googleauth 0.5.2 is brokenn
+end
+

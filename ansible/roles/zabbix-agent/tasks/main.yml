@@ -1,0 +1,142 @@
+---
+
+- name: Install zabbix-agent
+  apt:
+    pkg: zabbix-agent
+    state: present
+    update_cache: yes
+    cache_valid_time: "{{ cache_valid_time }}"
+  register: apt_task
+  until: apt_task.failed is not defined
+  retries: 3
+  delay: 30
+  notify:
+    - zabbix agent restart
+  tags:
+    - packages
+
+# TOPS-3734: ansible doesn't detect zabbix units enablement status correctly, must toggle until ansible 2.3
+# See also zabbix-proxy tasks/main.yml
+- name: HACK - temporarily disable zabbix-agent on systemd hosts
+  service:
+    name: zabbix-agent
+    enabled: no
+  when: ansible_service_mgr is defined and ansible_service_mgr == "systemd"
+
+- name: Enable zabbix-agent
+  service:
+    name: zabbix-agent
+    enabled: yes
+
+- name: Setup Zabbix home directory
+  file:
+    path: /var/lib/zabbix
+    state: directory
+    owner: zabbix
+    group: zabbix
+    mode: 0755
+  when: my.roles.zabbixproxy is not defined
+  notify:
+    - zabbix agent restart
+
+- name: Ensure zabbix-agent log files directory
+  file:
+    path: /var/log/zabbix
+    state: directory
+    owner: zabbix
+    group: zabbix
+    mode: 0755
+  notify:
+    - zabbix agent restart
+
+- name: zabbix agent config
+  template:
+    src: etc/zabbix/zabbix_agentd.conf
+    dest: /etc/zabbix/
+    owner: zabbix
+    group: zabbix
+    mode: 0644
+  notify:
+    - zabbix agent restart
+
+- name: Delete harmful dpkg-dist files
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_fileglob:
+    - /etc/zabbix/zabbix_agentd.d/*.dpkg-new
+  notify:
+    - zabbix agent restart
+
+- name: low level disk discovery script
+  copy:
+    src: usr/local/bin/zabbix-lld-disks.py
+    dest: /usr/local/bin/zabbix-lld-disks.py
+    owner: root
+    group: root
+    mode: 0755
+
+- name: zabbix sudoers config
+  copy:
+    src: etc/{{ item  }}
+    dest: /etc/{{ item }}
+    owner: root
+    group: root
+    mode: 0440
+  with_items:
+    - sudoers.d/zabbix
+
+- name: zabbix iptables rules
+  template:
+    src: etc/wpengine/iptables/{{ item }}
+    dest: /etc/wpengine/iptables/{{ item }}
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - 310-zabbix-agent
+  notify:
+    - debian iptables reload
+
+- name: Ensure zabbix user .my.cnf
+  template:
+    src: var/lib/zabbix/my.cnf
+    dest: /var/lib/zabbix/.my.cnf
+    owner: zabbix
+    group: zabbix
+    mode: 0600
+  tags:
+    - creds
+  notify:
+    - zabbix agent restart
+
+# Setup MySQL user for zabbix-agent to monitor RDS connectivity on AWS utility nodes
+- include: rds_mysql_user.yml
+  when: is_farm and 'amazon' in group_names and my.roles.utility is defined
+
+# Add script to check intra-cluster SSH access to clustered envrionments
+- name: Ensure /usr/local/bin/zabbix_local_keys_check.sh
+  copy:
+    src: usr/local/bin/zabbix_local_keys_check.sh
+    dest: /usr/local/bin/zabbix_local_keys_check.sh
+    owner: zabbix
+    group: zabbix
+    mode: 0500
+  when: "is_farm and cluster.networks is defined and cluster.networks|length>0"
+
+- name: Add cron to run /usr/local/bin/zabbix_local_keys_check.sh
+  cron:
+    name: "Monitor local cluster SSH"
+    user: root
+    cron_file: zabbix_local_keys_check
+    state: present
+    minute: "*/15"
+    job: "/usr/local/bin/zabbix_local_keys_check.sh 2>&1 | logger -t ZABBIX_LOCAL_KEYS_CHECK"
+  when: "is_farm and cluster.networks is defined and cluster.networks|length>0"
+
+- include: mcrouter.yml
+  when: my.roles.mcrouter is defined
+
+
+# Testinfra must run last
+- include: ../../testinfra.yml

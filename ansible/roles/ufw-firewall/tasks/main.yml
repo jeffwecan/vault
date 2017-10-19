@@ -1,0 +1,94 @@
+---
+
+- name: Ensure ufw and requisite packages are installed
+  apt:
+    name: "{{ item }}"
+    force: yes
+    state: present
+  with_items:
+    - module-init-tools
+    - ufw
+
+- name: /etc/modprobe.d
+  file:
+    path: /etc/modprobe.d
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+  tags:
+    - modprobe
+    - conntrack
+
+- name: /etc/modprobe.d/ contents
+  template:
+    src: etc/modprobe.d/{{ item }}.conf
+    dest: /etc/modprobe.d/{{ item }}.conf
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - nf_conntrack
+  tags:
+    - modprobe
+    - conntrack
+
+
+- name: Default firewall policy allow
+  ufw:
+    state: enabled
+    policy: allow
+
+- name: Allow SSH from bastion and cm servers
+  ufw:
+    state: enabled
+    rule: allow
+    from_ip: "{{ item.ip | default(item) }}"
+    to_port: "ssh"
+  with_items:
+    - "{{ pypi_whitelist_ssh_ips }}"
+  register: ufw_ssh
+
+- name: Allow HTTP(s)
+  ufw:
+    state: enabled
+    rule: allow
+    name: "Nginx Full"
+  register: ufw_nginx
+
+- name: Allow Zabbix
+  ufw:
+    state: enabled
+    rule: allow
+    from_ip: "{{ zabbix_server_ip }}"
+    to_port: "10050"
+  when: "register_with_zabbix"
+  register: ufw_zabbix
+
+- name: Allow Zabbix proxy
+  ufw:
+    state: enabled
+    rule: allow
+    from_ip: "{{ zabbix_proxy_ip }}"
+    to_port: "10050"
+  when: "zabbix_proxy_ip is defined and register_with_zabbix"
+  register: ufw_zabbix_proxy
+
+- name: Reset global reject when there are any changes
+  ufw:
+    delete: yes
+    rule: reject
+    from_ip: "{{ item }}"
+  with_items:
+    - "0.0.0.0/0"
+    - "::"
+  when: ufw_ssh.changed or ufw_nginx.changed or ufw_zabbix.changed or ufw_zabbix_proxy.changed
+
+- name: Reject rest of internet
+  ufw:
+    state: enabled
+    rule: reject
+    from_ip: "{{ item }}"
+  with_items:
+    - "0.0.0.0/0"
+    - "::"  # ipv6

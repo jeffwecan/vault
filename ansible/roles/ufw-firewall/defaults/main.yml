@@ -1,0 +1,4 @@
+---
+
+# netfilter connection tracking modprobe args. 32kb hashsize * 8 = 256k entries
+nf_conntrack_hashsize: 32768

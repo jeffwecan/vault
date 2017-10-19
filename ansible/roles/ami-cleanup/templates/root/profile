@@ -1,0 +1,10 @@
+# ~/.profile: executed by Bourne-compatible login shells.
+
+TMOUT={{ bash_timeout }}
+export TMOUT
+
+if [ "$BASH" ]; then
+  if [ -f ~/.bashrc ]; then
+    . ~/.bashrc
+  fi
+fi
