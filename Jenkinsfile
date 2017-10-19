@@ -15,7 +15,12 @@ node('docker') {
         withEnv(["IMAGE_TAG=${IMAGE_TAG}", "TLS_OWNER=${TLS_OWNER}"]) {
             try {
                 stage('Lint') {
-					sh 'make lint'
+                	withCredentials([  // for terraform validate, TODO: remove this context once shared var can do our validation?
+						string(credentialsId: 'TERRAFORM_AWS_ACCESS_KEY_ID', variable: 'AWS_ACCESS_KEY_ID'),
+						string(credentialsId: 'TERRAFORM_AWS_SECRET_ACCESS_KEY', variable: 'AWS_SECRET_ACCESS_KEY'),
+					]) {
+						sh 'make lint'
+					}
 				}
 
                 stage('Test') {

@@ -188,7 +188,7 @@ terraform-init-%:
 	docker run --rm \
 		--workdir=/workspace \
 		--volume $(PWD)/terraform/aws/$(*):/workspace \
-		--volume $(HOME)/.ssh/github_rsa:/root/.ssh/id_rsa \
+		--volume $(HOME)/.ssh/id_rsa_github:/root/.ssh/id_rsa \
 		--volume $(HOME)/.ssh/known_hosts:/root/.ssh/known_hosts \
 		--env GIT_TRACE=1 \
 		--env AWS_ACCESS_KEY_ID \
@@ -210,8 +210,18 @@ terraform-get-%: | terraform-init-%
 		terraform get .
 
 terraform-validate: $(addprefix terraform-validate-, $(ACCOUNTS))
-terraform-validate-%: # | terraform-init-% # need to be able to run this in a jenkins shared var maybe... see: https://jenkins.wpengine.io/job/WPEngineGitHubRepos/job/vault-package/job/terraform_vault/93/console
-	echo hello
+terraform-validate-%: | terraform-init-% # need to be able to run this in a jenkins shared var maybe... see: https://jenkins.wpengine.io/job/WPEngineGitHubRepos/job/vault-package/job/terraform_vault/93/console
+	docker run --rm \
+		--workdir=/workspace \
+		--volume $(PWD)/terraform/aws/$(*):/workspace \
+		--env GIT_SSH_COMMAND="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" \
+		--volume $(HOME)/.ssh/github_rsa:/root/.ssh/id_rsa \
+		--volume $(HOME)/.ssh/known_hosts:/root/.ssh/known_hosts \
+		--env GIT_TRACE=1 \
+		--env AWS_ACCESS_KEY_ID \
+		--env AWS_SECRET_ACCESS_KEY \
+		$(TERRAFORM_IMAGE) \
+		terraform validate .
 
 terraform-plan: $(addprefix terraform-plan-, $(ACCOUNTS))
 terraform-plan-%: | terraform-get-%
