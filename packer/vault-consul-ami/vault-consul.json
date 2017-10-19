@@ -52,7 +52,12 @@
     {
       "inline": [
         "sudo apt update",
-        "sudo apt dist-upgrade",
+        "sudo apt dist-upgrade"
+      ],
+      "type": "shell"
+    },
+    {
+      "inline": [
         "sudo apt install -y python-pip",
         "sudo pip install ansible"
       ],
@@ -77,16 +82,11 @@
       "type": "file"
     },
     {
-      "command": "ANSIBLE_FORCE_COLOR=1 PYTHONUNBUFFERED=1 ansible-playbook -vvv",
+      "command": "ANSIBLE_FORCE_COLOR=1 PYTHONUNBUFFERED=1 sudo ansible-playbook -vvv",
       "playbook_dir": "{{ template_dir }}/../../ansible/",
       "playbook_file": "{{ template_dir }}/../../ansible/local.yml",
       "role_paths": [
-        "{{ template_dir }}/../../ansible/roles/vault/",
-        "{{ template_dir }}/../../ansible/server_cm_roles/common/",
-        "{{ template_dir }}/../../ansible/server_cm_roles/nginx/",
-        "{{ template_dir }}/../../ansible/server_cm_roles/zabbix-agent/",
-        "{{ template_dir }}/../../ansible/server_cm_roles/ldap-client/",
-        "{{ template_dir }}/../../ansible/server_cm_roles/security/"
+        "{{ template_dir }}/../../ansible/roles/"
       ],
       "type": "ansible-local"
     }

@@ -1,4 +1,0 @@
-{% if "gce" in group_names %}
-{# this vendor is hostile to outbound SMTP on default ports #}
--A OUTPUT -m tcp -p tcp -m multiport --dports 25,465,587 -j REJECT -m comment --comment "Reject outbound SMTP, must use 2525 at this provider"
-{% endif %}

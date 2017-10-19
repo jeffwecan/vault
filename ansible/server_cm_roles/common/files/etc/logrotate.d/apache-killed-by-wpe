@@ -1,8 +1,0 @@
-/var/log/apache-killed-by-wpe.log {
-  weekly
-  rotate 7
-  compress
-  delaycompress
-  missingok
-  notifempty
-}

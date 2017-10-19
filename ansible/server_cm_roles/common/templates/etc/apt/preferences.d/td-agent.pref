@@ -1,4 +1,0 @@
-Explanation: We use the "experimental" version of td-agent for gophpr pods currently, otherwise use the stable version
-Package: td-agent
-Pin: version {{ td_agent_pin_version }}.*
-Pin-Priority: 1001

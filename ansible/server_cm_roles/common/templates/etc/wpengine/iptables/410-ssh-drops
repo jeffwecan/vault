@@ -1,3 +1,0 @@
-{% if not is_vagrant %}
--A INPUT -p tcp -m tcp --dport 22 -m comment --comment "DROP SSH" -j DROP
-{% endif %}

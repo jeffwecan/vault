@@ -1,3 +1,0 @@
--I INPUT 1 -s 208.94.244.0/24 -j DROP -m comment --comment "SFTP exploits across WPE"
--I INPUT 1 -s 66.187.68.37/32 -j DROP -m comment --comment "used symlink exploit in nginx to access other sites"
--I INPUT 1 -p ICMP --icmp-type timestamp-request -j DROP -m comment --comment "Drop ICMP type 13"

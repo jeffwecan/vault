@@ -1,5 +1,0 @@
-# Set up logging Chains
--A WHITELIST_LOGGING -m limit --limit 1/min -j LOG --log-prefix "iptables_whitelist_log: " --log-level 4
--A WHITELIST_LOGGING -j ACCEPT
--A BLACKLIST_LOGGING -m limit --limit 1/min -j LOG --log-prefix "iptables_blacklist_log: " --log-level 4
--A BLACKLIST_LOGGING -j REJECT

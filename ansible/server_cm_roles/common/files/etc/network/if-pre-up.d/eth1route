@@ -1,4 +1,0 @@
-#!/bin/bash
-# This is our attempt to get Rackspace cloud routing to allow webs to connect to dbmaster mysql service.
-
-route add -net 10.0.0.0/8 gw `route -n | grep eth1 | grep -v 0.0.0.0 | head -1 | awk '{print $2}'`

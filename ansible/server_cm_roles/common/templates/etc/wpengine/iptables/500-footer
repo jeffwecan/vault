@@ -1,9 +1,0 @@
-
-{% if not is_vagrant %}
--I INPUT -s 127.0.0.0/8 -d 127.0.0.0/8 -m tcp -p tcp --dport 3306 -j ACCEPT
--I INPUT -s 172.16.0.0/12 -d 172.16.0.0/12 -m tcp -p tcp --dport 3306 -j ACCEPT
--A INPUT -j REJECT --reject-with icmp-host-prohibited
--A FORWARD -j REJECT --reject-with icmp-host-prohibited
-{% endif %}
-COMMIT
-

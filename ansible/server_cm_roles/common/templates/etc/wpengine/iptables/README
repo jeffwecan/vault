@@ -1,5 +1,0 @@
-# These template files are pushed into the iptables directory
-# The numbering system determines order of rules when imported into iptables
-# Blacklist rules should be before whitelist rules
-# Each server can have it's own set of rules, and should be added into the correct number group.
-# Example: 250-pod-blacklist 350-pod-whitelist

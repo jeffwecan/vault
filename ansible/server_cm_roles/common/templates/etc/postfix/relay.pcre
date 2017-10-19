@@ -1,5 +1,0 @@
-{% if 'corporate' in group_names %}
-/^{{ creds.postfix.relay_address }}$/	{{ creds.postfix.corporate_relay_username }}:{{ creds.postfix.corporate_relay_password }}
-{% else %}
-{# /^{{ creds.postfix.relay_address }}$/	{{ creds.postfix.relay_username }}:{{ creds.postfix.relay_password }} #}
-{% endif %}

@@ -1,9 +1,0 @@
-zabbix ALL=(root) NOPASSWD: \
-       /etc/wpengine/mysql-check.pl, \
-       /sbin/apparmor_parser, \
-       /sbin/service, \
-       /usr/bin/pkill nginx, \
-       /usr/bin/pkill -f wpcron, \
-       /usr/sbin/aa-enforce, \
-       /usr/sbin/gluster, \
-       /usr/sbin/service
