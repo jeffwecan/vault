@@ -12,5 +12,4 @@
   when: ansible_service_mgr is defined and ansible_service_mgr == "systemd"  # find a better testing strategy for this in dockers?
 
 - name: nginx reload
-#  service: name=nginx state=reloaded
-  command: echo hullo
+  service: name=nginx state=reloaded

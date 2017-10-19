@@ -38,8 +38,11 @@ vault_group: bin
 ### Vault settings
 vault_group_name: vault_instances
 
-vault_ssl_crt: /etc/wpengine/nginx/certs/star_wpengine_io_crt
-vault_ssl_key: /etc/wpengine/nginx/certs/star_wpengine_io_key
+#vault_ssl_crt: /etc/wpengine/nginx/certs/star_wpengine_io_crt
+#vault_ssl_key: /etc/wpengine/nginx/certs/star_wpengine_io_key
+
+vault_ssl_crt: /etc/wpengine/nginx/certs/vault.crt.pem
+vault_ssl_key: /etc/wpengine/nginx/certs/vault.key.pem
 
 vault_vpc_cidr: 172.0.0.1/32
 vault_https_server_name: vault.wpenginedev.com

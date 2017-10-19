@@ -42,10 +42,8 @@ provisioners:
       - DEBIAN_FRONTEND=noninteractive sudo apt -y dist-upgrade
   - type: shell
     inline:
-      - sudo apt install -y python-pip
+      - DEBIAN_FRONTEND=noninteractive sudo apt install -y python-pip
       - sudo pip install ansible
-    only:
-      - vault-ubuntu-16.04-ami
   - type: file
     source: '{{user `ca_public_key_path`}}'
     destination: /tmp/ca.crt.pem
@@ -69,5 +67,10 @@ post-processors:
   - type: docker-tag
     repository: wpengine/vault-packer
     tag: '{{ user `version` }}'
+    only:
+      - vault-ubuntu-16.04-docker
+  - type: docker-tag
+    repository: wpengine/vault-packer
+    tag: latest
     only:
       - vault-ubuntu-16.04-docker
