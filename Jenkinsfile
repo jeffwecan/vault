@@ -28,7 +28,7 @@ node('docker') {
                 }
 
                 if (env.BRANCH_NAME == masterBranch) {  // if BRANCH_NAME == some_dev_branch and/or some_master_branch?
-                	milestone 1
+                	milestone 1 'Vault AMI Baked'
         			lock(resource: 'vault-packer-build-ami', inversePrecedence: true) {
 						def packerCredentials = [
 							string(credentialsId: 'AWS_ACCESS_KEY_ID_DEV', variable: 'AWS_ACCESS_KEY_ID'),
@@ -41,7 +41,7 @@ node('docker') {
 						}
 					}
 
-					milestone 2
+					milestone 2 'Vault Terraform Module Deployed to AWS Development'
         			lock(resource: 'vault-terraform-deploy-to-dev', inversePrecedence: true) {
 						stage('Deploy to Dev') {
 							// need dev credentials to launch encrypted AMI? can we encrypt the AMIs with a shared vault AMI key???
@@ -58,16 +58,17 @@ node('docker') {
 						}
 					}
 
-					milestone 3
+					milestone 3 'Vault Terraform Module Deployed to AWS Corporate / Production'
         			lock(resource: 'vault-terraform-deploy-to-prod', inversePrecedence: true) {
-					stage('Deploy(plan) to Production') {
-						terraform.plan {
-							terraformDir = "./terraform/aws/corporate"
-							hipchatRoom = hipchatRoom
-						}
+						stage('Deploy(plan) to Production') {
+							terraform.plan {
+								terraformDir = "./terraform/aws/corporate"
+								hipchatRoom = hipchatRoom
+							}
 
-						stage('Smoke Production') {
-							sh 'make smoke-production'
+							stage('Smoke Production') {
+								sh 'make smoke-production'
+							}
 						}
 					}
 
