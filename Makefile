@@ -16,7 +16,7 @@ default: lint test terraform-plan
 # all is meant to generally map to Jenkinsfile/pipeline for the master branch (minus deploying to prod ;P)
 all: lint test packer-build-ami terraform-apply-development smoke-development
 
-lint: markdownlint ansible-lint yamllint
+lint: markdownlint ansible-lint yamllint terraform-validate
 test: test-packer
 
 # ~*~*~*~* Linter Tasks *~*~*~*~
@@ -209,7 +209,11 @@ terraform-get-%: | terraform-init-%
 		$(TERRAFORM_IMAGE) \
 		terraform get .
 
-terraform-plan-: $(addprefix terraform-plan-, $(ACCOUNTS))
+terraform-validate: $(addprefix terraform-validate-, $(ACCOUNTS))
+terraform-validate-%: | terraform-init-%
+	echo hello
+
+terraform-plan: $(addprefix terraform-plan-, $(ACCOUNTS))
 terraform-plan-%: | terraform-get-%
 	docker run --rm \
 		--workdir=/workspace \
@@ -223,7 +227,7 @@ terraform-plan-%: | terraform-get-%
 		$(TERRAFORM_IMAGE) \
 		terraform plan .
 
-terraform-apply-: $(addprefix terraform-apply-, $(ACCOUNTS))
+terraform-apply: $(addprefix terraform-apply-, $(ACCOUNTS))
 terraform-apply-%: | terraform-plan-%
 	docker run --rm \
 		--workdir=/workspace \
@@ -237,7 +241,7 @@ terraform-apply-%: | terraform-plan-%
 		$(TERRAFORM_IMAGE) \
 		terraform apply .
 
-terraform-destroy-: $(addprefix terraform-destroy-, $(ACCOUNTS))
+terraform-destroy: $(addprefix terraform-destroy-, $(ACCOUNTS))
 terraform-destroy-%: | terraform-get-%
 	docker run --rm \
 		-it \

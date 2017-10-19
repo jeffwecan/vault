@@ -48,7 +48,7 @@
   # CAUTION: Applying a when to a role also applies it to all the role's dependencies and handlers. A skipped role may
   # prevent the handlers or additional dependencies on that role from being executed later
   roles:
-    - { role: ami-cleanup, tags: role_ami_cleanup, when: packer_builder_type is defined and packer_builder_type == 'amazon-ebs' }
+    - { role: ami-cleanup, tags: role_ami_cleanup }
     - { role: common-packages, tags: role_common_packages }
     - { role: td-agent, tags: role_td_agent }
     - { role: ufw-firewall, tags: role_ufw_firewall, when: packer_builder_type is defined and packer_builder_type != 'docker' }

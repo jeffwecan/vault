@@ -46,7 +46,7 @@
     from_ip: "{{ item.ip | default(item) }}"
     to_port: "ssh"
   with_items:
-    - "{{ pypi_whitelist_ssh_ips }}"
+    - "{{ ufw_whitelist_ssh_ips }}"
   register: ufw_ssh
 
 - name: Allow HTTP(s)
