@@ -28,38 +28,47 @@ node('docker') {
                 }
 
                 if (env.BRANCH_NAME == masterBranch) {  // if BRANCH_NAME == some_dev_branch and/or some_master_branch?
-					def packerCredentials = [
-						string(credentialsId: 'AWS_ACCESS_KEY_ID_DEV', variable: 'AWS_ACCESS_KEY_ID'),
-						string(credentialsId: 'AWS_SECRET_ACCESS_KEY_DEV', variable: 'AWS_SECRET_ACCESS_KEY'),
-					]
-					withCredentials(packerCredentials) {
-						stage('Build AMI') {
-							sh 'make packer-build-ami'
-						}
-					}
-					stage('Deploy to Dev') {
-						// need dev credentials to launch encrypted AMI? can we encrypt the AMIs with a shared vault AMI key???
+                	milestone 1
+        			lock(resource: 'vault-packer-build-ami', inversePrecedence: true) {
+						def packerCredentials = [
+							string(credentialsId: 'AWS_ACCESS_KEY_ID_DEV', variable: 'AWS_ACCESS_KEY_ID'),
+							string(credentialsId: 'AWS_SECRET_ACCESS_KEY_DEV', variable: 'AWS_SECRET_ACCESS_KEY'),
+						]
 						withCredentials(packerCredentials) {
-							terraform.apply {
-								terraformDir = "./terraform/aws/development"
-								hipchatRoom = hipchatRoom
+							stage('Build AMI') {
+								sh 'make packer-build-ami'
 							}
 						}
 					}
 
-					stage('Smoke Dev') {
-						sh 'make smoke-dev'
+					milestone 2
+        			lock(resource: 'vault-terraform-deploy-to-dev', inversePrecedence: true) {
+						stage('Deploy to Dev') {
+							// need dev credentials to launch encrypted AMI? can we encrypt the AMIs with a shared vault AMI key???
+							withCredentials(packerCredentials) {
+								terraform.apply {
+									terraformDir = "./terraform/aws/development"
+									hipchatRoom = hipchatRoom
+								}
+							}
+						}
+
+						stage('Smoke Dev') {
+							sh 'make smoke-dev'
+						}
 					}
 
+					milestone 3
+        			lock(resource: 'vault-terraform-deploy-to-prod', inversePrecedence: true) {
 					stage('Deploy(plan) to Production') {
 						terraform.plan {
 							terraformDir = "./terraform/aws/corporate"
 							hipchatRoom = hipchatRoom
 						}
-					}
 
-					stage('Smoke Production') {
-						sh 'make smoke-production'
+						stage('Smoke Production') {
+							sh 'make smoke-production'
+						}
 					}
 
 					stage('Maybe Produce Artifacts?') {
