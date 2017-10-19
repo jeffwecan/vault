@@ -210,7 +210,7 @@ terraform-get-%: | terraform-init-%
 		terraform get .
 
 terraform-validate: $(addprefix terraform-validate-, $(ACCOUNTS))
-terraform-validate-%: | terraform-init-%
+terraform-validate-%: # | terraform-init-% # need to be able to run this in a jenkins shared var maybe... see: https://jenkins.wpengine.io/job/WPEngineGitHubRepos/job/vault-package/job/terraform_vault/93/console
 	echo hello
 
 terraform-plan: $(addprefix terraform-plan-, $(ACCOUNTS))
