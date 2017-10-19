@@ -62,14 +62,14 @@ provisioners:
     playbook_file: '{{ template_dir }}/../../ansible/local.yml'
     playbook_dir: '{{ template_dir }}/../../ansible/'
     role_paths:
-#      - '{{ template_dir }}/../../ansible/roles/'
-      - '{{ template_dir }}/../../ansible/roles/ami-cleanup/'
-      - '{{ template_dir }}/../../ansible/roles/common-packages/'
-      - '{{ template_dir }}/../../ansible/roles/nginx/'
-      - '{{ template_dir }}/../../ansible/roles/zabbix-agent/'
-      - '{{ template_dir }}/../../ansible/roles/ldap-client/'
-      - '{{ template_dir }}/../../ansible/roles/vault/'
-      - '{{ template_dir }}/../../ansible/roles/security/'
+      - '{{ template_dir }}/../../ansible/roles/'
+#      - '{{ template_dir }}/../../ansible/roles/ami-cleanup/'
+#      - '{{ template_dir }}/../../ansible/roles/common-packages/'
+#      - '{{ template_dir }}/../../ansible/roles/nginx/'
+#      - '{{ template_dir }}/../../ansible/roles/zabbix-agent/'
+#      - '{{ template_dir }}/../../ansible/roles/ldap-client/'
+#      - '{{ template_dir }}/../../ansible/roles/vault/'
+#      - '{{ template_dir }}/../../ansible/roles/security/'
     command: 'ANSIBLE_FORCE_COLOR=1 PYTHONUNBUFFERED=1 sudo ansible-playbook -vvv'
 #    command: ANSIBLE_FORCE_COLOR=1 PYTHONUNBUFFERED=1 WPE_DEPLOY_LOG_DIR=/tmp/artifacts
 #        ANSIBLE_CALLBACK_PLUGINS=/ansible-callbacks ansible-playbook -vvv --become
