@@ -57,6 +57,10 @@ node('docker') {
 						sh 'make smoke-production'
 					}
 
+					stage('Maybe Produce Artifacts?') {
+						sh echo could be cool to save a terraform graph thing or something here maybe
+					}
+
                 } else {
 					// Just do terraform plan
 					stage('TF Plan - Dev') {
