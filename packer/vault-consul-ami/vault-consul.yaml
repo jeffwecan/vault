@@ -39,6 +39,11 @@ builders:
       - VOLUME artifacts/test-results /test-results
       - CMD /usr/bin/supervisord
 provisioners:
+  - type: file
+    source: '{{ template_dir }}/../../tests/ansible/mock_ufw.sh'
+    destination: /usr/sbin/ufw
+    only:
+      - vault-ubuntu-16.04-docker
   - type: shell
     inline:
       - sudo apt update
