@@ -47,12 +47,9 @@ node('docker') {
 					milestone 2 // 'Vault Terraform Module Deployed to AWS Development'
         			lock(resource: 'vault-terraform-deploy-to-dev', inversePrecedence: true) {
 						stage('Deploy to Dev') {
-							// need dev credentials to launch encrypted AMI? can we encrypt the AMIs with a shared vault AMI key???
-							withCredentials(packerCredentials) {
-								terraform.apply {
-									terraformDir = "./terraform/aws/development"
-									hipchatRoom = "Vault Monitoring"
-								}
+							terraform.apply {
+								terraformDir = "./terraform/aws/development"
+								hipchatRoom = "Vault Monitoring"
 							}
 						}
 
