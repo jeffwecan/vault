@@ -131,7 +131,7 @@ ensure-tls-certs-apply: ensure-artifacts-dir ensure-tls-certs-get
 		-var 'public_key_file_path=/artifacts/vault.crt.pem' \
 		-var owner=$(TLS_OWNER)
 
-packer-yaml-to-json: | lint-packer-template
+packer-yaml-to-json:
 	@echo
 	# Generating JSON version of YAML packer template
 	docker run --rm \

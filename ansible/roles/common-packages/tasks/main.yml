@@ -2,6 +2,7 @@
 - include: ../../testinfra.yml
 
 - include: apt-get-update.yml
+  when: ansible_os_family == "Debian"
 
 - name: Set up our apt.conf.d
   copy:
@@ -62,95 +63,27 @@
     update_cache: yes
     cache_valid_time: "{{ cache_valid_time }}"
   with_items:
-#    - acct
     - ack-grep
-#    - apache2-utils
     - arping
-#    - autoconf
-#    - automake
-#    - autotools-dev
-#    - bc
-#    - binutils
-#    - bison
-#    - bsd-mailx
-#    - build-essential
     - clamav
     - conntrack
-#    - cpp
-#    - cracklib-runtime
-#    - curl
-#    - flex
-#    - g++
-#    - gcc
-#    - gdisk
-#    - git-core
-#    - git-doc
-#    - gdb
-#    - dstat
     - iotop
-#    - gnu-standards
     - htop
     - iftop
     - jq
-#    - libarchive-zip-perl
-#    - libc6-dev
-#    - libpam-pwquality
-#    - libpcre3
-#    - libpcre3-dev
-#    - libpopt-dev
-#    - libpwquality-tools
-#    - libreadline6
-#    - libreadline6-dev
-#    - libsasl2-modules
-#    - libssh2-1
-#    - libtool
-#    - libxml2-dev
-#    - libxslt1-dev
-#    - libyaml-dev
     - logrotate
     - lsof
-#    - lynx
-#    - m4
-#    - make
-#    - moreutils
-#    - mutt
-#    - mydumper
-#    - nfswatch
     - ngrep
-#    - nload
     - ntp
     - openssl
-#    - perl
-#    - perl-modules
-#    - psmisc
-#    - python-jinja2
-#    - python-mysqldb
-#    - python-paramiko
-#    - python-pip
     - python-software-properties
-#    - python-yaml
-#    - python3-pip
-#    - python3-setuptools
-#    - python3-dev # for scandir?
-#    - rdate
     - rsync
-#    - s3cmd
     - screen
-#    - ssed
-#    - strace
-#    - subversion
     - sysstat
-#    - tcpdump
     - tmux
     - unzip
     - update-notifier-common
-#    - vim-nox
-#    - whois
     - zip
-#    - zlib1g
-#    - zlib1g-dev
-
-
 
 - name: Install PyPI2 modules
   pip:

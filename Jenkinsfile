@@ -11,6 +11,10 @@ node('docker') {
 		String	TLS_OWNER = "root"
 		String	hipchatRoom = "Vault Monitoring"
 		String	masterBranch = "terraform_vault" // some day master?
+		def packerCredentials = [
+			string(credentialsId: 'AWS_ACCESS_KEY_ID_DEV', variable: 'AWS_ACCESS_KEY_ID'),
+			string(credentialsId: 'AWS_SECRET_ACCESS_KEY_DEV', variable: 'AWS_SECRET_ACCESS_KEY'),
+		]
         // IMAGE_TAG is used in docker-compose to ensure uniqueness of containers and networks.
         withEnv(["IMAGE_TAG=${IMAGE_TAG}", "TLS_OWNER=${TLS_OWNER}"]) {
             try {
@@ -30,10 +34,6 @@ node('docker') {
                 if (env.BRANCH_NAME == masterBranch) {  // if BRANCH_NAME == some_dev_branch and/or some_master_branch?
                 	milestone 1 // 'Vault AMI Baked'
         			lock(resource: 'vault-packer-build-ami', inversePrecedence: true) {
-						def packerCredentials = [
-							string(credentialsId: 'AWS_ACCESS_KEY_ID_DEV', variable: 'AWS_ACCESS_KEY_ID'),
-							string(credentialsId: 'AWS_SECRET_ACCESS_KEY_DEV', variable: 'AWS_SECRET_ACCESS_KEY'),
-						]
 						withCredentials(packerCredentials) {
 							stage('Build AMI') {
 								sh 'make packer-build-ami'
