@@ -15,14 +15,17 @@ node('docker') {
 			string(credentialsId: 'AWS_ACCESS_KEY_ID_DEV', variable: 'AWS_ACCESS_KEY_ID'),
 			string(credentialsId: 'AWS_SECRET_ACCESS_KEY_DEV', variable: 'AWS_SECRET_ACCESS_KEY'),
 		]
+		def terraformCredentials = [
+			// for terraform validate, TODO: remove this context once shared var can do our validate and graph calls?
+			string(credentialsId: 'TERRAFORM_AWS_ACCESS_KEY_ID', variable: 'AWS_ACCESS_KEY_ID'),
+			string(credentialsId: 'TERRAFORM_AWS_SECRET_ACCESS_KEY', variable: 'AWS_SECRET_ACCESS_KEY'),
+		]
+
         // IMAGE_TAG is used in docker-compose to ensure uniqueness of containers and networks.
         withEnv(["IMAGE_TAG=${IMAGE_TAG}", "TLS_OWNER=${TLS_OWNER}"]) {
             try {
                 stage('Lint') {
-                	withCredentials([  // for terraform validate, TODO: remove this context once shared var can do our validation?
-						string(credentialsId: 'TERRAFORM_AWS_ACCESS_KEY_ID', variable: 'AWS_ACCESS_KEY_ID'),
-						string(credentialsId: 'TERRAFORM_AWS_SECRET_ACCESS_KEY', variable: 'AWS_SECRET_ACCESS_KEY'),
-					]) {
+                	withCredentials(terraformCredentials) {
 						sh 'make lint'
 					}
 				}
@@ -71,11 +74,6 @@ node('docker') {
 							}
 						}
 					}
-
-					stage('Maybe Produce Artifacts?') {
-						sh echo could be cool to save a terraform graph thing or something here maybe
-					}
-
                 } else {
 					// Just do terraform plan
 					stage('TF Plan - Dev') {
@@ -91,6 +89,13 @@ node('docker') {
 						}
 					}
                 }
+
+				stage('Save Graph') {
+					withCredentials(terraformCredentials) {
+						sh 'make terraform-graph'
+					}
+				}
+
             } catch (error) {
 				if (env.BRANCH_NAME == masterBranch) {
 					hipchat.notify {
