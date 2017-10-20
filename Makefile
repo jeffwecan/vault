@@ -8,7 +8,7 @@ YAML_LINTER			:= wpengine/yamllint
 TERRAFORM_IMAGE		:= wpengine/terraform
 PACKER_IMAGE		:= wpengine/packer
 ANSIBLE_TEST_IMAGE	:= wpengine/ansible
-ACCOUNTS			:= development corporate
+ACCOUNTS			:= development production
 
 # default is meant to generally map to Jenkinsfile/pipeline for anything other than the master branch
 default: lint test terraform-plan

@@ -48,13 +48,13 @@ node('docker') {
 							withCredentials(packerCredentials) {
 								terraform.apply {
 									terraformDir = "./terraform/aws/development"
-									hipchatRoom = hipchatRoom
+									hipchatRoom = "Vault Monitoring"
 								}
 							}
 						}
 
 						stage('Smoke Dev') {
-							sh 'make smoke-dev'
+							sh 'make smoke-development'
 						}
 					}
 
@@ -63,7 +63,7 @@ node('docker') {
 						stage('Deploy(plan) to Production') {
 							terraform.plan {
 								terraformDir = "./terraform/aws/corporate"
-								hipchatRoom = hipchatRoom
+								hipchatRoom = "Vault Monitoring"
 							}
 
 							stage('Smoke Production') {
@@ -81,13 +81,13 @@ node('docker') {
 					stage('TF Plan - Dev') {
 						terraform.plan {
 							terraformDir = "./terraform/aws/development"
-							hipchatRoom = hipchatRoom
+							hipchatRoom = "Vault Monitoring"
 						}
 					}
 					stage('TF Plan - Corp') {
 						terraform.plan {
 							terraformDir = "./terraform/aws/corporate"
-							hipchatRoom = hipchatRoom
+							hipchatRoom = "Vault Monitoring"
 						}
 					}
                 }
