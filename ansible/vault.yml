@@ -39,12 +39,12 @@
 
 
   pre_tasks:
-#    - import_tasks: shared-load-vars.yml
+#    - include: shared-load-vars.yml
 #      check_mode: no
 #      tags: always
 
       # for tasks ineligible for tags:always
-#    - import_tasks: shared-pre-tasks.yml
+#    - include: shared-pre-tasks.yml
 
   # CAUTION: Applying a when to a role also applies it to all the role's dependencies and handlers. A skipped role may
   # prevent the handlers or additional dependencies on that role from being executed later
@@ -58,4 +58,4 @@
     - { role: zabbix-agent, tags: role_zabbix_agent, when: register_with_zabbix }
 
 #  post_tasks:
-#    - import_tasks: shared-post-tasks.yml
+#    - include: shared-post-tasks.yml

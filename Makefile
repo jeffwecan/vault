@@ -38,7 +38,7 @@ ansible-lint:
 		--volume $(PWD)/ansible:/workspace \
 		$(ANSIBLE_TEST_IMAGE):latest \
 		ansible-lint -p -x ANSIBLE0004,ANSIBLE0006,ANSIBLE0016,ANSIBLE0018 -v \
-		/workspace/local.yml
+		/workspace/vault.yml
 	@echo
 	# Successfully linted ansible.
 
@@ -190,7 +190,7 @@ terraform-init-%:
 	docker run --rm \
 		--workdir=/workspace \
 		--volume $(PWD)/terraform/aws/$(*):/workspace \
-		--volume $(HOME)/.ssh/id_rsa_github:/root/.ssh/id_rsa \
+		--volume $(HOME)/.ssh/id_rsa_github:/root/.ssh/id_rsa:ro \
 		--volume $(HOME)/.ssh/known_hosts:/root/.ssh/known_hosts \
 		--env GIT_TRACE=1 \
 		--env AWS_ACCESS_KEY_ID \
@@ -203,7 +203,7 @@ terraform-get-%: | terraform-init-%
 	docker run --rm \
 		--workdir=/workspace \
 		--volume $(PWD)/terraform/aws/$(*):/workspace \
-		--volume $(HOME)/.ssh/github_rsa:/root/.ssh/id_rsa \
+		--volume $(HOME)/.ssh/github_rsa:/root/.ssh/id_rsa:ro \
 		--volume $(HOME)/.ssh/known_hosts:/root/.ssh/known_hosts \
 		--env GIT_TRACE=1 \
 		--env AWS_ACCESS_KEY_ID \
@@ -217,7 +217,7 @@ terraform-validate-%: | terraform-init-% # need to be able to run this in a jenk
 		--workdir=/workspace \
 		--volume $(PWD)/terraform/aws/$(*):/workspace \
 		--env GIT_SSH_COMMAND="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" \
-		--volume $(HOME)/.ssh/github_rsa:/root/.ssh/id_rsa \
+		--volume $(HOME)/.ssh/github_rsa:/root/.ssh/id_rsa:ro \
 		--volume $(HOME)/.ssh/known_hosts:/root/.ssh/known_hosts \
 		--env GIT_TRACE=1 \
 		--env AWS_ACCESS_KEY_ID \
@@ -231,7 +231,7 @@ terraform-plan-%: | terraform-get-%
 		--workdir=/workspace \
 		--volume $(PWD)/terraform/aws/$(*):/workspace \
 		--env GIT_SSH_COMMAND="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" \
-		--volume $(HOME)/.ssh/github_rsa:/root/.ssh/id_rsa \
+		--volume $(HOME)/.ssh/github_rsa:/root/.ssh/id_rsa:ro \
 		--volume $(HOME)/.ssh/known_hosts:/root/.ssh/known_hosts \
 		--env GIT_TRACE=1 \
 		--env AWS_ACCESS_KEY_ID \
@@ -245,7 +245,7 @@ terraform-apply-%: | terraform-plan-%
 		--workdir=/workspace \
 		--volume $(PWD)/terraform/aws/$(*):/workspace \
 		--env GIT_SSH_COMMAND="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" \
-		--volume $(HOME)/.ssh/github_rsa:/root/.ssh/id_rsa \
+		--volume $(HOME)/.ssh/github_rsa:/root/.ssh/id_rsa:ro \
 		--volume $(HOME)/.ssh/known_hosts:/root/.ssh/known_hosts \
 		--env GIT_TRACE=1 \
 		--env AWS_ACCESS_KEY_ID \

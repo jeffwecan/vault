@@ -2,7 +2,7 @@ Consul Agent
 =============
 
 This role installs the software required for a system to participate as an agent
-in a consul cluster. 
+in a consul cluster.
 
 Requirements
 ------------

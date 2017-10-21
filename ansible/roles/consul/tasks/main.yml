@@ -14,7 +14,7 @@
     state: present
 
 - name: Import install consul tasks
-  import_tasks: install.yml
+  include: install.yml
 
 - name: Ensure consul config directory
   file:

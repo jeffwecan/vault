@@ -27,10 +27,10 @@
     mode: 0755
 
 - name: Import configuration tasks
-  import_tasks: config.yml
+  include: config.yml
 
 - name: Import tasks to set up supervisor service
-  import_tasks: init-setup.yml
+  include: init-setup.yml
   when: supervisor_started or supervisor_enabled
 
 - name: Ensure Supervisor is started (if configured).

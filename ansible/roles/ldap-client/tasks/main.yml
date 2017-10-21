@@ -88,7 +88,7 @@
     - group
     - sudoers
 
-- import_tasks: user-mapping.yml
+- include: user-mapping.yml
   when: is_farm
   tags:
     - ldap_user_mapping

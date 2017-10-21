@@ -111,7 +111,7 @@
     - zabbix agent restart
 
 # Setup MySQL user for zabbix-agent to monitor RDS connectivity on AWS utility nodes
-- import_tasks: rds_mysql_user.yml
+- include: rds_mysql_user.yml
   when: is_farm and 'amazon' in group_names and my.roles.utility is defined
 
 # Add script to check intra-cluster SSH access to clustered envrionments
@@ -134,9 +134,9 @@
     job: "/usr/local/bin/zabbix_local_keys_check.sh 2>&1 | logger -t ZABBIX_LOCAL_KEYS_CHECK"
   when: "is_farm and cluster.networks is defined and cluster.networks|length>0"
 
-- import_tasks: mcrouter.yml
+- include: mcrouter.yml
   when: my.roles.mcrouter is defined
 
 
 # Testinfra must run last
-- import_tasks: ../../testinfra.yml
+- include: ../../testinfra.yml

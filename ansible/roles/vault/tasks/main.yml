@@ -15,10 +15,10 @@
     state: present
 
 - name: Import install vault tasks
-  import_tasks: install.yml
+  include: install.yml
 
 - name: Import nginx tasks
-  import_tasks: nginx.yml
+  include: nginx.yml
 
 - name: Ensure vault config directory
   file:
