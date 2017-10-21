@@ -38,15 +38,14 @@ builders:
 provisioners:
   - type: shell
     inline:
-      - sudo apt update
-      - DEBIAN_FRONTEND=noninteractive sudo apt -y dist-upgrade
+      - DEBIAN_FRONTEND=noninteractive sudo apt update && sudo apt -y dist-upgrade
   - type: shell
     inline:
       - DEBIAN_FRONTEND=noninteractive sudo apt install -y python-pip
       - sudo pip install ansible
   - type: file
     source: '{{user `ca_public_key_path`}}'
-    destination: /tmp/ca.crt.pem
+    destination: /tmp/vault.ca.crt.pem
   - type: file
     source: '{{user `tls_public_key_path`}}'
     destination: /tmp/vault.crt.pem

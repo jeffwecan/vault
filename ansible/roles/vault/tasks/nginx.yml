@@ -1,59 +1,5 @@
 ---
 
-
-
-- name: Ensure nginx config directories
-  file:
-    path: /etc/nginx/{{ item }}
-    state: directory
-  with_items:
-    - sites-available
-    - sites-enabled---
-
-- name: Ensure /etc/wpengine/nginx/ subdirectories
-  file:
-    dest: /etc/wpengine/nginx/{{ item }}
-    state: directory
-    owner: root
-    group: root
-    mode: 0755
-  with_items:
-    - certs
-
-#- name: Ensure wildcard certificate
-#  template:
-#    src: etc/wpengine/nginx/certs/{{ item }}
-#    dest: /etc/wpengine/nginx/certs/{{ item }}
-#    owner: root
-#    group: root
-#    mode: 0644
-#  with_items: "{{ nginx_wildcard_certificates }}"
-#  notify: nginx reload
-
-- name: Copy some self-signed certs or hmm?
-  copy:
-    src: "/tmp/{{ item }}"
-    dest: "/etc/wpengine/nginx/certs/{{ item }}"
-    owner: root
-    group: root
-    mode: 0644
-  with_items:
-    - vault.crt.pem
-    - vault.key.pem
-
-- name: Generate custom dhparams
-  command: openssl dhparam -out /etc/wpengine/nginx/certs/dhparam.pem 2048
-  args:
-    creates: /etc/wpengine/nginx/certs/dhparam.pem
-
-- name: Ensure dhparam permissions
-  file:
-    path: /etc/wpengine/nginx/certs/dhparam.pem
-    state: file
-    owner: root
-    group: www-data
-    mode: 0640
-
 - name: Template vault nginx config
   template:
     src: "etc/nginx/sites-available/{{ item }}"
@@ -65,7 +11,7 @@
     - vault.conf
     - healthcheck.conf
   notify:
-    - "nginx reload"
+    - "reload web services"
 
 - name: Symlink nginx config to sites-enabled
   file:
@@ -78,11 +24,11 @@
     - vault.conf
     - healthcheck.conf
   notify:
-    - "nginx reload"
+    - "reload web services"
 
 - name: Disable default server block
   file:
     path: "/etc/nginx/sites-enabled/default"
     state: absent
   notify:
-    - "nginx reload"
+    - "reload web services"

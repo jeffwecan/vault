@@ -1,13 +1,13 @@
 ---
 # tasks file for security
 
-- include: chkrootkit.yml
+- import_tasks: chkrootkit.yml
   tags: chkrootkit
 
-- include: fail2ban.yml
+- import_tasks: fail2ban.yml
   tags: fail2ban
 
-- include: rkhunter.yml
+- import_tasks: rkhunter.yml
   tags: rkhunter
 
 - name: Ensure clamscan runner script at /usr/local/sbin/clamscan_sys_dirs

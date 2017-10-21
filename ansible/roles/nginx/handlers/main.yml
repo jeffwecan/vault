@@ -11,6 +11,7 @@
     name: nginx
     state: reloaded
 #  when: packer_builder_type is defined and packer_builder_type != "docker"
+  listen: "reload web services"
 
 - name: nginx start
   service:

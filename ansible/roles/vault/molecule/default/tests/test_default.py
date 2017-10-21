@@ -2,13 +2,11 @@ import os
 
 import testinfra.utils.ansible_runner
 
-testinfra_hosts = testinfra.utils.ansible_runner.AnsibleRunner(
-    os.environ['MOLECULE_INVENTORY_FILE']).get_hosts('all')
+testinfra_hosts = testinfra.utils.ansible_runner.AnsibleRunner(os.environ['MOLECULE_INVENTORY_FILE']).get_hosts('all')
 
 
-def test_hosts_file(host):
-    f = host.file('/etc/hosts')
-
-    assert f.exists
-    assert f.user == 'root'
-    assert f.group == 'root'
+def test_supervisord_conf(host):
+    vault_supervisord = host.supervisor("vault_supervisord")
+    from pprint import pprint
+    pprint(vault_supervisord)
+    pprint(dir(vault_supervisord))

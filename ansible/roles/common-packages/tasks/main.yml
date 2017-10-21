@@ -1,7 +1,7 @@
 ---
-- include: ../../testinfra.yml
+- import_tasks: ../../testinfra.yml
 
-- include: apt-get-update.yml
+- import_tasks: apt-get-update.yml
   when: ansible_os_family == "Debian"
 
 - name: Set up our apt.conf.d

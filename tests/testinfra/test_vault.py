@@ -15,7 +15,7 @@ def test_passwd_file(host):
 #     assert nginx.version.startswith("1.2")
 
 
-# def test_nginx_running_and_enabled(host):
-#     nginx = host.service("nginx")
-#     assert nginx.is_running
-#     assert nginx.is_enabled
+def test_nginx_running_and_enabled(host):
+    nginx = host.service("nginx")
+    assert nginx.is_running
+    assert nginx.is_enabled

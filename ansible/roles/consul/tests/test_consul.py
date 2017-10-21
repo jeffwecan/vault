@@ -1,11 +1,11 @@
 #!/usr/bin/env pytest
 """
-Tests for the vault server-cm role
+Tests for the consul server-cm role
 """
 import pytest
 
 
-@pytest.mark.parametrize("service_name", ["vault"])
+@pytest.mark.parametrize("service_name", ["consul"])
 def test_services_running(host, service_name):
     service = host.service(service_name)
     assert service.is_enabled

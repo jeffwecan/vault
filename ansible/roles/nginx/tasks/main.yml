@@ -1,12 +1,11 @@
 ---
-- include: ../../testinfra.yml
 
 - name: Install stock nginx
   apt:
     pkg: nginx
     state: present
     update_cache: yes
-    cache_valid_time: "{{ cache_valid_time }}"
+    cache_valid_time: "{{ cache_valid_time | default(600) }}"
   tags:
     - packages
   notify:
@@ -51,3 +50,26 @@
     owner: root
     group: root
     mode: 0644
+
+- name: Ensure /etc/wpengine/nginx/ subdirectories
+  file:
+    dest: /etc/wpengine/nginx/{{ item }}
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+  with_items:
+    - certs
+
+- name: Generate custom dhparams
+  command: openssl dhparam -out /etc/wpengine/nginx/certs/dhparam.pem {{ nginx_dhparam_bits }}
+  args:
+    creates: /etc/wpengine/nginx/certs/dhparam.pem
+
+- name: Ensure dhparam permissions
+  file:
+    path: /etc/wpengine/nginx/certs/dhparam.pem
+    state: file
+    owner: root
+    group: www-data
+    mode: 0640

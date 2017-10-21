@@ -1,0 +1,101 @@
+---
+- name: Ensure consul group
+  group:
+    name: "{{ consul_group }}"
+    system: yes
+
+- name: Ensure consul user
+  user:
+    name: "{{ consul_user }}"
+    group: "{{ consul_group }}"
+    system: yes
+    createhome: no
+    shell: /usr/sbin/nologin
+    state: present
+
+- name: Import install consul tasks
+  import_tasks: install.yml
+
+- name: Ensure consul config directory
+  file:
+    path: /etc/consul.d
+    state: directory
+    owner: consul
+
+- name: Template consul config file
+  template:
+    src: etc/consul.d/consul.hcl
+    dest: /etc/consul.d/consul.hcl
+    owner: consul
+    group: root
+  notify: consul restart
+
+- name: Ensure consul ssl directory
+  file:
+    path: /etc/consul.d/ssl
+    state: directory
+    owner: consul
+
+- name: Template consul SSL
+  copy:
+    content: "{{ item.contents }}"
+    dest: "/etc/consul.d/ssl/{{ item.name }}"
+    owner: consul
+    group: root
+    mode: 0400
+  with_items:
+    - { contents: "{{ consul_ssl_cert }}", name: "{{ consul_ssl_cert_filename }}" }
+    - { contents: "{{ consul_ssl_ca_cert }}", name: "{{ consul_ssl_ca_cert_filename }}" }
+    - { contents: "{{ consul_ssl_key }}", name: "{{ consul_ssl_key_filename }}"}
+  no_log: true
+
+- name: Ensure wpengine CA cert directory
+  file:
+    path: /usr/share/ca-certificates/wpengine/
+    state: directory
+
+- name: Template consul SSL CA
+  copy:
+    content: "{{ consul_ssl_ca_cert }}"
+    dest: "/usr/share/ca-certificates/wpengine/{{ consul_ssl_ca_cert_filename }}"
+    owner: root
+    group: root
+    mode: 0400
+  notify: Update CA certificates
+
+- name: Ensure consul SSL is loaded in /etc/ca-certificates.conf
+  lineinfile:
+    dest: /etc/ca-certificates.conf
+    line: wpengine/consul_ca.crt
+
+- name: Ensure awscli is installed
+  pip:
+    name: awscli
+    executable: pip2
+    state: present
+  tags:
+   - packages
+
+- name: Ensure /var/lib/consul directory for tracking state
+  file:
+    path: /var/lib/consul
+    state: directory
+    owner: consul
+    group: root
+    mode: 0755
+
+- name: Template upload_consul_snapshot.sh to /usr/local/bin
+  copy:
+    src: "usr/local/bin/upload_consul_snapshot.sh"
+    dest: "/usr/local/bin/upload_consul_snapshot"
+    owner: root
+    group: root
+    mode: 0744
+
+- name: Add cron to upload consul snapshots to s3
+  cron:
+    name: "Generate and upload consul snapshot"
+    state: present
+    minute: "0"
+    hour: "*"
+    job: "/usr/local/bin/upload_consul_snapshot 2>&1 | logger -t 'UPLOAD_CONSUL_SNAPSHOT'"

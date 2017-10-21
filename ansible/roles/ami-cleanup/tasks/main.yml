@@ -1,11 +1,11 @@
 ---
-- include: ../../testinfra.yml
+- import_tasks: ../../testinfra.yml
 
-- include: root.yml
+- import_tasks: root.yml
   tags:
     - root_profile
 
-- include: clean_users.yml
+- import_tasks: clean_users.yml
 
 # See https://wpengine.atlassian.net/browse/QE-3090
 - name: Ensure inventory hostname is always in /etc/hosts

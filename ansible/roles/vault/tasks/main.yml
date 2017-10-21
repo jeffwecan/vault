@@ -1,8 +1,5 @@
 ---
 
-#- name: Import testinfra tasks
-#  import_tasks: ../../testinfra.yml
-
 - name: Ensure vault group
   group:
     name: "{{ vault_group }}"
@@ -13,43 +10,42 @@
     name: "{{ vault_user }}"
     group: "{{ vault_group }}"
     system: yes
-    createhome: no
+    home: "{{ vault_data_path }}"
     shell: /usr/sbin/nologin
     state: present
 
-#- name: Import install vault tasks
-#  include: install.yml
-
-# DEPRECATED EH???
-#- name: Gather about currently running instance
-#  ec2_facts:
-#  when: packer_builder_type is not defined or packer_builder_type == 'amazon-ebs'
+- name: Import install vault tasks
+  import_tasks: install.yml
 
 - name: Import nginx tasks
-  include: nginx.yml
+  import_tasks: nginx.yml
 
 - name: Ensure vault config directory
   file:
     path: /etc/vault.d
     state: directory
+    owner: vault
 
 - name: Ensure vault ssl directory
   file:
     path: /etc/vault.d/ssl
     state: directory
+    owner: vault
 
 - name: Template vault SSL
   copy:
-    src: /tmp/{{ item }}
-    dest: /etc/vault.d/ssl/{{ item }}
-    owner: root
+    content: "{{ item.contents }}"
+    dest: "{{ item.name }}"
+    owner: vault
     group: root
     mode: 0400
   with_items:
-    - vault.crt.pem
-    - vault.key.pem
+    - { contents: "{{ vault_ssl_cert }}", name: "{{ vault_ssl_crt_path }}"}
+    - { contents: "{{ vault_ssl_ca_cert }}", name: "{{ vault_ssl_ca_crt_path }}"}
+    - { contents: "{{ vault_ssl_key }}", name: "{{ vault_ssl_key_path }}"}
+  no_log: true
   notify:
-    - 'vault restart'
+    - 'Vault Restart'
 
 - name: Ensure vault CA cert directory
   file:
@@ -58,21 +54,17 @@
 
 - name: Template vault SSL CA
   copy:
-    src: /tmp/ca.crt.pem
+    content: "{{ vault_ssl_ca_cert }}"
     dest: /usr/share/ca-certificates/wpengine/vault_ca.crt
     owner: root
     group: root
     mode: 0400
-  register: template_ca_cert
+  notify: Update CA certificates
 
 - name: Ensure vault SSL is loaded in /etc/ca-certificates.conf
   lineinfile:
     dest: /etc/ca-certificates.conf
     line: wpengine/vault_ca.crt
-
-- name: Update CA certificates
-  command: update-ca-certificates
-  when: template_ca_cert.changed
 
 - name: Template vault config file at /etc/vault.d/vault.hcl
   template:
@@ -82,39 +74,4 @@
     group: root
     mode: 0644
   notify:
-    - 'systemctl daemon-reload'
-    - 'vault restart'
-
-- name: Template vault service config file
-  template:
-    src: etc/systemd/system/vault.service
-    dest: /etc/systemd/system/vault.service
-    owner: root
-    group: root
-    mode: 0644
-  notify:
-    - 'systemctl daemon-reload'
-    - 'vault restart'
-
-- name: Copy various vault helper scripts to /usr/local/bin
-  copy:
-    src: "roles/vault/files/usr/local/bin/{{ item }}"
-    dest: "/usr/local/bin/{{ item }}"
-    owner: root
-    group: root
-    mode: 0755
-  with_items:
-    - initialize_vault_secrets
-
-- name: Ensure /etc/wpengine/vault/secret_templates directory
-  file:
-    path: /etc/wpengine/vault/secret_templates
-    state: directory
-
-- name: Copy credential templates to /etc/wpengine/vault/
-  copy:
-    src: "etc/wpengine/vault/secret_templates/"
-    dest: "/etc/wpengine/vault/secret_templates"
-    owner: root
-    group: root
-    mode: 0644
+    - 'Vault Restart'

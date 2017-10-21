@@ -5,3 +5,4 @@ nginx_ssl_ciphers: "EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH"
 nginx_ssl_protocols: "TLSv1.1 TLSv1.2"
 requires_star_wpengine_io_cert: false
 nginx_log_retention_days: 8
+nginx_dhparam_bits: 2048

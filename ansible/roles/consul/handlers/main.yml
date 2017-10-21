@@ -1,0 +1,9 @@
+---
+
+- name: Update CA certificates
+  command: update-ca-certificates
+
+- name: consul restart
+  supervisorctl:
+    name: consul
+    state: restarted

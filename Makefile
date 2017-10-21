@@ -1,4 +1,5 @@
 VERSION         	:= $(shell git describe --tags --always)
+IMAGE_TAG			?= $(VERSION)
 AMI_NAME			:= "vault-consul-ubuntu-$(VERSION)"
 SERVER_CM_TAG		:= "v3.31"
 TLS_OWNER			?= "root"
@@ -17,7 +18,7 @@ default: lint test terraform-plan
 all: lint test packer-build-ami terraform-apply-development smoke-development
 
 lint: markdownlint ansible-lint yamllint terraform-validate
-test: test-packer
+test: infratest-docker-image
 
 # ~*~*~*~* Linter Tasks *~*~*~*~
 # Run markdown analysis tool.
@@ -54,12 +55,13 @@ lint-packer-template:
 	@echo
 	# Successfully linted yaml.
 
-# ~*~*~*~* Test Tasks *~*~*~*~
-test-packer: | packer-build-image
+# ~*~*~*~* Test Tasks *~*~*~*~ # $(VERSION)
+infratest-docker-image:
 	docker run --rm \
-		--volume $(PWD)/tests/testinfra:/tests \
-		wpengine/vault-packer:$(VERSION) \
-		py.test -v /tests
+	--volume $(PWD)/artifacts:/artifacts \
+	--volume $(PWD)/tests/testinfra:/tests \
+	wpengine/vault-packer:latest \
+	py.test -v /tests --junit-xml /artifacts/infratest/docker_image.xml
 
 # ~*~*~*~* Smoke Tasks *~*~*~*~
 build-smoke-image:
@@ -155,7 +157,7 @@ packer-build-image: | packer-yaml-to-json ensure-tls-certs-apply
 		$(PACKER_IMAGE):latest \
 		build \
 			-except=vault-ubuntu-16.04-ami \
-			-var version=$(VERSION) \
+			-var version=$(IMAGE_TAG) \
 			-var-file packer/vault-consul-ami/variables.json \
 			-var 'tls_private_key_path=artifacts/vault.key.pem' \
 			-var 'ca_public_key_path=artifacts/vault.ca.crt.pem' \

@@ -1,5 +1,12 @@
 ---
 - name: Converge
   hosts: all
+  vars:
+    - tmp_certs_path: "{{ playbook_dir }}/../../../../../artifacts"
+    - vault_ssl_cert: "{{ lookup('file', '{{ tmp_certs_path }}/vault.crt.pem') }}"
+    - vault_ssl_ca_cert: "{{ lookup('file', '{{ tmp_certs_path }}/vault.ca.crt.pem') }}"
+    - vault_ssl_key: "{{ lookup('file', '{{ tmp_certs_path }}/vault.key.pem') }}"
+    - vault_supervisor_cmd_flags: "-dev"
+    - nginx_dhparam_bits: 256
   roles:
     - role: vault

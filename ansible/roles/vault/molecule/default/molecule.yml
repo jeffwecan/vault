@@ -7,7 +7,8 @@ lint:
   name: yamllint
 platforms:
   - name: instance
-    image: ubuntu:16:04
+    image: wpengine/ansible:latest
+#    command: {{ supervisor_bin_path }} -c /etc/supervisor/supervisord.conf
 provisioner:
   name: ansible
   lint:
@@ -18,3 +19,5 @@ verifier:
   name: testinfra
   lint:
     name: flake8
+    options:
+      ignore: E501

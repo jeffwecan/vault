@@ -1,15 +1,9 @@
 ---
 
-- name: systemctl daemon-reload
-  command: systemctl daemon-reload
-  when: ansible_service_mgr is defined and ansible_service_mgr == "systemd"
-
-- name: vault restart
-  service:
+- name: Vault Restart
+  supervisorctl:
     name: vault
     state: restarted
-    enabled: yes
-  when: ansible_service_mgr is defined and ansible_service_mgr == "systemd"  # find a better testing strategy for this in dockers?
 
-- name: nginx reload
-  service: name=nginx state=reloaded
+- name: Update CA certificates
+  command: update-ca-certificates

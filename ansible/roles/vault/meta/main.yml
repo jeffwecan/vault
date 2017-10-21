@@ -1,2 +1,40 @@
-dependencies: []
-#  - src: debian-common
+---
+
+dependencies:
+  - role: nginx
+  - role: consul
+    consul_run_as_server: false
+    consul_encryption: false
+    consul_ssl_cert: "{{ vault_ssl_cert }}"
+    consul_ssl_ca_cert: "{{ vault_ssl_ca_cert }}"
+    consul_ssl_key: "{{ vault_ssl_key }}"
+  - role: supervisor
+    supervisor_programs:
+      - name: 'vault'
+        command: /usr/local/bin/vault server {{ vault_supervisor_cmd_flags|default('') }}
+        state: present
+        user: vault
+        configuration: |
+         autostart=true
+         autorestart=true
+         startretries=1
+         startsecs=1
+         redirect_stderr=true
+         stderr_logfile=/var/log/vault.error.log
+         stdout_logfile=/var/log/vault.log
+         killasgroup=true
+         stopasgroup=true
+      - name: 'consul'
+        command: /usr/local/bin/consul agent -config-file=/etc/consul.d/consul.hcl
+        state: present
+        user: consul
+        configuration: |
+         autostart=true
+         autorestart=true
+         startretries=1
+         startsecs=1
+         redirect_stderr=true
+         stderr_logfile=/var/log/consul.error.log
+         stdout_logfile=/var/log/vault.log
+         killasgroup=true
+         stopasgroup=true

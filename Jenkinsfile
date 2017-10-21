@@ -30,8 +30,18 @@ node('docker') {
 					}
 				}
 
-                stage('Test') {
-                     sh 'make test'
+                stage('Test Roles') {
+                     sh 'make molecule-tests'
+                     // junit 'artifacts/infratest/docker_image.xml'
+                }
+
+                stage('Build Test Image') {
+                     sh 'make packer-build-image'
+                }
+
+                stage('Test Image') {
+                     sh 'make infratest-docker-image'
+                     junit 'artifacts/infratest/docker_image.xml'
                 }
 
                 if (env.BRANCH_NAME == masterBranch) {  // if BRANCH_NAME == some_dev_branch and/or some_master_branch?
@@ -90,6 +100,7 @@ node('docker') {
 				stage('Save Graph') {
 					withCredentials(terraformCredentials) {
 						sh 'make terraform-graph'
+						archiveArtifacts 'artifacts/*_tf.gv'
 					}
 				}
 
