@@ -30,17 +30,12 @@ node('docker') {
 					}
 				}
 
-                stage('Test Roles') {
-                     sh 'make molecule-tests'
-                     // junit 'artifacts/infratest/docker_image.xml'
-                }
-
                 stage('Build Test Image') {
                      sh 'make packer-build-image'
                 }
 
-                stage('Test Image') {
-                     sh 'make infratest-docker-image'
+                stage('Test') {
+                     sh 'make test'
                      junit 'artifacts/infratest/docker_image.xml'
                 }
 
