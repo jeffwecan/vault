@@ -56,7 +56,7 @@ lint-packer-template:
 	# Successfully linted yaml.
 
 # ~*~*~*~* Test Tasks *~*~*~*~ # $(VERSION)
-infratest-docker-image:
+infratest-docker-image: | packer-build-image
 	docker run --rm \
 	--volume $(PWD)/artifacts:/artifacts \
 	--volume $(PWD)/tests/testinfra:/tests \
