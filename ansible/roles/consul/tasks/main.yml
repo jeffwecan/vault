@@ -24,11 +24,14 @@
 
 - name: Template consul config file
   template:
-    src: etc/consul.d/consul.hcl
-    dest: /etc/consul.d/consul.hcl
+    src: etc/consul.d/{{ item }}
+    dest: /etc/consul.d/{{ item }}
     owner: consul
     group: root
   notify: consul restart
+  with_items:
+    - server.hcl
+    - agent.hcl
 
 - name: Ensure consul ssl directory
   file:

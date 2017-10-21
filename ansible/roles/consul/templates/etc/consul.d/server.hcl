@@ -12,10 +12,7 @@ ports {
     http = 8500
 }
 
-
-{% if consul_run_as_server %}
 server = true
-{% endif %}
 
 {% if telemetry_address is defined %}
 telemetry {

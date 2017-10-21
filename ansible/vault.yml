@@ -31,6 +31,10 @@
     - cluster:
           datacenter: "{{ packer_builder_type }}"
 
+    - tmp_certs_path: "{{ playbook_dir }}/../../../../../artifacts"
+    - vault_ssl_cert: "{{ lookup('file', '{{ tmp_certs_path }}/vault.crt.pem') }}"
+    - vault_ssl_ca_cert: "{{ lookup('file', '{{ tmp_certs_path }}/vault.ca.crt.pem') }}"
+    - vault_ssl_key: "{{ lookup('file', '{{ tmp_certs_path }}/vault.key.pem') }}"
 #    - creds:
 #        mailgun: {}
 #        postfix: {}
