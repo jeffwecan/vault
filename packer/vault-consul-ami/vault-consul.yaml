@@ -32,6 +32,7 @@ builders:
         - 099720109477
       most_recent: true
     ssh_username: ubuntu
+    force_deregister: true  # if we end up with the some AMI name, someone is probably rerunning a build?
   - name: vault-ubuntu-16.04-docker
     type: docker
     image: '{{user `test_image_name`}}:latest'
