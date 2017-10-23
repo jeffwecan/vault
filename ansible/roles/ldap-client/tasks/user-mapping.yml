@@ -19,7 +19,7 @@
 - name: Configure ldap user mapping cron
   cron:
     name: "LDAP User Mapping"
-    minute: "{{ my.cluster.id | default(0) % 59 }}"
+    minute: "{{ 59 |random(seed=inventory_hostname) }}"
     user: root
     job: "bash /usr/local/sbin/ldap-user-mapping.sh 2>&1 | logger -t LDAP_USER_MAPPING"
     cron_file: ldap-user-mapping

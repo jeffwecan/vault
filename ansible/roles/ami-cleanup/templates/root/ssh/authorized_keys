@@ -9,10 +9,6 @@
 {{ root.authorized }}
 {% endif %}
 
-{% if my.server.type in ['pod','utility'] %}
-# GitPush server access to here
-{{ creds.gitpush.gitpush1_root_public_key }}
-{% endif %}
 
 {% if ('protostaging' in group_names or 'awsimaging' in group_names or 'development' in group_names) and group_creds_jenkins_public_ssh_key is defined %}
 # allow Jenkins to run tests here

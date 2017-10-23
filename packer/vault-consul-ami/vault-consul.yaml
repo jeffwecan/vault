@@ -9,6 +9,7 @@ variables:
   tls_public_key_path: null
   tls_private_key_path: null
   version: ''
+  ansible_extra_arguments: '-vvvv,'
 builders:
   - name: vault-ubuntu-16.04-ami
     ami_name: vault-consul-ubuntu-{{ user `version` | clean_ami_name}}
@@ -53,15 +54,14 @@ provisioners:
     source: '{{user `tls_private_key_path`}}'
     destination: /tmp/vault.key.pem
   - type: ansible-local
-    playbook_file: '{{ template_dir }}/../../ansible/vault.yml'
+    playbook_file: '{{ template_dir }}/../../ansible/vault-consul-ami.yml'
     playbook_dir: '{{ template_dir }}/../../ansible/'
     role_paths:
       - '{{ template_dir }}/../../ansible/roles/'
     # TODO: Maybe look at capturing ansible results here via our callback plugins along with something like:
     # "... WPE_DEPLOY_LOG_DIR=/tmp/artifacts ANSIBLE_CALLBACK_PLUGINS=/ansible-callbacks .."
     command: 'ANSIBLE_FORCE_COLOR=1 PYTHONUNBUFFERED=1 ANSIBLE_DEBUG=true sudo ansible-playbook'
-    extra_arguments:
-      - '-vvvv'
+    extra_arguments: "{{user `ansible_extra_arguments`}}"
 post-processors:
   - type: docker-tag
     repository: wpengine/vault-packer

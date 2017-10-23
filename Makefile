@@ -38,7 +38,7 @@ ansible-lint:
 		--volume $(PWD)/ansible:/workspace \
 		$(ANSIBLE_TEST_IMAGE):latest \
 		ansible-lint -p -x ANSIBLE0004,ANSIBLE0006,ANSIBLE0016,ANSIBLE0018 -v \
-		/workspace/vault.yml
+		/workspace/vault-consul-ami.yml
 	@echo
 	# Successfully linted ansible.
 
@@ -163,6 +163,7 @@ packer-build-image: | packer-yaml-to-json ensure-tls-certs-apply
 			-var 'ca_public_key_path=artifacts/vault.ca.crt.pem' \
 			-var 'tls_public_key_path=artifacts/vault.crt.pem' \
 			-var 'test_image_name=$(ANSIBLE_TEST_IMAGE)' \
+			-var 'ansible_extra_arguments=-vvvv, -e vault_supervisor_cmd_flags=-dev' \
 			packer/vault-consul-ami/vault-consul.json
 
 packer-build-ami: | packer-yaml-to-json ensure-tls-certs-apply

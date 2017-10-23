@@ -2,3 +2,5 @@
 # we store our cannonical packer templates in yaml only
 packer/**/*.json
 ansible/**/*.retry
+ansible/**/vault*.zip
+ansible/**/consul*.zip

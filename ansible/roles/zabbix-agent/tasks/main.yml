@@ -35,7 +35,6 @@
     owner: zabbix
     group: zabbix
     mode: 0755
-  when: my.roles.zabbixproxy is not defined
   notify:
     - zabbix agent restart
 
@@ -109,34 +108,3 @@
     - creds
   notify:
     - zabbix agent restart
-
-# Setup MySQL user for zabbix-agent to monitor RDS connectivity on AWS utility nodes
-- include: rds_mysql_user.yml
-  when: is_farm and 'amazon' in group_names and my.roles.utility is defined
-
-# Add script to check intra-cluster SSH access to clustered envrionments
-- name: Ensure /usr/local/bin/zabbix_local_keys_check.sh
-  copy:
-    src: usr/local/bin/zabbix_local_keys_check.sh
-    dest: /usr/local/bin/zabbix_local_keys_check.sh
-    owner: zabbix
-    group: zabbix
-    mode: 0500
-  when: "is_farm and cluster.networks is defined and cluster.networks|length>0"
-
-- name: Add cron to run /usr/local/bin/zabbix_local_keys_check.sh
-  cron:
-    name: "Monitor local cluster SSH"
-    user: root
-    cron_file: zabbix_local_keys_check
-    state: present
-    minute: "*/15"
-    job: "/usr/local/bin/zabbix_local_keys_check.sh 2>&1 | logger -t ZABBIX_LOCAL_KEYS_CHECK"
-  when: "is_farm and cluster.networks is defined and cluster.networks|length>0"
-
-- include: mcrouter.yml
-  when: my.roles.mcrouter is defined
-
-
-# Testinfra must run last
-- include: ../../testinfra.yml
