@@ -44,7 +44,9 @@ provisioners:
   # First ensure we are building an image with the latest software packages available
   - type: shell
     inline:
-      - DEBIAN_FRONTEND=noninteractive sudo apt update && sudo apt -y dist-upgrade
+      # TODO: need a way to retry this due to internet weather, maybe just move it into our ansible?
+      - DEBIAN_FRONTEND=noninteractive sudo apt update || true
+      - sudo apt -y dist-upgrade
   - type: shell
     inline:
       - DEBIAN_FRONTEND=noninteractive sudo apt install -y python-pip
