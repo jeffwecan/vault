@@ -192,7 +192,7 @@ terraform-init-%:
 	docker run --rm \
 		--workdir=/workspace \
 		--volume $(PWD)/terraform/aws/$(*):/workspace \
-		--volume $(HOME)/.ssh/github_rsa:/root/.ssh/id_rsa:ro \
+		--volume $(HOME)/.ssh/id_rsa_github:/root/.ssh/id_rsa:ro \
 		--volume $(HOME)/.ssh/known_hosts:/root/.ssh/known_hosts \
 		--env GIT_TRACE=1 \
 		--env AWS_ACCESS_KEY_ID \
