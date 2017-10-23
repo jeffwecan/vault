@@ -9,6 +9,7 @@ variables:
   tls_public_key_path: null
   tls_private_key_path: null
   version: ''
+  ansible_staging_directory: /opt/ansible-vault
   ansible_extra_arguments: '-vvvv,'
 builders:
   - name: vault-ubuntu-16.04-ami
@@ -53,7 +54,11 @@ provisioners:
   - type: file
     source: '{{user `tls_private_key_path`}}'
     destination: /tmp/vault.key.pem
+  - type: shell
+    inline:
+      - mkdir -p '{{user `ansible_staging_directory`}}'
   - type: ansible-local
+    staging_directory: '{{user `ansible_staging_directory`}}'
     playbook_file: '{{ template_dir }}/../../ansible/vault-consul-ami.yml'
     playbook_dir: '{{ template_dir }}/../../ansible/'
     role_paths:
