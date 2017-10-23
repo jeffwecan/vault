@@ -15,7 +15,7 @@ dependencies:
         state: present
         user: vault
         configuration: |
-         autostart=false
+         autostart=true
          autorestart=true
          startretries=1
          startsecs=1

@@ -6,7 +6,7 @@ node('docker') {
     // when master builds fail. Docs are available at:
     // https://jenkins.wpengine.io/job/WPEngineGitHubRepos/job/jenkins_shared_library/job/master/pipeline-syntax/globals#wpe
     wpe.pipeline('Vault Monitoring') {
-        String  IMAGE_TAG = ":${BUILD_NUMBER}.${GIT_COMMIT}"
+        String  IMAGE_TAG = "${BUILD_NUMBER}"
         String  IMAGE_NAME = "vault${IMAGE_TAG}"
 		String	TLS_OWNER = "root"
 		String	hipchatRoom = "Vault Monitoring"
