@@ -76,7 +76,7 @@ smoke-development: | build-smoke-image
 		--env SMOKE_DOMAIN=vault.wpenginedev.com \
 		vault-smokes:$(VERSION)
 
-smoke-corporate: | build-smoke-image
+smoke-production: | build-smoke-image
 	docker run --rm \
 		--volume $(PWD)/artifacts:/artifacts \
 		--volume $(PWD)/tests:/workspace/tests \
