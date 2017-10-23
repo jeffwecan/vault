@@ -6,12 +6,14 @@ verify_incoming = true
 verify_outgoing = true
 log_level = "INFO"
 
+{% if consul_retry_join is defined %}
 retry_join {
-  provider = "{{ consul_retry_join_provider }}"
-  region = "{{ consul_retry_join_region }}"
-  tag_key = "{{ consul_retry_join_key }}"
-  tag_value = "{{ consul_retry_join_value }}"
+  provider = "{{ consul_retry_join.provider }}"
+  region = "{{ consul_retry_join.region }}"
+  tag_key = "{{ consul_retry_join.key }}"
+  tag_value = "{{ consul_retry_join.value }}"
 }
+{% endif %}
 
 addresses {
     http = "0.0.0.0"

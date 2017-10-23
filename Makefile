@@ -163,7 +163,7 @@ packer-build-image: | packer-yaml-to-json ensure-tls-certs-apply
 			-var 'ca_public_key_path=artifacts/vault.ca.crt.pem' \
 			-var 'tls_public_key_path=artifacts/vault.crt.pem' \
 			-var 'test_image_name=$(ANSIBLE_TEST_IMAGE)' \
-			-var 'ansible_extra_arguments=-vvvv, -e vault_supervisor_cmd_flags=-dev, -e nginx_dhparam_bit=256' \
+			-var 'ansible_extra_arguments=-vvvv, -e vault_supervisor_cmd_flags=-dev, -e nginx_dhparam_bit=256, --skip-tags=bootstrap' \
 			packer/vault-consul-ami/vault-consul.json
 
 packer-build-ami: | packer-yaml-to-json ensure-tls-certs-apply
@@ -182,6 +182,7 @@ packer-build-ami: | packer-yaml-to-json ensure-tls-certs-apply
 			-var 'tls_private_key_path=/artifacts/vault.key.pem' \
 			-var 'ca_public_key_path=/artifacts/vault.ca.crt.pem' \
 			-var 'tls_public_key_path=/artifacts/vault.crt.pem' \
+			-var 'ansible_extra_arguments=-vvvv, -e vault_supervisor_cmd_flags=-dev'
 			packer/vault-consul-ami/vault-consul.json
 	# TODO add packer profile to jenkins nodes IAM instance role
 

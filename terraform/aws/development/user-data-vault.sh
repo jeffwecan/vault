@@ -10,5 +10,10 @@ set -e
 # From: https://alestic.com/2010/12/ec2-user-data-output/
 exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
 
-/usr/local/bin/supervisorctl start consul-agent
-/usr/local/bin/supervisorctl start vault
+#/usr/local/bin/supervisorctl start consul-agent
+#/usr/local/bin/supervisorctl start vault
+
+/usr/bin/ansible-playbook -c local -i localhost, \
+	"${vault_bootstrap_playbook}"
+	-vvv
+	--tags bootstrap

@@ -11,6 +11,8 @@ variables:
   version: ''
   ansible_staging_directory: /opt/ansible-vault
   ansible_extra_arguments: '-vvvv,'
+  consul_bootstrap_playbook: consul-aws-bootstrap.yml
+  vault_bootstrap_playbook: vault-aws-bootstrap.yml
 builders:
   - name: vault-ubuntu-16.04-ami
     ami_name: vault-consul-ubuntu-{{ user `version` | clean_ami_name}}
@@ -54,9 +56,19 @@ provisioners:
   - type: file
     source: '{{user `tls_private_key_path`}}'
     destination: /tmp/vault.key.pem
+  - type: file
+    source: '{{user `tls_private_key_path`}}'
+    destination: /tmp/vault.key.pem
+  - type: file
+    source:  '{{ template_dir }}/../../ansible/{{user `consul_bootstrap_playbook`}}'
+    destination: '{{user `ansible_staging_directory`}}/{{user `consul_bootstrap_playbook`}}'
+  - type: file
+    source:  '{{ template_dir }}/../../ansible/{{user `vault_bootstrap_playbook`}}'
+    destination: '{{user `ansible_staging_directory`}}/{{user `vault_bootstrap_playbook`}}'
   - type: shell
     inline:
-      - mkdir -p '{{user `ansible_staging_directory`}}'
+      - sudo mkdir -p '{{user `ansible_staging_directory`}}'
+      - sudo chown -R ubuntu '{{user `ansible_staging_directory`}}'
   - type: ansible-local
     staging_directory: '{{user `ansible_staging_directory`}}'
     playbook_file: '{{ template_dir }}/../../ansible/vault-consul-ami.yml'

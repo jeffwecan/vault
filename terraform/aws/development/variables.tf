@@ -31,6 +31,16 @@ variable "cm_cidr" {
     default = "104.196.19.141/32"
 }
 
+variable "consul_bootstrap_playbook" {
+    description = "Playbook to finalize a consul instance's configuration"
+    default = "/opt/ansible-vault/vault-aws-bootstrap.yml"
+}
+
+variable "vault_bootstrap_playbook" {
+    description = "Playbook to finalize a vault instance's configuration"
+    default = "/opt/ansible-vault/consul-aws-bootstrap.yml"
+}
+
 # ---------------------------------------------------------------------------------------------------------------------
 # OPTIONAL PARAMETERS
 # These parameters have reasonable defaults.

@@ -34,6 +34,8 @@
   with_items:
     - server.hcl
     - agent.hcl
+  tags:
+    - bootstrap
 
 - name: Ensure consul ssl directory
   file:
@@ -89,7 +91,7 @@
     group: root
     mode: 0755
 
-- name: Template upload_consul_snapshot.sh to /usr/local/bin
+- name: Copy upload_consul_snapshot.sh to /usr/local/bin
   copy:
     src: "usr/local/bin/upload_consul_snapshot.sh"
     dest: "/usr/local/bin/upload_consul_snapshot"

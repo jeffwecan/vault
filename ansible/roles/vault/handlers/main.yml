@@ -1,10 +1,11 @@
 ---
 
 - name: Vault Restart
-  command: echo hullo  # we need a way to have vault start up without needing consul to bootstrap first?
-#  supervisorctl:
-#    name: vault
-#    state: restarted
+  supervisorctl:
+    name: vault
+    state: restarted
+  tags:
+    - bootstrap
 
 - name: Update CA certificates
   command: update-ca-certificates
