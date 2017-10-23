@@ -31,7 +31,8 @@ node('docker') {
 				}
 
                 stage('Test') {
-                     sh 'make test'
+                     //sh 'make test'
+                     sh 'echo hullo'
                 }
 
                 if (env.BRANCH_NAME == masterBranch) {  // if BRANCH_NAME == some_dev_branch and/or some_master_branch?
@@ -40,6 +41,7 @@ node('docker') {
 						withCredentials(packerCredentials) {
 							stage('Build AMI') {
 								sh 'make packer-build-ami'
+                     			//sh echo hullo
 							}
 						}
 					}
