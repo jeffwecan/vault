@@ -62,10 +62,7 @@ node('docker') {
 					milestone 3 // 'Vault Terraform Module Deployed to AWS Corporate / Production'
         			lock(resource: 'vault-terraform-deploy-to-prod', inversePrecedence: true) {
 						stage('Deploy(plan) to Production') {
-							terraform.plan {
-								terraformDir = "./terraform/aws/production"
-								hipchatRoom = "Vault Monitoring"
-							}
+							sh 'echo maybe deploy to prod someday...'
 
 							stage('Smoke Production') {
 								sh 'make smoke-production'
