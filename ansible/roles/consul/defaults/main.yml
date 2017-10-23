@@ -38,3 +38,8 @@ tmp_certs_path: /tmp
 consul_ssl_cert_filename: consul.crt
 consul_ssl_ca_cert_filename: consul_ca.crt
 consul_ssl_key_filename: consul.key
+
+consul_retry_join_provider: aws
+consul_retry_join_region: us-east-1
+consul_retry_join_key: consul-servers # in TF land => ${var.consul_cluster_tag_key}
+consul_retry_join_key: terraform-consul # in TF land => ${var.consul_cluster_name}

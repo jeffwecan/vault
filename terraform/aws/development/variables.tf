@@ -43,7 +43,7 @@ variable "aws_region" {
 
 variable "vault_cluster_name" {
   description = "What to name the Vault server cluster and all of its associated resources"
-  default     = "terraform-consul"
+  default     = "terraform-vault"
 }
 
 variable "consul_cluster_name" {
