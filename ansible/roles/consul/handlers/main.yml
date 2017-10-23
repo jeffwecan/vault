@@ -4,13 +4,15 @@
   command: update-ca-certificates
 
 - name: consul agent restart
-  supervisorctl:
-    name: consul-agent
-    state: restarted
-  when: not consul_run_as_server
+  command: echo 'this should be done in user-data land?'
+#  supervisorctl:
+#    name: consul-agent
+#    state: restarted
+#  when: not consul_run_as_server
 
 - name: consul server restart
-  supervisorctl:
-    name: consul-server
-    state: restarted
-  when: consul_run_as_server
+  command: echo 'this should be done in user-data land?'
+#  supervisorctl:
+#    name: consul-server
+#    state: restarted
+#  when: consul_run_as_server
