@@ -28,7 +28,9 @@
     dest: /etc/consul.d/{{ item }}
     owner: consul
     group: root
-  notify: consul restart
+  notify:
+    - consul agent restart
+    - consul server restart
   with_items:
     - server.hcl
     - agent.hcl

@@ -3,7 +3,14 @@
 - name: Update CA certificates
   command: update-ca-certificates
 
-- name: consul restart
+- name: consul agent restart
   supervisorctl:
-    name: consul
+    name: consul-agent
     state: restarted
+  when: not consul_run_as_server
+
+- name: consul server restart
+  supervisorctl:
+    name: consul-server
+    state: restarted
+  when: consul_run_as_server
