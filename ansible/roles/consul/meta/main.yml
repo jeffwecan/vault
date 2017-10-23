@@ -1,0 +1,33 @@
+---
+
+dependencies:
+  - role: supervisor
+    supervisor_programs:
+      - name: 'consul-agent'
+        command: /usr/local/bin/consul agent -config-file=/etc/consul.d/agent.hcl
+        state: present
+        user: consul
+        configuration: |
+         autostart=false
+         autorestart=true
+         startretries=1
+         startsecs=1
+         redirect_stderr=true
+         stderr_logfile=/var/log/consul.error.log
+         stdout_logfile=/var/log/vault.log
+         killasgroup=true
+         stopasgroup=true
+      - name: 'consul-server'
+        command: /usr/local/bin/consul -server -bootstrap-expect {{ consul_cluster_size }} -config-file=/etc/consul.d/server.hcl
+        state: present
+        user: consul
+        configuration: |
+         autostart=false
+         autorestart=true
+         startretries=1
+         startsecs=1
+         redirect_stderr=true
+         stderr_logfile=/var/log/consul.error.log
+         stdout_logfile=/var/log/vault.log
+         killasgroup=true
+         stopasgroup=true
