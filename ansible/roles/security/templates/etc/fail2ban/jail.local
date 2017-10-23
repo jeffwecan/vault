@@ -9,7 +9,7 @@
 ignoreip = 127.0.0.1/8 10.0.0.0/8 172.16.0.0/12 192.168.0.0/24{% for subnet in fail2ban_whitelist + api_server_ips + office_ips %} {{ subnet.ip }}/{{ subnet.netmask|default(32) }}{% endfor %}
 
 
-{% for service in fail2ban_services if service.role == 'all' or service.role in my.roles %}
+{% for service in fail2ban_services %}
 [{{ service.name }}]
 {% if service.enabled is defined %}
 enabled = {{ service.enabled }}
