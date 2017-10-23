@@ -60,10 +60,10 @@ provisioners:
     source: '{{user `tls_private_key_path`}}'
     destination: /tmp/vault.key.pem
   - type: file
-    source:  '{{ template_dir }}/../../ansible/{{user `consul_bootstrap_playbook`}}'
+    source: '{{ template_dir }}/../../ansible/{{user `consul_bootstrap_playbook`}}'
     destination: '{{user `ansible_staging_directory`}}/{{user `consul_bootstrap_playbook`}}'
   - type: file
-    source:  '{{ template_dir }}/../../ansible/{{user `vault_bootstrap_playbook`}}'
+    source: '{{ template_dir }}/../../ansible/{{user `vault_bootstrap_playbook`}}'
     destination: '{{user `ansible_staging_directory`}}/{{user `vault_bootstrap_playbook`}}'
   - type: shell
     inline:
