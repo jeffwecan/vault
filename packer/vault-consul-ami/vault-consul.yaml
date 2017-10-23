@@ -40,6 +40,8 @@ builders:
     changes:
       - CMD /usr/bin/supervisord
 provisioners:
+
+  # First ensure we are building an image with the latest software packages available
   - type: shell
     inline:
       - DEBIAN_FRONTEND=noninteractive sudo apt update && sudo apt -y dist-upgrade
@@ -47,6 +49,8 @@ provisioners:
     inline:
       - DEBIAN_FRONTEND=noninteractive sudo apt install -y python-pip
       - sudo pip install ansible
+
+  # Ensure SSL secrets are available when running ansible. TODO: SSL storage should move to S3/KMS/Credstash?
   - type: file
     source: '{{user `ca_public_key_path`}}'
     destination: /tmp/vault.ca.crt.pem
@@ -56,22 +60,26 @@ provisioners:
   - type: file
     source: '{{user `tls_private_key_path`}}'
     destination: /tmp/vault.key.pem
-  - type: file
-    source: '{{user `tls_private_key_path`}}'
-    destination: /tmp/vault.key.pem
+
+  # Create working directory for ansible-local provisioner
+  # This path is also used for configuration of instances via an ansible-playbook invocation in a cloud-init script
+  - type: shell
+    inline:
+      - sudo mkdir -p '{{user `ansible_staging_directory`}}'
+      - sudo chown -R ubuntu '{{user `ansible_staging_directory`}}'
+
+  # Copy over the cloud-init / bootstraping ansible playbooks
   - type: file
     source: '{{ template_dir }}/../../ansible/{{user `consul_bootstrap_playbook`}}'
     destination: '{{user `ansible_staging_directory`}}/{{user `consul_bootstrap_playbook`}}'
   - type: file
     source: '{{ template_dir }}/../../ansible/{{user `vault_bootstrap_playbook`}}'
     destination: '{{user `ansible_staging_directory`}}/{{user `vault_bootstrap_playbook`}}'
-  - type: shell
-    inline:
-      - sudo mkdir -p '{{user `ansible_staging_directory`}}'
-      - sudo chown -R ubuntu '{{user `ansible_staging_directory`}}'
+
+  # Finally, use imaging playbook for building the base image
   - type: ansible-local
     staging_directory: '{{user `ansible_staging_directory`}}'
-    playbook_file: '{{ template_dir }}/../../ansible/vault-consul-ami.yml'
+    playbook_file: '{{ template_dir }}/../../ansible/vault-consul-aws-imaging.yml'
     playbook_dir: '{{ template_dir }}/../../ansible/'
     role_paths:
       - '{{ template_dir }}/../../ansible/roles/'

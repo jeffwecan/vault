@@ -1,5 +1,4 @@
 ---
-- include: ../../testinfra.yml
 
 - include: apt-get-update.yml
   when: ansible_os_family == "Debian"
