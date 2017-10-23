@@ -40,8 +40,8 @@ node('docker') {
         			lock(resource: 'vault-packer-build-ami', inversePrecedence: true) {
 						withCredentials(packerCredentials) {
 							stage('Build AMI') {
-								sh 'make packer-build-ami'
-                     			//sh echo hullo
+								//sh 'make packer-build-ami'
+                     			sh 'echo hullo'
 							}
 						}
 					}
