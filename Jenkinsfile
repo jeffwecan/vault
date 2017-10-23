@@ -62,7 +62,7 @@ node('docker') {
         			lock(resource: 'vault-terraform-deploy-to-prod', inversePrecedence: true) {
 						stage('Deploy(plan) to Production') {
 							terraform.plan {
-								terraformDir = "./terraform/aws/corporate"
+								terraformDir = "./terraform/aws/production"
 								hipchatRoom = "Vault Monitoring"
 							}
 
@@ -81,7 +81,7 @@ node('docker') {
 					}
 					stage('TF Plan - Corp') {
 						terraform.plan {
-							terraformDir = "./terraform/aws/corporate"
+							terraformDir = "./terraform/aws/production"
 							hipchatRoom = "Vault Monitoring"
 						}
 					}
