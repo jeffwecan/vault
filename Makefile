@@ -37,8 +37,8 @@ ansible-lint:
 	docker run --rm \
 		--volume $(PWD)/ansible:/workspace \
 		$(ANSIBLE_TEST_IMAGE):latest \
-		ansible-lint -p -x ANSIBLE0004,ANSIBLE0006,ANSIBLE0016,ANSIBLE0018 -v \
-		/workspace/vault-consul-ami.yml
+		/bin/bash -c '/usr/bin/find /workspace -maxdepth 1 -name '*.yml' -print0 | /usr/bin/xargs -0 ansible-lint -p -v'
+
 	@echo
 	# Successfully linted ansible.
 

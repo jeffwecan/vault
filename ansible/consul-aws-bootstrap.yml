@@ -13,11 +13,6 @@
   vars:
     - cache_valid_time: 600
     - tmp_certs_path: "/tmp"
-    - consul_retry_join:
-        provider: aws
-        region: us-east-1
-        key: consul-servers # in TF land => ${var.consul_cluster_tag_key}
-        key: terraform-consul # in TF land => ${var.consul_cluster_name}
     - vault_ssl_cert: "{{ lookup('file', '{{ tmp_certs_path }}/vault.crt.pem') }}"
     - vault_ssl_ca_cert: "{{ lookup('file', '{{ tmp_certs_path }}/vault.ca.crt.pem') }}"
     - vault_ssl_key: "{{ lookup('file', '{{ tmp_certs_path }}/vault.key.pem') }}"
