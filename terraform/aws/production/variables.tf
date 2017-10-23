@@ -26,6 +26,26 @@ variable "aws_role_arn" {
   default = "arn:aws:iam::770273818880:role/wpengine/robots/TerraformApplier"
 }
 
+variable "consul_bootstrap_playbook" {
+    description = "Playbook to finalize a consul instance's configuration"
+    default = "/opt/ansible-vault/vault-aws-bootstrap.yml"
+}
+
+variable "consul_bootstrap_vars" {
+    description = "Ansible variables for use when finalizing a consul instance's configuration"
+    default = "/opt/ansible-vault/roles/consul/vars/bootstrap_aws_dev.yml"
+}
+
+variable "vault_bootstrap_playbook" {
+    description = "Playbook to finalize a vault instance's configuration"
+    default = "/opt/ansible-vault/consul-aws-bootstrap.yml"
+}
+
+variable "vault_bootstrap_vars" {
+    description = "Ansible variables for use when finalizing a vault instance's configuration"
+    default = "/opt/ansible-vault/roles/vault/vars/bootstrap_aws_dev.yml"
+}
+
 # ---------------------------------------------------------------------------------------------------------------------
 # OPTIONAL PARAMETERS
 # These parameters have reasonable defaults.

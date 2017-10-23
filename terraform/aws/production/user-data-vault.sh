@@ -10,10 +10,11 @@ set -e
 # From: https://alestic.com/2010/12/ec2-user-data-output/
 exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
 
-# The Packer template puts the TLS certs in these file paths
-readonly VAULT_TLS_CERT_FILE="/opt/vault/tls/vault.crt.pem"
-readonly VAULT_TLS_KEY_FILE="/opt/vault/tls/vault.key.pem"
+#/usr/local/bin/supervisorctl start consul-agent
+#/usr/local/bin/supervisorctl start vault
 
-# The variables below are filled in via Terraform interpolation
-/opt/consul/bin/run-consul --client --cluster-tag-key "${consul_cluster_tag_key}" --cluster-tag-value "${consul_cluster_tag_value}"
-/opt/vault/bin/run-vault --s3-bucket "${s3_bucket_name}" --s3-bucket-region "${aws_region}" --tls-cert-file "$VAULT_TLS_CERT_FILE"  --tls-key-file "$VAULT_TLS_KEY_FILE"
+/usr/bin/ansible-playbook -c local -i localhost, \
+	"${vault_bootstrap_playbook}"
+	-vvv
+	--tags bootstrap
+	--extra-vars "@${vault_bootstrap_vars}"

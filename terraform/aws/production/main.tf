@@ -111,6 +111,8 @@ data "template_file" "user_data_vault_cluster" {
     s3_bucket_name           = "${var.s3_bucket_name}"
     consul_cluster_tag_key   = "${var.consul_cluster_tag_key}"
     consul_cluster_tag_value = "${var.consul_cluster_name}"
+    vault_bootstrap_playbook = "${var.vault_bootstrap_playbook}"
+    vault_bootstrap_vars     = "${var.vault_bootstrap_vars}"
   }
 }
 
@@ -154,6 +156,8 @@ data "template_file" "user_data_consul" {
   vars {
     consul_cluster_tag_key   = "${var.consul_cluster_tag_key}"
     consul_cluster_tag_value = "${var.consul_cluster_name}"
+    consul_bootstrap_playbook = "${var.consul_bootstrap_playbook}"
+    consul_bootstrap_vars     = "${var.consul_bootstrap_vars}"
   }
 }
 
