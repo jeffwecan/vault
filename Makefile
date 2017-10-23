@@ -58,10 +58,10 @@ lint-packer-template:
 # ~*~*~*~* Test Tasks *~*~*~*~ # $(VERSION)
 infratest-docker-image: | packer-build-image
 	docker run --rm \
-	--volume $(PWD)/artifacts:/artifacts \
+	--volume $(PWD)/artifacts/infratest:/artifacts/infratest:rw \
 	--volume $(PWD)/tests/testinfra:/tests \
 	wpengine/vault-packer:latest \
-	py.test -v /tests --junit-xml /artifacts/infratest/docker_image.xml
+	/bin/bash -c "service supervisord start && py.test -v /tests --junit-xml /artifacts/infratest/docker_image.xml"
 
 # ~*~*~*~* Smoke Tasks *~*~*~*~
 build-smoke-image:
