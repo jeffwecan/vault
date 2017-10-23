@@ -10,7 +10,7 @@ retry_join {
   provider = "{{ consul_retry_join_provider }}"
   region = "{{ consul_retry_join_region }}"
   tag_key = "{{ consul_retry_join_key }}"
-  tag_value = "{{ consul_retry_join_key }}"
+  tag_value = "{{ consul_retry_join_value }}"
 }
 
 addresses {

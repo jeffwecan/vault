@@ -13,9 +13,8 @@
   vars:
     - cache_valid_time: 600
     - tmp_certs_path: "/tmp"
-    - consul_retry_join_provider: aws
-    - consul_retry_join_region: us-east-1
-    - consul_retry_join_key: consul-servers # in TF land => ${var.consul_cluster_tag_key}
+    - consul_retry_join_provider: gce
+    - consul_retry_join_region: us-east1
     - consul_retry_join_value: terraform-consul # in TF land => ${var.consul_cluster_name}
     - vault_ssl_cert: "{{ lookup('file', '{{ tmp_certs_path }}/vault.crt.pem') }}"
     - vault_ssl_ca_cert: "{{ lookup('file', '{{ tmp_certs_path }}/vault.ca.crt.pem') }}"
