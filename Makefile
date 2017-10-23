@@ -192,7 +192,7 @@ terraform-init-%:
 	docker run --rm \
 		--workdir=/workspace \
 		--volume $(PWD)/terraform/aws/$(*):/workspace \
-		--volume $(HOME)/.ssh/id_rsa_github:/root/.ssh/id_rsa:ro \
+		--volume $(HOME)/.ssh/github_rsa:/root/.ssh/id_rsa:ro \
 		--volume $(HOME)/.ssh/known_hosts:/root/.ssh/known_hosts \
 		--env GIT_TRACE=1 \
 		--env AWS_ACCESS_KEY_ID \
@@ -256,7 +256,23 @@ terraform-apply-%: | terraform-plan-%
 		terraform apply .
 
 terraform-destroy: $(addprefix terraform-destroy-, $(ACCOUNTS))
-terraform-destroy-%: | terraform-get-%
+terraform-destroy-development: | terraform-get-development
+	docker run --rm \
+		-it \
+		--workdir=/workspace \
+		--volume $(PWD)/terraform/aws/$(*):/workspace \
+		--env GIT_SSH_COMMAND="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" \
+		--volume $(HOME)/.ssh/github_rsa:/root/.ssh/id_rsa \
+		--volume $(HOME)/.ssh/known_hosts:/root/.ssh/known_hosts \
+		--env GIT_TRACE=1 \
+		--env AWS_ACCESS_KEY_ID \
+		--env AWS_SECRET_ACCESS_KEY \
+		$(TERRAFORM_IMAGE) \
+		terraform \
+		 destroy \
+		 -var 'aws_role_arn=arn:aws:iam::844484402121:role/wpengine/robots/TerraformDestroyer' \
+		 .
+terraform-destroy-production: | terraform-get-production
 	docker run --rm \
 		-it \
 		--workdir=/workspace \
