@@ -37,4 +37,4 @@
     dest: /root/.ssh/authorized_keys
   tags:
     - authorized_keys
-  when: packer_builder_type is defined and packer_builder_type | search('^amazon-')
+  when: packer_builder_type is defined and packer_builder_type != 'docker'

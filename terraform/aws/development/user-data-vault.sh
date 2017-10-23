@@ -12,8 +12,12 @@ exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
 
 #/usr/local/bin/supervisorctl start consul-agent
 #/usr/local/bin/supervisorctl start vault
-
-/usr/bin/ansible-playbook -c local -i localhost, \
+echo /usr/bin/ansible-playbook -c local -i localhost, \
+	"${vault_bootstrap_playbook}"
+	-vvv
+	--tags bootstrap
+	--extra-vars "@${vault_bootstrap_vars}"
+sudo HOME=/root /usr/bin/ansible-playbook -c local -i localhost, \
 	"${vault_bootstrap_playbook}"
 	-vvv
 	--tags bootstrap
