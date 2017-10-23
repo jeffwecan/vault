@@ -38,7 +38,7 @@ variable "consul_bootstrap_vars" {
 
 variable "vault_bootstrap_playbook" {
     description = "Playbook to finalize a vault instance's configuration"
-    default = "/opt/ansible-vault/consul-aws-bootstrap.yml"
+    default = "/opt/ansible-vault/vault-aws-bootstrap.yml"
 }
 
 variable "vault_bootstrap_vars" {

@@ -2,3 +2,5 @@
 - name: restart supervisor
   service: name=supervisord state=restarted
   when: supervisor_started
+  tags:
+    - bootstrap

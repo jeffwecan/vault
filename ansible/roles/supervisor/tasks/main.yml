@@ -28,6 +28,8 @@
 
 - name: Import configuration tasks
   include: config.yml
+  tags:
+    - bootstrap
 
 - name: Import tasks to set up supervisor service
   include: init-setup.yml
@@ -38,9 +40,13 @@
     name: supervisord
     state: started
   when: supervisor_started
+  tags:
+    - bootstrap
 
 - name: Ensure Supervisor is enabled at boot (if configured).
   service:
     name: supervisord
     enabled: yes
   when: supervisor_enabled
+  tags:
+    - bootstrap
