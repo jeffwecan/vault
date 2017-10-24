@@ -33,8 +33,10 @@ timestamps {
 					}
 
 					stage('Test') {
-						 //sh 'make test'
-						 sh 'echo hullo'
+						 sh 'make test'
+						 junit 'artifacts/ansible/package-vault-*tags_bootstrap-*.xml'
+						 junit 'artifacts/molecule/*.xml'
+						 //sh 'echo hullo'
 					}
 
 					if (env.BRANCH_NAME == masterBranch) {  // if BRANCH_NAME == some_dev_branch and/or some_master_branch?

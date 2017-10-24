@@ -66,14 +66,19 @@ infratest-docker-image: | packer-build-image
 	wpengine/vault-packer:latest \
 	/bin/bash -c "service supervisord start && py.test -v /tests --junit-xml /artifacts/infratest/docker_image.xml"
 
-molecule-test:
+molecule-test: | ensure-artifacts-dir ensure-tls-certs-apply
 	#tests/ansible/run_all_molecule_tests.sh $(ROLES_TO_TEST)
 
 	docker run --rm \
+		--name vault_molecule_test_runner \
 		--volume /var/run/docker.sock:/var/run/docker.sock \
-		--volume $(PWD)/ansible:/workspace/ansible \
+		--volume $(PWD):/workspace \
 		--volume $(PWD)/tests/ansible:/tests \
+		--volume $(PWD)/tests/ansible/ansible.cfg:/etc/ansible/ansible.cfg \
+		--volume $(PWD)/artifacts:/artifacts \
 		--workdir=/workspace \
+		--env WPE_DEPLOY_LOG_DIR=/artifacts/ansible \
+		--env JUNIT_OUTPUT_DIR=/artifacts/ansible \
 		$(MOLECULE_TEST_IMAGE) \
 		/tests/run_all_molecule_tests.sh
 
@@ -117,7 +122,8 @@ clean: | ensure-tls-certs-get
 			-force
 
 ensure-artifacts-dir:
-	mkdir -p artifacts
+	mkdir -p artifacts/molecule
+	mkdir -p artifacts/ansible
 
 ensure-tls-certs-init:
 	docker run --rm \

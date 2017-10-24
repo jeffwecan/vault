@@ -8,10 +8,16 @@ lint:
   options:
     config-file: ../../molecule/.yamllint
 platforms:
-  - name: molecule_common_packages_1604
+  - name: role_common_packages_molecule_ubuntu_1604
     image: wpengine/ansible:16.04
 provisioner:
   name: ansible
+  env:
+    JUNIT_OUTPUT_DIR: /artifacts/ansible
+    WPE_DEPLOY_LOG_DIR: /artifacts/ansible
+  config_options:
+    defaults:
+      callback_whitelist: wpe_junit
   playbooks:
     create: ../../../../molecule/create.yml
     destroy: ../../../../molecule/destroy.yml
@@ -23,6 +29,8 @@ scenario:
   name: default
 verifier:
   name: testinfra
+  options:
+    junit-xml: ../../../../../artifacts/molecule/common_packages_role.xml
   lint:
     name: flake8
     options:

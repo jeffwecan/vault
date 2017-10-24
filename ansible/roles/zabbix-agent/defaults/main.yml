@@ -1,4 +1,6 @@
 ---
+# How long to consider apt's cache valid, in seconds
+cache_valid_time: 600
 
 is_zabbix: false
 zabbix_environment: production
