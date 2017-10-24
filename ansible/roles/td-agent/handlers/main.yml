@@ -1,8 +1,13 @@
 ---
 
 - name: td-agent restart
-  service: name=td-agent state=restarted enabled=yes
+  service:
+    name: td-agent
+    state: restarted
+    enabled: yes
 
 - name: rsyslog restart
-  service: name=rsyslog state=restarted enabled=yes
-
+  service:
+    name: rsyslog
+    state: restarted
+    enabled: yes

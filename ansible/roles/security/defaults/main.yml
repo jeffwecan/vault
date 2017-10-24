@@ -1,32 +1,19 @@
 ---
-# defaults file for security
+# How long to consider apt's cache valid, in seconds
+cache_valid_time: 600
 
 fail2ban_whitelist: []
 
 fail2ban_services:
-  - {
-      name: ssh,
-      role: all,
-      enabled: true,
-      port: 22,
-      filter: sshd,
-      bantime: 600,
-      findtime: 600,
-      maxretry: 5,
-      logpath: /var/log/auth.log
-    }
-  - {
-      name: proftp,
-      role: utility,
-      enabled: true,
-      port: 2222,
-      filter: proftpd,
-      bantime: 600,
-      findtime: 10,
-      maxretry: 5,
-      logpath: /var/log/proftpd/proftpd.log
-    }
-
+  - name: ssh,
+    role: all,
+    enabled: true,
+    port: 22,
+    filter: sshd,
+    bantime: 600,
+    findtime: 600,
+    maxretry: 5,
+    logpath: /var/log/auth.log
 
 chkrootkit_run_daily: true
 chkrootkit_run_daily_opts: -q

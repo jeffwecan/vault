@@ -1,4 +1,6 @@
 ---
+# How long to consider apt's cache valid, in seconds
+cache_valid_time: 600
 
 ldap_read_servers: "ldaps://ldap-us-east-1-1.wpengine.io, ldaps://ldap-us-east-1-2.wpengine.io"
 ldap_chpass_server: ldaps://ldap-master.wpengine.io
@@ -7,7 +9,5 @@ ldap_user_search_base: ou=People,{{ ldap_base_dn }}
 ldap_group_search_base: ou=Groups,{{ ldap_base_dn }}
 ldap_sudo_search_base: ou=SUDOers,{{ ldap_base_dn }}
 
-creds:
-  sssd:
-    bind_dn: 'pants'
-    bind_pass: 'pantspants'
+sssd_bind_dn: 'pants'
+sssd_bind_pass: 'pantspants'

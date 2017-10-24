@@ -1,99 +1,17 @@
 ---
 
 - include: apt-get-update.yml
-  when: ansible_os_family == "Debian"
-
-- name: Set up our apt.conf.d
-  copy:
-    src: "etc/apt/apt.conf.d/{{ item }}"
-    dest: /etc/apt/apt.conf.d/
-    owner: root
-    group: root
-    mode: 0644
-  with_items:
-    - 10periodic
-    - 50unattended-upgrades
-
-- name: Suppress output from update-notifier-common where it exits
-  lineinfile:
-    dest: /etc/cron.weekly/update-notifier-common
-    state: present
-    create: no
-    backrefs: yes
-    regexp: '^/usr/lib/ubuntu-release-upgrader/release-upgrade-motd$'
-    line: '/usr/lib/ubuntu-release-upgrader/release-upgrade-motd >/dev/null 2>&1'
-  failed_when: false
-
-- name: Uninstall some packages Debian family
-  apt:
-    pkg: "{{ item }}"
-    state: absent
-    purge: yes
-  with_items:
-    - apport
-    - libpam-cracklib
-    - libpam-systemd
-    - lxc-common
-    - lxcfs
-    - lxd
-    - lxd-client
-    - ntpdate
-    - popularity-contest
-    - python-openssl
-    - snapd
-    - ssh-askpass-gnome
-    - sshguard
-    - eject
-
-- name: ensure ansible is latest version Debian family
-  apt:
-    pkg: ansible
-    state: latest
-    update_cache: yes
-    cache_valid_time: "{{ cache_valid_time }}"
-  when: ansible_os_family == "Debian"
   tags:
-    - skip_ansible_lint
+    - apt-packages
 
-- name: ensure common packages installed Debian family
-  apt:
-    pkg: "{{ item }}"
-    state: present
-    update_cache: yes
-    cache_valid_time: "{{ cache_valid_time }}"
-  with_items:
-    - ack-grep
-    - arping
-    - clamav
-    - conntrack
-    - iotop
-    - htop
-    - iftop
-    - jq
-    - logrotate
-    - lsof
-    - ngrep
-    - ntp
-    - openssl
-    - python-software-properties
-    - rsync
-    - screen
-    - sysstat
-    - tmux
-    - unzip
-    - update-notifier-common
-    - zip
-
-- name: Install PyPI2 modules
-  pip:
-    name: "{{ item.module | default(item) }}"
-    executable: pip2
-    state: "{{ item.state | default('present') }}"
-  when: "{{ item.when | default(true) }}"  # TODO: this when key need to be explicit in the with_items list or gone
-  with_items:
-    - boto3
-    - testinfra>=1.6.0
+- include: apt-packages.yml
   tags:
-    - pip
-    - pip2
+    - apt-packages
 
+- include: apt-config.yml
+  tags:
+    - apt-packages
+
+- include: pip.yml
+  tags:
+    - pip-packages

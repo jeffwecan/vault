@@ -3,9 +3,9 @@
 - name: Install chkrootkit
   action: "{{ ansible_pkg_mgr }} state=installed name={{ item }}"
   with_items:
-   - chkrootkit
+    - chkrootkit
 
-- name: ensure /var/log/chkrootkit...
+- name: ensure /var/log/chkrootkit
   file:
     path: "/var/log/chkrootkit"
     state: "directory"
@@ -13,7 +13,7 @@
     group: "root"
     mode: 0755
 
-- name: ensure chkrootkit cron...
+- name: ensure chkrootkit cron
   copy:
     src: "etc/cron.daily/chkrootkit"
     dest: "/etc/cron.daily/chkrootkit"
@@ -21,7 +21,7 @@
     group: "root"
     mode: 0755
 
-- name: ensure chkrootkit config...
+- name: ensure chkrootkit config
   template:
     src: "etc/chkrootkit.conf"
     dest: "/etc/chkrootkit.conf"
@@ -29,7 +29,7 @@
     group: "root"
     mode: 0644
 
-- name: ensure chkrootkit rsyslog rule...
+- name: ensure chkrootkit rsyslog rule
   copy:
     src: "etc/rsyslog.d/chkrootkit.conf"
     dest: "/etc/rsyslog.d/chkrootkit.conf"
@@ -38,7 +38,7 @@
     mode: 0644
   notify: Restart rsyslog
 
-- name: ensure chkrootkit logrotate rule...
+- name: ensure chkrootkit logrotate rule
   copy:
     src: "etc/logrotate.d/chkrootkit"
     dest: "/etc/logrotate.d/chkrootkit"
@@ -46,4 +46,3 @@
     group: "root"
     mode: 0644
   notify: Restart rsyslog
-

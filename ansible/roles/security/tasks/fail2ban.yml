@@ -12,13 +12,13 @@
 
 - name: Push fail2ban jail config
   template:
-    src=etc/fail2ban/jail.local
-    dest=/etc/fail2ban/jail.local
+    src: etc/fail2ban/jail.local
+    dest: /etc/fail2ban/jail.local
   notify: Restart fail2ban
 
 - name: Ensure service is started and enabled
   service:
-    name=fail2ban
-    state=started
-    enabled=yes
-
+    name: fail2ban
+    state: started
+    enabled: yes
+  changed_when: false  # TODO: why?

@@ -1,0 +1,14 @@
+---
+
+- name: Install PyPI2 modules
+  pip:
+    name: "{{ item.module | default(item) }}"
+    executable: pip2
+    state: "{{ item.state | default('present') }}"
+  when: item.when
+  with_items:
+    - {module: boto3, when: true}
+    - {module: testinfra>=1.6.0, when: true}
+  tags:
+    - pip
+    - pip2

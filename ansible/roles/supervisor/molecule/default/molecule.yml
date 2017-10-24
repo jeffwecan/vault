@@ -5,11 +5,18 @@ driver:
   name: docker
 lint:
   name: yamllint
+  options:
+    config-file: ../../molecule/.yamllint
 platforms:
-  - name: instance
-    image: wpengine/ansible
+  - name: molecule_supervisor_1604
+    image: wpengine/ansible:16.04
 provisioner:
   name: ansible
+  playbooks:
+    create: ../../../../molecule/create.yml
+    destroy: ../../../../molecule/destroy.yml
+    prepare: ../../../../molecule/prepare.yml
+    converge: playbook.yml
   lint:
     name: ansible-lint
 scenario:
@@ -18,3 +25,5 @@ verifier:
   name: testinfra
   lint:
     name: flake8
+    options:
+      ignore: E501

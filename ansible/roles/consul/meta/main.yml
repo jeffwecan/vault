@@ -18,7 +18,7 @@ dependencies:
          killasgroup=true
          stopasgroup=true
       - name: 'consul-server'
-        command: /usr/local/bin/consul -server -bootstrap-expect {{ consul_cluster_size }} -config-file=/etc/consul.d/server.hcl
+        command: /usr/local/bin/consul agent -server -bootstrap-expect {{ consul_cluster_size }} -config-file=/etc/consul.d/server.hcl
         state: present
         user: consul
         configuration: |

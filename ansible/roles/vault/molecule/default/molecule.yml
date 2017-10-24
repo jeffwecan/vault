@@ -5,12 +5,18 @@ driver:
   name: docker
 lint:
   name: yamllint
+  options:
+    config-file: ../../molecule/.yamllint
 platforms:
   - name: instance
     image: wpengine/ansible:latest
-#    command: {{ supervisor_bin_path }} -c /etc/supervisor/supervisord.conf
 provisioner:
   name: ansible
+  playbooks:
+    create: ../../../../molecule/create.yml
+    destroy: ../../../../molecule/destroy.yml
+    prepare: ../../../../molecule/prepare.yml
+    converge: playbook.yml
   lint:
     name: ansible-lint
 scenario:

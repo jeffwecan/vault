@@ -81,7 +81,7 @@
     executable: pip2
     state: present
   tags:
-   - packages
+    - packages
 
 - name: Ensure /var/lib/consul directory for tracking state
   file:

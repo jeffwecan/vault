@@ -1,0 +1,7 @@
+---
+- name: Converge
+  hosts: all
+  vars:
+    - nginx_dhparam_bits: 128
+  roles:
+    - role: nginx

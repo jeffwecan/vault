@@ -12,8 +12,8 @@
   user:
     name: "{{ item }}"
     state: absent
-    remove: yes
-    force: yes
+    remove: "yes"
+    force: "yes"
   failed_when: false
   with_items:
     - ubuntu

@@ -9,7 +9,10 @@ YAML_LINTER			:= wpengine/yamllint
 TERRAFORM_IMAGE		:= wpengine/terraform
 PACKER_IMAGE		:= wpengine/packer
 ANSIBLE_TEST_IMAGE	:= wpengine/ansible
+MOLECULE_TEST_IMAGE	:= jeffreymhogan/ansible:molecule-16.04
 ACCOUNTS			:= development production
+ROLES_TO_TEST		:= td-agent
+# ami-cleanup,common-packages,consul,ldap-client,nginx,security,supervisor
 
 # default is meant to generally map to Jenkinsfile/pipeline for anything other than the master branch
 default: lint test terraform-plan
@@ -18,7 +21,7 @@ default: lint test terraform-plan
 all: lint test packer-build-ami terraform-apply-development smoke-development
 
 lint: markdownlint ansible-lint yamllint terraform-validate
-test: infratest-docker-image
+test: molecule-test
 
 # ~*~*~*~* Linter Tasks *~*~*~*~
 # Run markdown analysis tool.
@@ -62,6 +65,17 @@ infratest-docker-image: | packer-build-image
 	--volume $(PWD)/tests/testinfra:/tests \
 	wpengine/vault-packer:latest \
 	/bin/bash -c "service supervisord start && py.test -v /tests --junit-xml /artifacts/infratest/docker_image.xml"
+
+molecule-test:
+	#tests/ansible/run_all_molecule_tests.sh $(ROLES_TO_TEST)
+
+	docker run --rm \
+		--volume /var/run/docker.sock:/var/run/docker.sock \
+		--volume $(PWD)/ansible:/workspace/ansible \
+		--volume $(PWD)/tests/ansible:/tests \
+		--workdir=/workspace \
+		$(MOLECULE_TEST_IMAGE) \
+		/tests/run_all_molecule_tests.sh
 
 # ~*~*~*~* Smoke Tasks *~*~*~*~
 build-smoke-image:

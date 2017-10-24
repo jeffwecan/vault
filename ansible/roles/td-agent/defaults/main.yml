@@ -4,7 +4,6 @@ td_agent_apt_repo: 'deb http://packages.treasuredata.com/3/ubuntu/xenial/ xenial
 td_agent_gemfile_path: /etc/td-agent/Gemfile
 td_agent_gem_path: /opt/td-agent/embedded/lib
 
-
 fluentd_log_level: fatal
 fluentd_gcp_key: ~
 fluentd_shared_key: ~

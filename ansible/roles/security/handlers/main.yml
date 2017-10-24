@@ -9,4 +9,3 @@
   # service:
   #  name: fail2ban
   #  state: restarted
-

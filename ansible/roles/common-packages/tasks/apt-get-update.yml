@@ -15,7 +15,7 @@
   until: result.rc == 0
   retries: 12
   delay: 10
-  changed_when: False
+  changed_when: false
   tags: packages
   check_mode: no
 
@@ -27,5 +27,6 @@
   until: result.failed is not defined
   retries: 3
   delay: 30
+  changed_when: false
   tags:
     - packages

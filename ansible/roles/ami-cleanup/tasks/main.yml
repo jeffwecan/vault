@@ -5,12 +5,3 @@
     - root_profile
 
 - include: clean_users.yml
-
-# See https://wpengine.atlassian.net/browse/QE-3090
-- name: Ensure inventory hostname is always in /etc/hosts
-  lineinfile:
-    dest: /etc/hosts
-    line: '127.0.0.1 {{ ansible_hostname }}'
-  when: is_development is defined and is_development and (packer_builder_type is not defined or packer_builder_type != "docker")
-  tags:
-   - hostsfile

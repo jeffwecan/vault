@@ -29,7 +29,7 @@
     mode: 0640
   with_items:
     - "Gemfile"
-#    - "Gemfile.lock"
+    # - "Gemfile.lock"
   notify:
     - td-agent restart
 
@@ -47,7 +47,7 @@
 - name: Ensure directory under /opt/td-agent to store bundler-managed gems
   file:
     path: "{{ td_agent_gem_path }}"
-#    state: directory
+    # state: directory
     owner: td-agent
     group: td-agent
     recurse: yes
@@ -71,7 +71,7 @@
   notify:
     - td-agent restart
 
-#- name: td-agent gcp key
+# - name: td-agent gcp key
 #  template:
 #    src: etc/td-agent/key.json
 #    dest: /etc/td-agent/key.json

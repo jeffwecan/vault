@@ -1,0 +1,22 @@
+---
+
+- name: Set up our apt.conf.d
+  copy:
+    src: "etc/apt/apt.conf.d/{{ item }}"
+    dest: /etc/apt/apt.conf.d/
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - 10periodic
+    - 50unattended-upgrades
+
+- name: Suppress output from update-notifier-common where it exits
+  lineinfile:
+    dest: /etc/cron.weekly/update-notifier-common
+    state: present
+    create: no
+    backrefs: yes
+    regexp: '^/usr/lib/ubuntu-release-upgrader/release-upgrade-motd$'
+    line: '/usr/lib/ubuntu-release-upgrader/release-upgrade-motd >/dev/null 2>&1'
+  failed_when: false

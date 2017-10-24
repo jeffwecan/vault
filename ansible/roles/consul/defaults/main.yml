@@ -28,7 +28,7 @@ consul_encryption: true
 consul_run_as_server: true
 consul_cluster_size: 3
 consul_vpc_cidr: 172.31.84.0/24
-telemetry_address: 127.0.0.1:10000
+# telemetry_address: 127.0.0.1
 
 consul_s3_bucket: consul.wpengine.io
 
@@ -38,3 +38,8 @@ tmp_certs_path: /tmp
 consul_ssl_cert_filename: consul.crt
 consul_ssl_ca_cert_filename: consul_ca.crt
 consul_ssl_key_filename: consul.key
+
+# Can we get away with blanking out these variables when running molecule tests?
+consul_ssl_ca_cert: ''
+consul_ssl_cert: ''
+consul_ssl_key: ''

@@ -2,20 +2,20 @@
 
 - name: Force root profile directories permissions
   file:
-    path={{ item }}
-    state=directory
-    owner=root
-    group=root
-    mode=0700
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0700
   with_items:
     - "/root"
     - "/root/.ssh"
 
 - name: Remove the root password
   user:
-    name=root
-    update_password=always
-    password="*"
+    name: root
+    update_password: always
+    password: "*"
   tags:
     - creds
     - shadow
@@ -28,13 +28,22 @@
     group: root
     mode: "{{ item.mode }}"
   with_items:
-    - { src: root/profile,              dest: /root/.profile,               mode: 644 }
-    - { src: root/selected_editor,      dest: /root/.selected_editor,       mode: 644 }
+    - {src: root/profile, dest: /root/.profile, mode: 644}
+    - {src: root/selected_editor, dest: /root/.selected_editor, mode: 644}
+
+- name: Check to see if we have authorized_keys file under an ubuntu user
+  stat:
+    path: /home/ubuntu/.ssh/authorized_keys
+  register: ubuntu_auth_keys
+  tags:
+    - authorized_keys
+    - bootstrap
 
 - name: Copy ubuntu's authorized_keys to root
   copy:
     src: /home/ubuntu/.ssh/authorized_keys
     dest: /root/.ssh/authorized_keys
+  when: ubuntu_auth_keys.stat.exists
   tags:
     - authorized_keys
     - bootstrap

@@ -71,7 +71,8 @@
     - sssd
   notify: restart sssd
 
-#- name: Enable sssd service
+# TODO: reenable this task once we have a local testing strategy for it
+# - name: Enable sssd service
 #  service:
 #    name: sssd
 #    enabled: yes
@@ -87,8 +88,3 @@
     - passwd
     - group
     - sudoers
-
-- include: user-mapping.yml
-  when: is_farm
-  tags:
-    - ldap_user_mapping
