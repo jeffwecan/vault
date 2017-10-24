@@ -43,7 +43,8 @@ timestamps {
 							withCredentials(packerCredentials) {
 								try {
 									stage('Build AMI') {
-										sh 'make packer-build-ami'
+										sh 'echo hullo'
+										//sh 'make packer-build-ami'
 									}
 								} catch(error) {
 									echo "First build failed, sometimes packer randomly times out waiting for SSH?"

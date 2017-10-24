@@ -22,4 +22,5 @@ sudo HOME=/root /usr/bin/ansible-playbook -c local -i localhost, \
 	"${vault_bootstrap_playbook}" \
 	-vvv \
 	--tags bootstrap \
-	--extra-vars "@${vault_bootstrap_vars}"
+	--extra-vars "@${vault_bootstrap_vars}" \
+	--extra-vars "vault_supervisor_cmd_flags=-config-file=/etc/vault.d/vault.hcl"
