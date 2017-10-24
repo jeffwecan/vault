@@ -1,14 +1,10 @@
 min_packer_version: 0.12.0
 variables:
-  aws_region: us-east-1
-  vault_version: 0.8.2
-  consul_module_version: v0.0.2
-  server_cm_version: v3.31
-  consul_version: 0.9.3
+  aws_region: us-east-1]
   ca_public_key_path: null
   tls_public_key_path: null
   tls_private_key_path: null
-  version: ''
+  version: null
   ansible_staging_directory: /opt/ansible-vault
   ansible_extra_arguments: '-vvvv,'
   consul_bootstrap_playbook: consul-aws-bootstrap.yml
