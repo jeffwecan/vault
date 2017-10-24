@@ -119,11 +119,13 @@ timestamps {
 							status = 'FAILED'
 						}
 					}
+					 sh 'ls -la artifacts/ansible'
 					 junit 'artifacts/ansible/package-vault-*tags_bootstrap-*.xml'
 					 junit 'artifacts/molecule/*.xml'
 					throw error
 				} finally {
-					workspace.cleanUp()
+					sh 'echo finally!'
+					//workspace.cleanUp()
 				}
 			}
 		}
