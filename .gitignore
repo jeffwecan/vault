@@ -4,3 +4,5 @@ packer/**/*.json
 ansible/**/*.retry
 ansible/**/vault*.zip
 ansible/**/consul*.zip
+**/molecule/**/.cache
+**/molecule/**/.molecule
