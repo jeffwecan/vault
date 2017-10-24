@@ -182,7 +182,7 @@ packer-build-ami: | packer-yaml-to-json ensure-tls-certs-apply
 			-var 'tls_private_key_path=/artifacts/vault.key.pem' \
 			-var 'ca_public_key_path=/artifacts/vault.ca.crt.pem' \
 			-var 'tls_public_key_path=/artifacts/vault.crt.pem' \
-			-var 'ansible_extra_arguments=-vvvv, -e vault_supervisor_cmd_flags=-dev' \
+			-var 'ansible_extra_arguments=-v, -e vault_supervisor_cmd_flags=-dev' \
 			packer/vault-consul-ami/vault-consul.json
 	# TODO add packer profile to jenkins nodes IAM instance role
 
