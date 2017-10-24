@@ -38,7 +38,15 @@ builders:
     tags:
       Distribution: Ubuntu
       Release: 16.05
+      Version: "{{ user `version` | clean_ami_name}}"
       Name: "Vault/Consul AMI - {{isotime \"2006/01/02 03:04:05\"}}"
+    run_tags:
+      Version: "{{ user `version` | clean_ami_name}}"
+      Name: "Vault/Consul AMI - {{isotime \"2006/01/02 03:04:05\"}}"
+    run_volume_tags:
+      Version: "{{ user `version` | clean_ami_name}}"
+      Name: "Vault/Consul AMI - {{isotime \"2006/01/02 03:04:05\"}}"
+
   - name: vault-ubuntu-16.04-docker
     type: docker
     image: '{{user `test_image_name`}}:latest'
