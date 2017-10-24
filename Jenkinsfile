@@ -40,8 +40,16 @@ timestamps {
 						milestone 1 // 'Vault AMI Baked'
 						lock(resource: 'vault-packer-build-ami', inversePrecedence: true) {
 							withCredentials(packerCredentials) {
-								stage('Build AMI') {
-									sh 'make packer-build-ami'
+								try {
+									stage('Build AMI') {
+										sh 'make packer-build-ami'
+									}
+								} catch(error) {
+									echo "First build failed, sometimes packer randomly times out waiting for SSH?"
+									retry(2) {
+										input "Retry the job?"
+										sh 'make packer-build-ami'
+									}
 								}
 							}
 						}
