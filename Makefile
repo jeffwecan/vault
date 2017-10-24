@@ -272,6 +272,7 @@ terraform-destroy-development: | terraform-get-development
 		 destroy \
 		 -var 'aws_role_arn=arn:aws:iam::844484402121:role/wpengine/robots/TerraformDestroyer' \
 		 .
+
 terraform-destroy-production: | terraform-get-production
 	docker run --rm \
 		-it \
@@ -289,14 +290,13 @@ terraform-destroy-production: | terraform-get-production
 		 -var 'aws_role_arn=arn:aws:iam::844484402121:role/wpengine/robots/TerraformDestroyer' \
 		 .
 
-terraform-graph: $(addprefix terraform-destroy-, $(ACCOUNTS))
+terraform-graph: $(addprefix terraform-graph-, $(ACCOUNTS))
 terraform-graph-%: | ensure-artifacts-dir
 	docker run --rm \
-		-it \
 		--workdir=/workspace \
 		--volume $(PWD)/terraform/aws/$(*):/workspace \
 		--volume $(PWD)/artifacts:/artifacts \
 		--env AWS_ACCESS_KEY_ID \
 		--env AWS_SECRET_ACCESS_KEY \
 		$(TERRAFORM_IMAGE) \
-		terraform graph . > artifacts/$(*)_tf.gv
+		/bin/bash -c 'terraform graph . > /artifacts/$(*)_tf.gv'
