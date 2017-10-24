@@ -67,6 +67,12 @@ timestamps {
 
 							stage('Smoke Dev') {
 								sh 'make smoke-development'
+								// TODO: Roll back on failure?
+								hipchat.notify {
+									room = hipchatRoom
+									status = 'SUCCESS'
+									message = "New AMI Deployed to Development"
+								}
 							}
 						}
 
@@ -98,8 +104,9 @@ timestamps {
 
 					stage('Save Graphs') {
 						withCredentials(terraformCredentials) {
-							sh 'make terraform-graph'
-                    		archiveArtifacts 'artifacts/*_tf.gz'
+							sh 'echo maybe make an artifact some day?'
+							// sh 'make terraform-graph'
+                    		// archiveArtifacts 'artifacts/*_tf.gz'
 						}
 					}
 
