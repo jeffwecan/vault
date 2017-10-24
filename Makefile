@@ -291,7 +291,7 @@ terraform-destroy-production: | terraform-get-production
 		 .
 
 terraform-graph: $(addprefix terraform-graph-, $(ACCOUNTS))
-terraform-graph-%: | ensure-artifacts-dir
+terraform-graph-%: | terraform-get-% ensure-artifacts-dir
 	docker run --rm \
 		--workdir=/workspace \
 		--volume $(PWD)/terraform/aws/$(*):/workspace \
