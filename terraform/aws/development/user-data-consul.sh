@@ -12,6 +12,6 @@ exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
 #/usr/local/bin/supervisorctl start consul-server
 sudo HOME=/root /usr/bin/ansible-playbook -c local -i localhost, \
 	"${consul_bootstrap_playbook}" \
-	-vvv \
+	-v \
 	--tags bootstrap \
 	--extra-vars "@${consul_bootstrap_vars}"

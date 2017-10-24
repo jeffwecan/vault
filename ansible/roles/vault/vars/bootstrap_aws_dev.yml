@@ -1,6 +1,6 @@
 ---
 
-vault_supervisor_cmd_flags: '-server -config-file=/etc/vault.d/vault.hcl'
+vault_supervisor_cmd_flags: '-config=/etc/vault.d/vault.hcl'
 supervisor_programs:
   - name: 'vault'
     command: /usr/local/bin/vault server {{ vault_supervisor_cmd_flags|default('') }}
