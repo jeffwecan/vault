@@ -15,7 +15,7 @@ variables:
   vault_bootstrap_playbook: vault-aws-bootstrap.yml
 builders:
   - name: vault-ubuntu-16.04-ami
-    ami_name: vault-consul-ubuntu-{{ user `version` | clean_ami_name}}
+    ami_name: vault-consul-ubuntu-1604-{{ user `version` | clean_ami_name}}
     ami_description: An Ubuntu 16.04 AMI that has Vault and Consul installed.
     instance_type: t2.micro
     region: '{{user `aws_region`}}'
