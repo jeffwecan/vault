@@ -99,6 +99,7 @@ timestamps {
 					stage('Save Graphs') {
 						withCredentials(terraformCredentials) {
 							sh 'make terraform-graph'
+                    		archiveArtifacts 'artifacts/*_tf.gz'
 						}
 					}
 
