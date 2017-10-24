@@ -107,6 +107,7 @@ timestamps {
 							sh 'echo maybe make an artifact some day?'
 							// sh 'make terraform-graph'
                     		// archiveArtifacts 'artifacts/*_tf.gz'
+                    		       				artifacts/production_tf.gv
 						}
 					}
 

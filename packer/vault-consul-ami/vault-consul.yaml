@@ -17,6 +17,7 @@ builders:
   - name: vault-ubuntu-16.04-ami
     # force_deregister: true  # if we end up with the some AMI name, someone is probably rerunning a build?
     ami_name: vault-consul-ubuntu-1604-{{ user `version` | clean_ami_name}}
+    spot_price: auto
     ami_description: An Ubuntu 16.04 AMI that has Vault and Consul installed.
     instance_type: t2.micro
     region: '{{user `aws_region`}}'

@@ -89,7 +89,7 @@
     name: "{{ item.module | default(item) }}"
     executable: pip2
     state: "{{ item.state | default('present') }}"
-  when: "{{ item.when | default(true) }}"
+  when: "{{ item.when | default(true) }}"  # TODO: this when key need to be explicit in the with_items list or gone
   with_items:
     - boto3
     - testinfra>=1.6.0
