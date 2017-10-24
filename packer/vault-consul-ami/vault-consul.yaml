@@ -32,6 +32,15 @@ builders:
         - 099720109477
       most_recent: true
     ssh_username: ubuntu
+    tags:
+      - Distribution: Ubuntu
+      - Release: 16.05
+      - Name: Vault/Consul AMI - {{isotime "02-Jan-06 03\_04\_05"}}
+  "tags": {
+    "OS_Version": "Ubuntu",
+    "Release": "Latest"
+  }
+      -
     # force_deregister: true  # if we end up with the some AMI name, someone is probably rerunning a build?
   - name: vault-ubuntu-16.04-docker
     type: docker
