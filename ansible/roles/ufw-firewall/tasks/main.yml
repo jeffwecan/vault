@@ -56,7 +56,7 @@
     to_port: "ssh"
   with_items:
     - "{{ ufw_whitelist_ssh_ips }}"
-  register: ufw_ssh
+  notify: 'Reset global reject when there are any changes'
 
 - name: Allow HTTP(s)
   ufw:
@@ -64,10 +64,10 @@
     rule: allow
     from_ip: "{{ item }}"
     to_port: "443"
-  register: ufw_nginx
   with_items:
     - "0.0.0.0/0"  # Replace with ELB IP or hmmm
     - "::"
+  notify: 'Reset global reject when there are any changes'
 
 - name: Allow Zabbix
   ufw:
@@ -76,7 +76,7 @@
     from_ip: "{{ zabbix_server_ip }}"
     to_port: "10050"
   when: "register_with_zabbix"
-  register: ufw_zabbix
+  notify: 'Reset global reject when there are any changes'
 
 - name: Allow Zabbix proxy
   ufw:
@@ -85,17 +85,10 @@
     from_ip: "{{ zabbix_proxy_ip }}"
     to_port: "10050"
   when: "zabbix_proxy_ip is defined and register_with_zabbix"
-  register: ufw_zabbix_proxy
+  notify: 'Reset global reject when there are any changes'
 
-- name: Reset global reject when there are any changes
-  ufw:
-    delete: yes
-    rule: reject
-    from_ip: "{{ item }}"
-  with_items:
-    - "0.0.0.0/0"
-    - "::"
-  when: ufw_ssh.changed or ufw_nginx.changed or ufw_zabbix.changed or ufw_zabbix_proxy.changed
+- name: force all notified handlers to run at this point, not waiting for normal sync points
+  meta: flush_handlers
 
 - name: Reject rest of internet
   ufw:
