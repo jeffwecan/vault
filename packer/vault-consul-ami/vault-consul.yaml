@@ -26,17 +26,19 @@ builders:
       filters:
         virtualization-type: hvm
         architecture: x86_64
-        name: 'vault-consul-ubuntu-1604-*'
+        # name: 'vault-consul-ubuntu-1604-*'
+        name: '*ubuntu-xenial-16.04-amd64-server-*'
         block-device-mapping.volume-type: gp2
         root-device-type: ebs
       owners:
         - 099720109477
+        # - 844484402121
       most_recent: true
     ssh_username: ubuntu
     tags:
-      - Distribution: Ubuntu
-      - Release: 16.05
-      - Name: 'Vault/Consul AMI - {{isotime "02-Jan-06 03\_04\_05"}}'
+      Distribution: Ubuntu
+      Release: 16.05
+      Name: "Vault/Consul AMI - {{isotime \"2006/01/02 03:04:05\"}}"
   - name: vault-ubuntu-16.04-docker
     type: docker
     image: '{{user `test_image_name`}}:latest'
