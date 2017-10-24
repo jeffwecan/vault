@@ -26,13 +26,11 @@ builders:
       filters:
         virtualization-type: hvm
         architecture: x86_64
-        # name: 'vault-consul-ubuntu-1604-*'
-        name: '*ubuntu-xenial-16.04-amd64-server-*'
+        name: 'vault-consul-ubuntu-1604-*'
         block-device-mapping.volume-type: gp2
         root-device-type: ebs
       owners:
-        - 099720109477
-        # - 844484402121
+        - 844484402121
       most_recent: true
     ssh_username: ubuntu
     tags:
