@@ -5,7 +5,7 @@ Tests for the nginx server-cm role
 import pytest
 
 
-@pytest.mark.parametrize("service_name", ["supervisor"])
+@pytest.mark.parametrize("service_name", ["supervisord"])
 def test_services_running(host, service_name):
     service = host.service(service_name)
     assert service.is_enabled
