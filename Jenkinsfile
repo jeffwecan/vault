@@ -35,8 +35,7 @@ timestamps {
 					stage('Test') {
 						 sh 'make test'
 						 sh 'echo hullo'
-						junit 'artifacts/ansible/package-vault-*tags_bootstrap-3.xml' // -1 and -2 are the create and prepare plays
-						junit 'artifacts/molecule/*.xml'
+						junit 'artifacts/molecule/*.xml, artifacts/ansible/*tags_bootstrap-3.xml' // -1 and -2 are the create and prepare plays
 					}
 
 					if (env.BRANCH_NAME == masterBranch) {  // if BRANCH_NAME == some_dev_branch and/or some_master_branch?
