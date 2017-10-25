@@ -59,16 +59,7 @@ lint-packer-template:
 	# Successfully linted yaml.
 
 # ~*~*~*~* Test Tasks *~*~*~*~ # $(VERSION)
-infratest-docker-image: | packer-build-image
-	docker run --rm \
-	--volume $(PWD)/artifacts/infratest:/artifacts/infratest:rw \
-	--volume $(PWD)/tests/testinfra:/tests \
-	wpengine/vault-packer:latest \
-	/bin/bash -c "service supervisord start && py.test -v /tests --junit-xml /artifacts/infratest/docker_image.xml"
-
-molecule-test: | ensure-artifacts-dir ensure-tls-certs-apply
-	#tests/ansible/run_all_molecule_tests.sh $(ROLES_TO_TEST)
-
+define run_molecule
 	docker run --rm \
 		--name vault_molecule_test_runner \
 		--volume /var/run/docker.sock:/var/run/docker.sock \
@@ -79,7 +70,22 @@ molecule-test: | ensure-artifacts-dir ensure-tls-certs-apply
 		--env WPE_DEPLOY_LOG_DIR=/workspace/artifacts/ansible \
 		--env JUNIT_OUTPUT_DIR=/workspace/artifacts/ansible \
 		$(MOLECULE_TEST_IMAGE) \
-		/tests/run_all_molecule_tests.sh
+			$(1)
+endef
+
+infratest-docker-image: | packer-build-image
+	docker run --rm \
+	--volume $(PWD)/artifacts/infratest:/artifacts/infratest:rw \
+	--volume $(PWD)/tests/testinfra:/tests \
+	wpengine/vault-packer:latest \
+	/bin/bash -c "service supervisord start && py.test -v /tests --junit-xml /artifacts/infratest/docker_image.xml"
+
+molecule-tests: | ensure-artifacts-dir ensure-tls-certs-apply
+	#tests/ansible/run_all_molecule_tests.sh $(ROLES_TO_TEST)
+	$(call run_molecule,/tests/run_all_molecule_tests.sh)
+
+molecule-test-%: | ensure-artifacts-dir ensure-tls-certs-apply
+	$(call run_molecule,/bin/bash -c "/tests/run_molecule_tests.sh $(*)")
 
 # ~*~*~*~* Smoke Tasks *~*~*~*~
 build-smoke-image:
@@ -102,7 +108,7 @@ smoke-production: | build-smoke-image
 		vault-smokes:$(VERSION)
 
 # ~*~*~*~* Utility Tasks *~*~*~*~
-clean: | ensure-tls-certs-get
+clean: #| ensure-tls-certs-get
 	rm -rvf artifacts/*
 	find packer \! -name 'variables.json' -a -name '*.json' -print
 #	find . -name '.terraform' -type d -exec rm -rfv {} \;
@@ -166,7 +172,6 @@ packer-yaml-to-json:
 	# Successfully converted YAML packer template to JSON
 
 # ~*~*~*~* Terraform Tasks *~*~*~*~
-
 define run_terraform
 	docker run --rm \
 		--workdir=/workspace \

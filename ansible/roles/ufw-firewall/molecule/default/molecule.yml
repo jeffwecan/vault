@@ -14,10 +14,10 @@ provisioner:
   name: ansible
   env:
     JUNIT_OUTPUT_DIR: /workspace/artifacts/ansible
-    WPE_DEPLOY_LOG_DIR: /workspace/artifacts/ansible
   config_options:
     defaults:
-      callback_whitelist: wpe_junit
+      callback_whitelist: junit
+      stdout_callback: actionable
   playbooks:
     create: ../../../../molecule/create.yml
     destroy: ../../../../molecule/destroy.yml
