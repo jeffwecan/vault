@@ -21,7 +21,7 @@ default: lint test terraform-plan
 all: lint test packer-build-ami terraform-apply-development smoke-development
 
 lint: markdownlint ansible-lint yamllint terraform-validate
-test: molecule-test
+test: molecule-tests
 
 # ~*~*~*~* Linter Tasks *~*~*~*~
 # Run markdown analysis tool.
