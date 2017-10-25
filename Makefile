@@ -76,8 +76,8 @@ molecule-test: | ensure-artifacts-dir ensure-tls-certs-apply
 		--volume $(PWD)/tests/ansible:/tests \
 		--volume $(PWD)/tests/ansible/ansible.cfg:/etc/ansible/ansible.cfg \
 		--workdir=/workspace \
-		--env WPE_DEPLOY_LOG_DIR=/artifacts/ansible \
-		--env JUNIT_OUTPUT_DIR=/artifacts/ansible \
+		--env WPE_DEPLOY_LOG_DIR=/workspace/artifacts/ansible \
+		--env JUNIT_OUTPUT_DIR=/workspace/artifacts/ansible \
 		$(MOLECULE_TEST_IMAGE) \
 		/tests/run_all_molecule_tests.sh
 

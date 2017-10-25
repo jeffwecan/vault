@@ -119,7 +119,7 @@ timestamps {
 							status = 'FAILED'
 						}
 					}
-					 sh 'ls -la artifacts/ansible'
+					 sh 'find artifacts'
 					 junit 'artifacts/ansible/package-vault-*tags_bootstrap-*.xml'
 					 junit 'artifacts/molecule/*.xml'
 					throw error
