@@ -9,7 +9,7 @@ lint:
     config-file: ../../molecule/.yamllint
 platforms:
   - name: role_ami_cleanup_molecule_ubuntu_1604
-    image: wpengine/ansible:16.04
+    image: jeffreymhogan/ansible:16.04
 provisioner:
   name: ansible
   env:
