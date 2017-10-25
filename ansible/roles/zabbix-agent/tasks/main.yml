@@ -85,14 +85,15 @@
   with_items:
     - sudoers.d/zabbix
 
-- name: zabbix iptables rules
-  template:
-    src: etc/wpengine/iptables/{{ item }}
-    dest: /etc/wpengine/iptables/{{ item }}
-    owner: root
-    group: root
-    mode: 0644
-  with_items:
-    - 310-zabbix-agent
-  notify:
-    - debian iptables reload
+
+# - name: zabbix iptables rules
+#  template:
+#    src: etc/wpengine/iptables/{{ item }}
+#    dest: /etc/wpengine/iptables/{{ item }}
+#    owner: root
+#    group: root
+#    mode: 0644
+#  with_items:
+#    - 310-zabbix-agent
+#  notify:
+#    - debian iptables reload
