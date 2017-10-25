@@ -122,6 +122,7 @@ timestamps {
 					throw error
 				} finally {
 					sh 'echo finally!'
+					junit 'artifacts/molecule/*.xml, artifacts/ansible/*tags_bootstrap-3.xml' // -1 and -2 are the create and prepare plays
 					//workspace.cleanUp()
 				}
 			}
