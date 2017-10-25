@@ -13,7 +13,7 @@ platforms:
 provisioner:
   name: ansible
   env:
-    ../../../../../artifacts/ansible
+    JUNIT_OUTPUT_DIR: ../../../../../artifacts/ansible
   config_options:
     defaults:
       callback_whitelist: junit
