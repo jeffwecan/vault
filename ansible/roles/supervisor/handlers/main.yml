@@ -4,3 +4,4 @@
   when: supervisor_started
   tags:
     - bootstrap
+    - always
