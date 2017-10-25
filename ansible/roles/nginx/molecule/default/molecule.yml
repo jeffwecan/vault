@@ -13,8 +13,8 @@ platforms:
 provisioner:
   name: ansible
   env:
-    JUNIT_OUTPUT_DIR: /artifacts/ansible
-    WPE_DEPLOY_LOG_DIR: /artifacts/ansible
+    JUNIT_OUTPUT_DIR: /workspace/artifacts/ansible
+    WPE_DEPLOY_LOG_DIR: /workspace/artifacts/ansible
   config_options:
     defaults:
       callback_whitelist: wpe_junit
