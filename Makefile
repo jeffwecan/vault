@@ -66,7 +66,7 @@ infratest-docker-image: | packer-build-image
 	wpengine/vault-packer:latest \
 	/bin/bash -c "service supervisord start && py.test -v /tests --junit-xml /artifacts/infratest/docker_image.xml"
 
-molecule-test: | ensure-artifacts-dir ensure-tls-certs-apply
+molecule-test: | ensure-tls-certs-apply
 	#tests/ansible/run_all_molecule_tests.sh $(ROLES_TO_TEST)
 
 	docker run --rm \
@@ -75,7 +75,6 @@ molecule-test: | ensure-artifacts-dir ensure-tls-certs-apply
 		--volume $(PWD):/workspace \
 		--volume $(PWD)/tests/ansible:/tests \
 		--volume $(PWD)/tests/ansible/ansible.cfg:/etc/ansible/ansible.cfg \
-		--volume $(PWD)/artifacts:/artifacts \
 		--workdir=/workspace \
 		--env WPE_DEPLOY_LOG_DIR=/artifacts/ansible \
 		--env JUNIT_OUTPUT_DIR=/artifacts/ansible \
@@ -166,9 +165,56 @@ packer-yaml-to-json:
 	@echo
 	# Successfully converted YAML packer template to JSON
 
+# ~*~*~*~* Terraform Tasks *~*~*~*~
+
+define run_terraform
+	docker run --rm \
+		--workdir=/workspace \
+		--volume $(PWD)/terraform/aws/$(1):/workspace \
+		--volume $(PWD)/artifacts/$(1)/iam:/artifacts \
+		--volume $(HOME)/.ssh/id_rsa_github:/root/.ssh/id_rsa:ro \
+		--volume $(HOME)/.ssh/known_hosts:/root/.ssh/known_hosts \
+		--env GIT_TRACE=1 \
+		--env AWS_ACCESS_KEY_ID \
+		--env AWS_SECRET_ACCESS_KEY \
+		$(TERRAFORM_IMAGE) \
+		$(2)
+endef
+
+terraform-init-: $(addprefix terraform-init-, $(ACCOUNTS))
+terraform-init-%:
+	$(call run_terraform,$(*),terraform init .)
+
+terraform-get-: $(addprefix terraform-get-, $(ACCOUNTS))
+terraform-get-%: | terraform-init-%
+	$(call run_terraform,$(*),terraform get .)
+
+terraform-validate: $(addprefix terraform-validate-, $(ACCOUNTS))
+terraform-validate-%: | terraform-init-% # need to be able to run this in a jenkins shared var maybe... see: https://jenkins.wpengine.io/job/WPEngineGitHubRepos/job/vault-package/job/terraform_vault/93/console
+	$(call run_terraform,$(*),terraform validate .)
+
+terraform-plan: $(addprefix terraform-plan-, $(ACCOUNTS))
+terraform-plan-%: | terraform-get-%
+	$(call run_terraform,$(*),terraform plan .)
+
+terraform-apply: $(addprefix terraform-apply-, $(ACCOUNTS))
+terraform-apply-%: | terraform-plan-%
+	$(call run_terraform,$(*),terraform apply .)
+
+terraform-destroy: $(addprefix terraform-destroy-, $(ACCOUNTS))
+terraform-destroy-development: | terraform-get-development
+	$(call run_terraform,$(*),terraform destroy -var 'aws_role_arn=arn:aws:iam::844484402121:role/wpengine/robots/TerraformDestroyer' .)
+
+terraform-destroy-production: | terraform-get-production
+	$(call run_terraform,$(*),terraform destroy -var 'aws_role_arn=arn:aws:iam::844484402121:role/wpengine/robots/TerraformDestroyer' .)
+
+terraform-graph: $(addprefix terraform-graph-, $(ACCOUNTS))
+terraform-graph-%: | terraform-get-% ensure-artifacts-dir
+	$(call run_terraform,$(*),/bin/bash -c 'terraform graph . > /artifacts/$(*)_tf.gv')
+
 # ~*~*~*~* Packer Tasks *~*~*~*~
+
 packer-build-image: | packer-yaml-to-json ensure-tls-certs-apply
-	@echo "=====> Packer'ing up an docker image <====="
 	docker run --rm \
 		--volume /var/run/docker.sock:/var/run/docker.sock \
 		--volume $(PWD):/workspace \
@@ -187,7 +233,6 @@ packer-build-image: | packer-yaml-to-json ensure-tls-certs-apply
 			packer/vault-consul-ami/vault-consul.json
 
 packer-build-ami: | packer-yaml-to-json ensure-tls-certs-apply
-	@echo "=====> Packer'ing up an AMI <====="
 	docker run --rm \
 		--volume $(PWD):/workspace \
 		--volume $(PWD)/artifacts:/artifacts \
@@ -205,118 +250,3 @@ packer-build-ami: | packer-yaml-to-json ensure-tls-certs-apply
 			-var 'ansible_extra_arguments=-e vault_supervisor_cmd_flags=-dev' \
 			packer/vault-consul-ami/vault-consul.json
 	# TODO add packer profile to jenkins nodes IAM instance role
-
-# ~*~*~*~* Terraform Tasks *~*~*~*~
-terraform-init-: $(addprefix terraform-init-, $(ACCOUNTS))
-terraform-init-%:
-	docker run --rm \
-		--workdir=/workspace \
-		--volume $(PWD)/terraform/aws/$(*):/workspace \
-		--volume $(HOME)/.ssh/id_rsa_github:/root/.ssh/id_rsa:ro \
-		--volume $(HOME)/.ssh/known_hosts:/root/.ssh/known_hosts \
-		--env GIT_TRACE=1 \
-		--env AWS_ACCESS_KEY_ID \
-		--env AWS_SECRET_ACCESS_KEY \
-		$(TERRAFORM_IMAGE) \
-		terraform init .
-
-terraform-get-: $(addprefix terraform-get-, $(ACCOUNTS))
-terraform-get-%: | terraform-init-%
-	docker run --rm \
-		--workdir=/workspace \
-		--volume $(PWD)/terraform/aws/$(*):/workspace \
-		--volume $(HOME)/.ssh/github_rsa:/root/.ssh/id_rsa:ro \
-		--volume $(HOME)/.ssh/known_hosts:/root/.ssh/known_hosts \
-		--env GIT_TRACE=1 \
-		--env AWS_ACCESS_KEY_ID \
-		--env AWS_SECRET_ACCESS_KEY \
-		$(TERRAFORM_IMAGE) \
-		terraform get .
-
-terraform-validate: $(addprefix terraform-validate-, $(ACCOUNTS))
-terraform-validate-%: | terraform-init-% # need to be able to run this in a jenkins shared var maybe... see: https://jenkins.wpengine.io/job/WPEngineGitHubRepos/job/vault-package/job/terraform_vault/93/console
-	docker run --rm \
-		--workdir=/workspace \
-		--volume $(PWD)/terraform/aws/$(*):/workspace \
-		--env GIT_SSH_COMMAND="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" \
-		--volume $(HOME)/.ssh/github_rsa:/root/.ssh/id_rsa:ro \
-		--volume $(HOME)/.ssh/known_hosts:/root/.ssh/known_hosts \
-		--env GIT_TRACE=1 \
-		--env AWS_ACCESS_KEY_ID \
-		--env AWS_SECRET_ACCESS_KEY \
-		$(TERRAFORM_IMAGE) \
-		terraform validate .
-
-terraform-plan: $(addprefix terraform-plan-, $(ACCOUNTS))
-terraform-plan-%: | terraform-get-%
-	docker run --rm \
-		--workdir=/workspace \
-		--volume $(PWD)/terraform/aws/$(*):/workspace \
-		--env GIT_SSH_COMMAND="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" \
-		--volume $(HOME)/.ssh/github_rsa:/root/.ssh/id_rsa:ro \
-		--volume $(HOME)/.ssh/known_hosts:/root/.ssh/known_hosts \
-		--env GIT_TRACE=1 \
-		--env AWS_ACCESS_KEY_ID \
-		--env AWS_SECRET_ACCESS_KEY \
-		$(TERRAFORM_IMAGE) \
-		terraform plan .
-
-terraform-apply: $(addprefix terraform-apply-, $(ACCOUNTS))
-terraform-apply-%: | terraform-plan-%
-	docker run --rm \
-		--workdir=/workspace \
-		--volume $(PWD)/terraform/aws/$(*):/workspace \
-		--env GIT_SSH_COMMAND="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" \
-		--volume $(HOME)/.ssh/github_rsa:/root/.ssh/id_rsa:ro \
-		--volume $(HOME)/.ssh/known_hosts:/root/.ssh/known_hosts \
-		--env GIT_TRACE=1 \
-		--env AWS_ACCESS_KEY_ID \
-		--env AWS_SECRET_ACCESS_KEY \
-		$(TERRAFORM_IMAGE) \
-		terraform apply .
-
-terraform-destroy: $(addprefix terraform-destroy-, $(ACCOUNTS))
-terraform-destroy-development: | terraform-get-development
-	docker run --rm \
-		-it \
-		--workdir=/workspace \
-		--volume $(PWD)/terraform/aws/$(*):/workspace \
-		--env GIT_SSH_COMMAND="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" \
-		--volume $(HOME)/.ssh/github_rsa:/root/.ssh/id_rsa \
-		--volume $(HOME)/.ssh/known_hosts:/root/.ssh/known_hosts \
-		--env GIT_TRACE=1 \
-		--env AWS_ACCESS_KEY_ID \
-		--env AWS_SECRET_ACCESS_KEY \
-		$(TERRAFORM_IMAGE) \
-		terraform \
-		 destroy \
-		 -var 'aws_role_arn=arn:aws:iam::844484402121:role/wpengine/robots/TerraformDestroyer' \
-		 .
-
-terraform-destroy-production: | terraform-get-production
-	docker run --rm \
-		-it \
-		--workdir=/workspace \
-		--volume $(PWD)/terraform/aws/$(*):/workspace \
-		--env GIT_SSH_COMMAND="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" \
-		--volume $(HOME)/.ssh/github_rsa:/root/.ssh/id_rsa \
-		--volume $(HOME)/.ssh/known_hosts:/root/.ssh/known_hosts \
-		--env GIT_TRACE=1 \
-		--env AWS_ACCESS_KEY_ID \
-		--env AWS_SECRET_ACCESS_KEY \
-		$(TERRAFORM_IMAGE) \
-		terraform \
-		 destroy \
-		 -var 'aws_role_arn=arn:aws:iam::844484402121:role/wpengine/robots/TerraformDestroyer' \
-		 .
-
-terraform-graph: $(addprefix terraform-graph-, $(ACCOUNTS))
-terraform-graph-%: | terraform-get-% ensure-artifacts-dir
-	docker run --rm \
-		--workdir=/workspace \
-		--volume $(PWD)/terraform/aws/$(*):/workspace \
-		--volume $(PWD)/artifacts:/artifacts \
-		--env AWS_ACCESS_KEY_ID \
-		--env AWS_SECRET_ACCESS_KEY \
-		$(TERRAFORM_IMAGE) \
-		/bin/bash -c 'terraform graph . > /artifacts/$(*)_tf.gv'
