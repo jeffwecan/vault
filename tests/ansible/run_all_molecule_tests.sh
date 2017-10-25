@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-max_xargs_processes=2
+max_xargs_processes=4
 
 roles_to_test=$(find ansible/roles/ -maxdepth 1 -mindepth 1 -type d -exec basename {} \;)
 echo -e "Found the following roles to test:\n${roles_to_test}"
