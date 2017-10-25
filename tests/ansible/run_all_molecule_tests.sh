@@ -3,8 +3,7 @@ set -euo pipefail
 
 max_xargs_processes=2
 
-#roles_to_test=$(find ansible/roles/ -maxdepth 1 -mindepth 1 -type d -exec basename {} \;)
-roles_to_test=ami-cleanup
+roles_to_test=$(find ansible/roles/ -maxdepth 1 -mindepth 1 -type d -exec basename {} \;)
 echo -e "Found the following roles to test:\n${roles_to_test}"
 
 test_runner="$(dirname $0)/run_molecule_tests.sh"
