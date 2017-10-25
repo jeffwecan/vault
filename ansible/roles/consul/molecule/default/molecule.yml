@@ -18,7 +18,7 @@ provisioner:
   config_options:
     defaults:
       callback_whitelist: wpe_junit
-      #stdout_callback: mycallbackplugin
+      # stdout_callback: mycallbackplugin
   playbooks:
     create: ../../../../molecule/create.yml
     destroy: ../../../../molecule/destroy.yml

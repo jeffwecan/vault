@@ -1,6 +1,6 @@
 #!/usr/bin/env pytest
 """
-Tests for the nginx server-cm role
+Tests for the nginx role
 """
 import pytest
 
