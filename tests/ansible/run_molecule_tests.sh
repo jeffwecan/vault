@@ -14,7 +14,7 @@ molecule syntax
 molecule lint
 
 echo "[${role_to_test}]: Setting up test instance"
-molecule destroy
+molecule destroy 2>&1 >/dev/null
 
 echo "[${role_to_test}]: Running initial provisioning playbook sans bootstrap tags"
 WPE_DEPLOY_PACKAGE_NAME=tests WPE_DEPLOY_PHASE='skip_tags_bootstrap' molecule converge -- --skip-tags=bootstrap
@@ -23,12 +23,12 @@ echo "[${role_to_test}]: Running initial provisioning playbook sans bootstrap ta
 WPE_DEPLOY_PACKAGE_NAME=tests WPE_DEPLOY_PHASE='tags_bootstrap' molecule converge -- --tags=bootstrap
 
 export WPE_DEPLOY_PHASE='test_harnessing'
-molecule idempotence
+molecule idempotence 2>&1 >/dev/null
 
 echo "[${role_to_test}]: Verifying / testing test instance"
-molecule verify
+molecule verify 2>&1 >/dev/null
 
 echo "[${role_to_test}]: Destroying test instance"
-molecule destroy
+molecule destroy 2>&1 >/dev/null
 
 popd >/dev/null
