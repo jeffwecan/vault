@@ -150,7 +150,12 @@ case "$1" in
   [ -n "$DODTIME" ] && sleep $DODTIME
   start-stop-daemon --start --quiet --pidfile $PIDFILE \
     --startas $DAEMON -- $DAEMON_OPTS
-  echo "$NAME."
+  test -f $PIDFILE || sleep 1
+        if running ; then
+            echo "$NAME."
+        else
+            echo " ERROR."
+        fi
   ;;
   status)
     echo -n "$NAME is "
