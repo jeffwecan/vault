@@ -18,4 +18,4 @@
   service:
     name: apparmor
     state: reloaded
-  when: molecule_run is defined  # we don't have the ability to reload apparmor inside a container
+  when: molecule_run is not defined  # we don't have the ability to reload apparmor inside a container
