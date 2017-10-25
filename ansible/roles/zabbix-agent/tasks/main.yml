@@ -96,15 +96,3 @@
     - 310-zabbix-agent
   notify:
     - debian iptables reload
-
-- name: Ensure zabbix user .my.cnf
-  template:
-    src: var/lib/zabbix/my.cnf
-    dest: /var/lib/zabbix/.my.cnf
-    owner: zabbix
-    group: zabbix
-    mode: 0600
-  tags:
-    - creds
-  notify:
-    - zabbix agent restart
