@@ -66,7 +66,7 @@ infratest-docker-image: | packer-build-image
 	wpengine/vault-packer:latest \
 	/bin/bash -c "service supervisord start && py.test -v /tests --junit-xml /artifacts/infratest/docker_image.xml"
 
-molecule-test: | ensure-tls-certs-apply
+molecule-test: | ensure-artifacts-dir ensure-tls-certs-apply
 	#tests/ansible/run_all_molecule_tests.sh $(ROLES_TO_TEST)
 
 	docker run --rm \
@@ -182,7 +182,7 @@ define run_terraform
 endef
 
 terraform-init-: $(addprefix terraform-init-, $(ACCOUNTS))
-terraform-init-%:
+terraform-init-%: | ensure-artifacts-dir
 	$(call run_terraform,$(*),terraform init .)
 
 terraform-get-: $(addprefix terraform-get-, $(ACCOUNTS))
@@ -209,7 +209,7 @@ terraform-destroy-production: | terraform-get-production
 	$(call run_terraform,$(*),terraform destroy -var 'aws_role_arn=arn:aws:iam::844484402121:role/wpengine/robots/TerraformDestroyer' .)
 
 terraform-graph: $(addprefix terraform-graph-, $(ACCOUNTS))
-terraform-graph-%: | terraform-get-% ensure-artifacts-dir
+terraform-graph-%: | terraform-get-%
 	$(call run_terraform,$(*),/bin/bash -c 'terraform graph . > /artifacts/$(*)_tf.gv')
 
 # ~*~*~*~* Packer Tasks *~*~*~*~
