@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-max_xargs_processes=5
+max_xargs_processes=2
 
 roles_to_test=$(find ansible/roles/ -maxdepth 1 -mindepth 1 -type d -exec basename {} \;)
 #roles_to_test=ami-cleanup
