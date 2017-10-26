@@ -8,7 +8,8 @@ PACKER_IMAGE		:= wpengine/packer
 ANSIBLE_TEST_IMAGE	:= wpengine/ansible
 MOLECULE_TEST_IMAGE	:= jeffreymhogan/ansible:molecule-16.04
 ACCOUNTS			:= development production
-ROLES_TO_TEST		:= ami-cleanup common-packages consul ldap-client nginx security supervisor td-agent ufw-firewall vault zabbix-agent
+# we can skip the nginx and supervisor roles for now since other roles have them as dependencies
+ROLES_TO_TEST		:= ami-cleanup common-packages consul ldap-client security td-agent ufw-firewall vault zabbix-agent
 
 # default is meant to generally map to Jenkinsfile/pipeline for anything other than the master branch
 default: lint test terraform-plan
