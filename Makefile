@@ -83,8 +83,10 @@ molecule-tests: | ensure-artifacts-dir ensure-tls-certs-apply
 	#tests/ansible/run_all_molecule_tests.sh $(ROLES_TO_TEST)
 	$(call run_molecule,/tests/run_all_molecule_tests.sh)
 
+pull-molecule-image:
+	docker pull $(MOLECULE_TEST_IMAGE)
 
-molecule-test-roles: ensure-artifacts-dir ensure-tls-certs-apply $(addprefix molecule-test-, $(ROLES_TO_TEST))
+molecule-test-roles: pull-molecule-image ensure-artifacts-dir ensure-tls-certs-apply $(addprefix molecule-test-, $(ROLES_TO_TEST))
 molecule-test-%:
 	$(call run_molecule,/bin/bash -c "/tests/run_molecule_tests.sh $(*)",$(*))
 
