@@ -17,7 +17,7 @@
     owner: root
     group: root
     mode: 0755
-  when: packer_builder_type is defined and packer_builder_type == 'docker'
+  when: molecule_run is defined or packer_builder_type is defined and packer_builder_type == 'docker'
 
 - name: /etc/modprobe.d
   file:
@@ -75,7 +75,6 @@
     rule: allow
     from_ip: "{{ zabbix_server_ip }}"
     to_port: "10050"
-  when: "register_with_zabbix"
   notify: 'Reset global reject when there are any changes'
 
 - name: Allow Zabbix proxy

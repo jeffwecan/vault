@@ -23,6 +23,12 @@
       with_items: "{{ platforms.results }}"
       register: docker_images
 
+#    - name: Copy helper scripts to molecule ephermeral directory
+#      copy:
+#        src: mock_ufw.sh
+#        dest: "{{ molecule_ephemeral_directory }}/mock_ufw.sh"
+#      when: platforms.changed or docker_images.results | map(attribute='images') | select('equalto', []) | list | count >= 0
+
     - name: Build an Ansible compatible image
       docker_image:
         path: "{{ molecule_ephemeral_directory }}"

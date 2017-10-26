@@ -11,16 +11,15 @@ echo "[${role_to_test}]: Setting up test instance"
 molecule destroy 2>&1 >/dev/null
 
 echo "[${role_to_test}]: Running initial provisioning playbook sans bootstrap tags"
-molecule converge -- --skip-tags=bootstrap >/dev/null
+molecule converge -- --skip-tags=bootstrap
 
-echo "[${role_to_test}]: Running initial provisioning playbook sans bootstrap tags"
-molecule converge -- --tags=bootstrap >/dev/null
+echo "[${role_to_test}]: Running initial provisioning playbook with only bootstrap tags"
+molecule converge -- --tags=bootstrap
 
-export WPE_DEPLOY_PHASE='test_harnessing'
-molecule idempotence 2>&1 >/dev/null
+molecule idempotence
 
 echo "[${role_to_test}]: Verifying / testing test instance"
-molecule verify 2>&1 >/dev/null
+molecule verify
 
 echo "[${role_to_test}]: Destroying test instance"
 molecule destroy 2>&1 >/dev/null

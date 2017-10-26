@@ -52,8 +52,6 @@ define run_molecule
 		--volume $(PWD)/tests/ansible:/tests \
 		--volume $(PWD)/tests/ansible/ansible.cfg:/etc/ansible/ansible.cfg \
 		--workdir=/workspace \
-		--env WPE_DEPLOY_LOG_DIR=/workspace/artifacts/ansible \
-		--env JUNIT_OUTPUT_DIR=/workspace/artifacts/ansible \
 		$(MOLECULE_TEST_IMAGE) \
 			$(1)
 endef
