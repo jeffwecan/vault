@@ -1,9 +1,10 @@
 ---
 
-- name: Vault Restart
+- name: Vault Restart Handler
   supervisorctl:
     name: vault
     state: restarted
+  listen: 'Vault Restart'
   tags:
     - bootstrap
 

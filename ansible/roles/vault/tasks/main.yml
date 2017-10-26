@@ -78,11 +78,3 @@
   tags:
     - bootstrap
 
-- name: Ensure consul agent service is started
-  supervisorctl:
-    name: consul-agent
-    state: started
-  notify:
-    - 'Vault Restart'
-  tags:
-    - bootstrap
