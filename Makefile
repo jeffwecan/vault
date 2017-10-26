@@ -11,8 +11,7 @@ PACKER_IMAGE		:= wpengine/packer
 ANSIBLE_TEST_IMAGE	:= wpengine/ansible
 MOLECULE_TEST_IMAGE	:= jeffreymhogan/ansible:molecule-16.04
 ACCOUNTS			:= development production
-ROLES_TO_TEST		:= td-agent
-# ami-cleanup,common-packages,consul,ldap-client,nginx,security,supervisor
+ROLES_TO_TEST		:= ami-cleanup common-packages consul ldap-client nginx security supervisor td-agent ufw-firewall vault zabbix-agent
 
 # default is meant to generally map to Jenkinsfile/pipeline for anything other than the master branch
 default: lint test terraform-plan
@@ -21,7 +20,7 @@ default: lint test terraform-plan
 all: lint test packer-build-ami terraform-apply-development smoke-development
 
 lint: markdownlint ansible-lint yamllint terraform-validate
-test: molecule-tests
+test: molecule-test-roles
 
 # ~*~*~*~* Linter Tasks *~*~*~*~
 # Run markdown analysis tool.
@@ -84,6 +83,8 @@ molecule-tests: | ensure-artifacts-dir ensure-tls-certs-apply
 	#tests/ansible/run_all_molecule_tests.sh $(ROLES_TO_TEST)
 	$(call run_molecule,/tests/run_all_molecule_tests.sh)
 
+
+molecule-test-roles: $(addprefix molecule-test-, $(ROLES_TO_TEST))
 molecule-test-%: | ensure-artifacts-dir ensure-tls-certs-apply
 	$(call run_molecule,/bin/bash -c "/tests/run_molecule_tests.sh $(*)")
 

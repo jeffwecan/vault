@@ -33,8 +33,7 @@ timestamps {
 					}
 
 					stage('Test') {
-						 sh 'make test'
-						 sh 'echo hullo'
+						 sh 'make -j3 --output-sync test'
 						junit 'artifacts/molecule/*.xml, artifacts/ansible/*tags_bootstrap-3.xml' // -1 and -2 are the create and prepare plays
 					}
 
@@ -118,7 +117,7 @@ timestamps {
 							status = 'FAILED'
 						}
 					}
-					 sh 'find artifacts'
+					 //sh 'find artifacts'
 					throw error
 				} finally {
 					sh 'echo finally!'
