@@ -32,8 +32,8 @@ timestamps {
 						sh 'make pull-molecule-image'
 						sh 'make ensure-artifacts-dir'
 						sh 'make ensure-tls-certs-apply'
-						 sh 'make -j4 test'
-						junit 'artifacts/molecule/*.xml, artifacts/ansible/*tags_bootstrap-3.xml' // -1 and -2 are the create and prepare plays
+						sh 'make -j4 test'
+						junit 'artifacts/molecule/*.xml, artifacts/ansible/playbook-*.xml'
 					}
 
 					if (env.BRANCH_NAME == masterBranch) {  // if BRANCH_NAME == some_dev_branch and/or some_master_branch?
@@ -117,11 +117,11 @@ timestamps {
 						}
 					}
 					 //sh 'find artifacts'
+					junit 'artifacts/molecule/*.xml, artifacts/ansible/playbook-*.xml'
 					 sh 'make -j5 molecule-destroy' // ensure we've cleaned up any test docker containers
 					throw error
 				} finally {
 					sh 'echo finally!'
-					junit 'artifacts/molecule/*.xml, artifacts/ansible/playbook-*.xml'
 
 					//workspace.cleanUp()
 				}
