@@ -28,7 +28,7 @@ timestamps {
 				try {
 					stage('Lint') {
 						withCredentials(terraformCredentials) {
-							sh 'make lint'
+							sh 'make -j3 lint'
 						}
 					}
 

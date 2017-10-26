@@ -9,9 +9,9 @@ role_path="ansible/roles/${role_to_test}"
 echo "Running 'molecule test' against role without bootstrap tags: ${role_to_test}"
 pushd "${role_path}" >/dev/null
 export ROLE_NAME="${role_to_test}"
-echo "[${role_to_test}]: Performing basic liniting"
-molecule syntax
-molecule lint
+#echo "[${role_to_test}]: Performing basic liniting"
+#molecule syntax
+#molecule lint
 
 echo "[${role_to_test}]: Setting up test instance"
 molecule destroy 2>&1 >/dev/null

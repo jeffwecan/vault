@@ -19,7 +19,7 @@ default: lint test terraform-plan
 # all is meant to generally map to Jenkinsfile/pipeline for the master branch (minus deploying to prod ;P)
 all: lint test packer-build-ami terraform-apply-development smoke-development
 
-lint: markdownlint ansible-lint yamllint terraform-validate
+lint: markdownlint molecule-lint-roles lint-packer-template terraform-validate
 test: molecule-test-roles
 
 # ~*~*~*~* Linter Tasks *~*~*~*~
@@ -32,20 +32,6 @@ markdownlint:
 		${MARKDOWN_LINTER} /workspace
 	@echo
 	# Successfully linted Markdown.
-
-ansible-lint:
-	@echo
-	# Running ansible-lint against all ansible playbooks in this project...
-	docker run --rm \
-		--volume $(PWD)/ansible:/workspace \
-		$(ANSIBLE_TEST_IMAGE):latest \
-		/bin/bash -c '/usr/bin/find /workspace -maxdepth 1 -name '*.yml' -print0 | /usr/bin/xargs -0 ansible-lint -p -v'
-
-	@echo
-	# Successfully linted ansible.
-
-yamllint: | lint-packer-template
-	@echo # TODO: think about linting other yaml things here? maybe exclude the yaml that *could* be pulled down by terraform get and placed in .terraform subidrs
 
 lint-packer-template:
 	@echo
@@ -89,6 +75,10 @@ pull-molecule-image:
 molecule-test-roles: pull-molecule-image ensure-artifacts-dir ensure-tls-certs-apply $(addprefix molecule-test-, $(ROLES_TO_TEST))
 molecule-test-%:
 	$(call run_molecule,/bin/bash -c "/tests/run_molecule_tests.sh $(*)",$(*))
+
+molecule-lint-roles: pull-molecule-image $(addprefix molecule-lint-, $(ROLES_TO_TEST))
+molecule-lint-%:
+	$(call run_molecule,/bin/bash -c "/tests/run_molecule_lint.sh $(*)",$(*))
 
 # ~*~*~*~* Smoke Tasks *~*~*~*~
 build-smoke-image:
