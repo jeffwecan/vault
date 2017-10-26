@@ -14,7 +14,7 @@ dependencies:
          startsecs=1
          redirect_stderr=true
          stderr_logfile=/var/log/consul.error.log
-         stdout_logfile=/var/log/vault.log
+         stdout_logfile=/var/log/consul.log
          killasgroup=true
          stopasgroup=true
       - name: 'consul-server'
@@ -28,6 +28,6 @@ dependencies:
          startsecs=1
          redirect_stderr=true
          stderr_logfile=/var/log/consul.error.log
-         stdout_logfile=/var/log/vault.log
+         stdout_logfile=/var/log/consul.log
          killasgroup=true
          stopasgroup=true
