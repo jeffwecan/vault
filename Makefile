@@ -19,8 +19,8 @@ default: lint test terraform-plan
 # all is meant to generally map to Jenkinsfile/pipeline for the master branch (minus deploying to prod ;P)
 all: lint test packer-build-ami terraform-apply-development smoke-development
 
-lint: markdownlint molecule-lint-roles lint-packer-template terraform-validate
-test: molecule-test-roles
+lint: markdownlint molecule-lint lint-packer-template terraform-validate
+test: molecule-test
 
 # ~*~*~*~* Linter Tasks *~*~*~*~
 # Run markdown analysis tool.
@@ -72,11 +72,11 @@ molecule-tests: | ensure-artifacts-dir ensure-tls-certs-apply
 pull-molecule-image:
 	docker pull $(MOLECULE_TEST_IMAGE)
 
-molecule-test-roles: pull-molecule-image ensure-artifacts-dir ensure-tls-certs-apply $(addprefix molecule-test-, $(ROLES_TO_TEST))
+molecule-test: pull-molecule-image ensure-artifacts-dir ensure-tls-certs-apply $(addprefix molecule-test-, $(ROLES_TO_TEST))
 molecule-test-%:
 	$(call run_molecule,/bin/bash -c "/tests/run_molecule_tests.sh $(*)",$(*))
 
-molecule-lint-roles: pull-molecule-image $(addprefix molecule-lint-, $(ROLES_TO_TEST))
+molecule-lint: pull-molecule-image $(addprefix molecule-lint-, $(ROLES_TO_TEST))
 molecule-lint-%:
 	$(call run_molecule,/bin/bash -c "/tests/run_molecule_lint.sh $(*)",$(*))
 
