@@ -103,10 +103,8 @@ timestamps {
 
 					stage('Save Graphs') {
 						withCredentials(terraformCredentials) {
-							sh 'find artifacts'
 							sh 'make terraform-graph'
-							sh 'find artifacts'
-                    		archiveArtifacts 'artifacts/*_tf.gz'
+                    		archiveArtifacts 'artifacts/*_tf.gv'
 						}
 					}
 
