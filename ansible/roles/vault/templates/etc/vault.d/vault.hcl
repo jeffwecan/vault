@@ -8,8 +8,8 @@ listener "tcp" {
 {% if ansible_ec2_local_ipv4 is defined %}
  cluster_address = "{{ ansible_ec2_local_ipv4 }}:8200"
 {% endif %}
- tls_cert_file = "/etc/vault.d/ssl/bundle.crt"
- tls_key_file = "/etc/vault.d/ssl/vault.key"
+ tls_cert_file = "{{ vault_ssl_crt_path }}"
+ tls_key_file = "{{ vault_ssl_key_path }}"
 }
 
 {% if vault_telemetry_address is defined %}

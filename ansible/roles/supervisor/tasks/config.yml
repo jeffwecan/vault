@@ -9,6 +9,8 @@
   with_items:
     - "{{ supervisor_config_path }}"
     - "{{ supervisor_config_path }}/conf.d"
+  tags:
+    - always
 
 - name: Ensure Supervisor configuration is present.
   template:
@@ -16,6 +18,8 @@
     dest: "{{ supervisor_config_path }}/supervisord.conf"
     mode: 0644
   notify: restart supervisor
+  tags:
+    - always
 
 - name: Ensure system users required for Supervisor program configs are present.
   user:
