@@ -6,4 +6,4 @@ testinfra_hosts = testinfra.utils.ansible_runner.AnsibleRunner(os.environ['MOLEC
 
 
 def test_supervisord_conf(host):
-    assert host.supervisor("vault_supervisord").status not in ['BACKOFF', 'STOPPING', 'EXITED', 'FATAL', 'UNKNOWN']
+    assert host.supervisor("vault").status not in ['BACKOFF', 'STOPPING', 'EXITED', 'FATAL', 'UNKNOWN']
