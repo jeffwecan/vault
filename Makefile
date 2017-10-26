@@ -1,8 +1,5 @@
 VERSION         	:= $(shell git describe --tags --always)
 IMAGE_TAG			?= $(VERSION)
-AMI_NAME			:= "vault-consul-ubuntu-$(IMAGE_TAG)"
-SERVER_CM_TAG		:= "v3.31"
-TLS_OWNER			?= "root"
 
 MARKDOWN_LINTER 	:= wpengine/mdl
 YAML_LINTER			:= wpengine/yamllint
@@ -148,12 +145,11 @@ ensure-tls-certs-apply: ensure-artifacts-dir ensure-tls-certs-get
 		--volume $(PWD)/artifacts:/artifacts \
 		--workdir=/workspace \
 		$(TERRAFORM_IMAGE) \
-		/bin/bash -c 'terraform apply \
+		/bin/bash -c "terraform apply \
 		-var-file variables.json \
 		-var 'private_key_file_path=/artifacts/vault.key.pem' \
 		-var 'ca_public_key_file_path=/artifacts/vault.ca.crt.pem' \
-		-var 'public_key_file_path=/artifacts/vault.crt.pem' \
-		-var owner=$(TLS_OWNER) &>/dev/null'
+		-var 'public_key_file_path=/artifacts/vault.crt.pem' &>/dev/null"
 
 packer-yaml-to-json:
 	@echo

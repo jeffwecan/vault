@@ -3,14 +3,10 @@
 
 timestamps {
 	node('docker') {
-		// This pipeline var does nice things like automatically cleanup your workspace and hipchat the provided room
-		// when master builds fail. Docs are available at:
-		// https://jenkins.wpengine.io/job/WPEngineGitHubRepos/job/jenkins_shared_library/job/master/pipeline-syntax/globals#wpe
 		wpe.pipeline('Vault Monitoring') {
 			String	SHORT_GIT_COMMIT = GIT_COMMIT.take(6)
 			String  IMAGE_TAG = "${BUILD_NUMBER}-${SHORT_GIT_COMMIT}"
 			String  IMAGE_NAME = "vault${IMAGE_TAG}"
-			String	TLS_OWNER = "root"
 			String	hipchatRoom = "Vault Monitoring"
 			String	masterBranch = "terraform_vault" // some day master?
 			def packerCredentials = [
@@ -24,7 +20,7 @@ timestamps {
 			]
 
 			// IMAGE_TAG is used in docker-compose to ensure uniqueness of containers and networks.
-			withEnv(["IMAGE_TAG=${IMAGE_TAG}", "TLS_OWNER=${TLS_OWNER}"]) {
+			withEnv(["IMAGE_TAG=${IMAGE_TAG}"]) {
 				try {
 					stage('Lint') {
 						withCredentials(terraformCredentials) {

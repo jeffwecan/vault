@@ -18,6 +18,7 @@ variable "private_key_file_path" {
 
 variable "owner" {
   description = "The OS user who should be given ownership over the certificate files."
+  default = "root"
 }
 
 variable "organization_name" {
