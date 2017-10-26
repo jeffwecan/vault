@@ -103,9 +103,8 @@ timestamps {
 
 					stage('Save Graphs') {
 						withCredentials(terraformCredentials) {
-							sh 'echo maybe make an artifact some day?'
-							// sh 'make terraform-graph'
-                    		// archiveArtifacts 'artifacts/*_tf.gz'
+							sh 'make terraform-graph'
+                    		archiveArtifacts 'artifacts/*_tf.gz'
 						}
 					}
 
@@ -116,14 +115,9 @@ timestamps {
 							status = 'FAILED'
 						}
 					}
-					 //sh 'find artifacts'
 					junit 'artifacts/molecule/*.xml, artifacts/ansible/playbook-*.xml'
 					 sh 'make -j5 molecule-destroy' // ensure we've cleaned up any test docker containers
 					throw error
-				} finally {
-					sh 'echo finally!'
-
-					//workspace.cleanUp()
 				}
 			}
 		}
