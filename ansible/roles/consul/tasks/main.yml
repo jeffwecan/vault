@@ -21,21 +21,30 @@
     path: /etc/consul.d
     state: directory
     owner: consul
+  tags:
+    - always
 
-- name: Template consul config file
+- name: Template consul-agent config file
   template:
-    src: etc/consul.d/{{ item }}
-    dest: /etc/consul.d/{{ item }}
+    src: etc/consul.d/agent.hcl
+    dest: /etc/consul.d/agent.hcl
     owner: consul
     group: root
   notify:
     - consul agent restart
-    - consul server restart
-  with_items:
-    - server.hcl
-    - agent.hcl
   tags:
-    - bootstrap
+    - always
+
+- name: Template consul-server config file
+  template:
+    src: etc/consul.d/server.hcl
+    dest: /etc/consul.d/server.hcl
+    owner: consul
+    group: root
+  notify:
+    - consul server restart
+  tags:
+    - always
 
 - name: Ensure consul ssl directory
   file:

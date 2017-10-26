@@ -11,6 +11,7 @@
   listen: 'Vault Restart'
   tags:
     - bootstrap
+    - always
 
 - name: consul server restart
   supervisorctl:
@@ -19,3 +20,4 @@
   when: consul_run_as_server
   tags:
     - bootstrap
+    - always

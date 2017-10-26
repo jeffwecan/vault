@@ -7,6 +7,6 @@
     - vault_ssl_ca_cert: "{{ lookup('file', '{{ tmp_certs_path }}/vault.ca.crt.pem') }}"
     - vault_ssl_key: "{{ lookup('file', '{{ tmp_certs_path }}/vault.key.pem') }}"
     - vault_supervisor_cmd_flags: "-dev"
-    - nginx_dhparam_bits: 256
+    - nginx_dhparam_bits: 64
   roles:
     - role: vault

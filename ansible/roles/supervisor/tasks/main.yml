@@ -28,9 +28,6 @@
 
 - name: Import configuration tasks
   include: config.yml
-  tags:
-    - bootstrap
-    - always
 
 - name: Import tasks to set up supervisor service
   include: init-setup.yml
