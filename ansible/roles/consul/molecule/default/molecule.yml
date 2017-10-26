@@ -18,7 +18,6 @@ provisioner:
     defaults:
       callback_whitelist: junit
       stdout_callback: only_errors
-      # stdout_callback: mycallbackplugin
   playbooks:
     create: ../../../../molecule/create.yml
     destroy: ../../../../molecule/destroy.yml
@@ -32,7 +31,7 @@ verifier:
   name: testinfra
   options:
     junit-xml: ../../../../../artifacts/molecule/${ROLE_NAME}_role.xml
-    junit-prefix: testinfra_${ROLE_NAME}
+    junit-prefix: testinfra_consul
   lint:
     name: flake8
     options:
