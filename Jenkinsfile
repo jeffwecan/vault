@@ -24,7 +24,7 @@ timestamps {
 				try {
 					stage('Lint') {
 						withCredentials(terraformCredentials) {
-							sh 'make -j5 lint'
+							sh 'make -j5 --keep-going lint'
 						}
 					}
 
@@ -115,9 +115,11 @@ timestamps {
 							status = 'FAILED'
 						}
 					}
+					// Store any tests results we happened to gather up to this point
 					junit 'artifacts/molecule/*.xml, artifacts/ansible/playbook-*.xml'
-					sh 'make -j5 molecule-destroy' // ensure we've cleaned up any test docker containers
 					throw error
+				} finally {
+					sh 'make -j5 --keep-going molecule-destroy' // ensure we've cleaned up any test docker containers
 				}
 			}
 		}

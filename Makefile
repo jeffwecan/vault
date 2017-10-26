@@ -46,7 +46,7 @@ define run_molecule
 	@echo
 	# Running molecule image for role $(2) with command: $(1)
 	@docker run --rm \
-		--name $(2)_molecule_test_runner \
+		--name $(2)_molecule_test_runner_$(IMAGE_TAG) \
 		--volume /var/run/docker.sock:/var/run/docker.sock \
 		--volume $(PWD):/workspace \
 		--volume $(PWD)/tests/ansible:/tests \
@@ -81,7 +81,7 @@ molecule-lint-%:
 
 molecule-destroy: pull-molecule-image $(addprefix molecule-destroy-, $(ROLES_TO_TEST))
 molecule-destroy-%:
-	$(call run_molecule,/bin/bash -c "/tests/run_molecule_destroy.sh $(*)",$(*))
+	@$(call run_molecule,/bin/bash -c "/tests/run_molecule_destroy.sh $(*)",$(*))
 
 # ~*~*~*~* Smoke Tasks *~*~*~*~
 build-smoke-image:

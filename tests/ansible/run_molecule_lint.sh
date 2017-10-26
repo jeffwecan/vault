@@ -4,7 +4,7 @@ set -euo pipefail
 role_to_lint="${1}"
 role_path="ansible/roles/${role_to_lint}"
 
-pushd "${role_path}" >/dev/null
+pushd "${role_path}"
 
 molecule syntax >/dev/null
 molecule lint >/dev/null
