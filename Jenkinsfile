@@ -33,6 +33,9 @@ timestamps {
 					}
 
 					stage('Test') {
+						sh 'make pull-molecule-image'
+						sh 'make ensure-artifacts-dir'
+						sh 'make ensure-tls-certs-apply'
 						 sh 'make -j3 test'
 						junit 'artifacts/molecule/*.xml, artifacts/ansible/*tags_bootstrap-3.xml' // -1 and -2 are the create and prepare plays
 					}

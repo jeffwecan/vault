@@ -70,7 +70,7 @@ molecule-tests: | ensure-artifacts-dir ensure-tls-certs-apply
 pull-molecule-image:
 	docker pull $(MOLECULE_TEST_IMAGE)
 
-molecule-test: pull-molecule-image ensure-artifacts-dir ensure-tls-certs-apply $(addprefix molecule-test-, $(ROLES_TO_TEST))
+molecule-test: $(addprefix molecule-test-, $(ROLES_TO_TEST))
 molecule-test-%:
 	$(call run_molecule,/bin/bash -c "/tests/run_molecule_tests.sh $(*)",$(*))
 
