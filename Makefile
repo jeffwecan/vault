@@ -80,6 +80,10 @@ molecule-lint: pull-molecule-image $(addprefix molecule-lint-, $(ROLES_TO_TEST))
 molecule-lint-%:
 	$(call run_molecule,/bin/bash -c "/tests/run_molecule_lint.sh $(*)",$(*))
 
+molecule-destroy: pull-molecule-image $(addprefix molecule-destroy-, $(ROLES_TO_TEST))
+molecule-destroy-%:
+	$(call run_molecule,/bin/bash -c "/tests/run_molecule_destroy.sh $(*)",$(*))
+
 # ~*~*~*~* Smoke Tasks *~*~*~*~
 build-smoke-image:
 	docker build -t vault-smokes:$(VERSION) tests/smokes/

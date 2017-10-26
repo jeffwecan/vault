@@ -118,6 +118,7 @@ timestamps {
 						}
 					}
 					 //sh 'find artifacts'
+					 sh 'make -j5 molecule-destroy' // ensure we've cleaned up any test docker containers
 					throw error
 				} finally {
 					sh 'echo finally!'
