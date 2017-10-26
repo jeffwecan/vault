@@ -1,6 +1,6 @@
 ---
 consul_run_as_server: false
-consul_retry_join: provider=aws region=us-east-1 tag_key=consul-servers tag_value=terraform-consul addr_type=privatev4
+consul_retry_join: provider=aws region=us-east-1 tag_key=consul-servers tag_value=terraform-consul addr_type=private_v4
 vault_supervisor_cmd_flags: '-config=/etc/vault.d/vault.hcl'
 supervisor_programs:
   - name: 'vault'

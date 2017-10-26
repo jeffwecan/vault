@@ -1,5 +1,5 @@
 ---
 consul_run_as_server: true
-consul_retry_join: provider=aws region=us-east-1 tag_key=consul-servers tag_value=terraform-consul addr_type=privatev4
+consul_retry_join: provider=aws region=us-east-1 tag_key=consul-servers tag_value=terraform-consul addr_type=private_v4
 # in TF land => ${var.consul_cluster_tag_key}
 # in TF land => ${var.consul_cluster_name}
