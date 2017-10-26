@@ -60,7 +60,7 @@ lint-packer-template:
 # ~*~*~*~* Test Tasks *~*~*~*~ # $(VERSION)
 define run_molecule
 	docker run --rm \
-		--name vault_molecule_test_runner \
+		--name $(2)_molecule_test_runner \
 		--volume /var/run/docker.sock:/var/run/docker.sock \
 		--volume $(PWD):/workspace \
 		--volume $(PWD)/tests/ansible:/tests \
@@ -84,9 +84,9 @@ molecule-tests: | ensure-artifacts-dir ensure-tls-certs-apply
 	$(call run_molecule,/tests/run_all_molecule_tests.sh)
 
 
-molecule-test-roles: $(addprefix molecule-test-, $(ROLES_TO_TEST))
-molecule-test-%: | ensure-artifacts-dir ensure-tls-certs-apply
-	$(call run_molecule,/bin/bash -c "/tests/run_molecule_tests.sh $(*)")
+molecule-test-roles: ensure-artifacts-dir ensure-tls-certs-apply $(addprefix molecule-test-, $(ROLES_TO_TEST))
+molecule-test-%:
+	$(call run_molecule,/bin/bash -c "/tests/run_molecule_tests.sh $(*)",$(*))
 
 # ~*~*~*~* Smoke Tasks *~*~*~*~
 build-smoke-image:
