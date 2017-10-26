@@ -33,7 +33,7 @@ timestamps {
 					}
 
 					stage('Test') {
-						 sh 'make -j3 --output-sync test'
+						 sh 'make -j3 test'
 						junit 'artifacts/molecule/*.xml, artifacts/ansible/*tags_bootstrap-3.xml' // -1 and -2 are the create and prepare plays
 					}
 
