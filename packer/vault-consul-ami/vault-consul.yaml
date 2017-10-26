@@ -13,10 +13,10 @@ builders:
   - name: vault-ubuntu-16.04-ami
     # force_deregister: true  # if we end up with the some AMI name, someone is probably rerunning a build?
     ami_name: vault-consul-ubuntu-1604-{{ user `version` | clean_ami_name}}
-    # spot_price: auto
-    # spot_price_auto_product: Linux/UNIX
+    spot_price: auto
+    spot_price_auto_product: "Linux/UNIX (Amazon VPC)"
     ami_description: An Ubuntu 16.04 AMI that has Vault and Consul installed.
-    instance_type: t2.micro
+    instance_type: c3.large
     region: '{{user `aws_region`}}'
     type: amazon-ebs
     encrypt_boot: true
@@ -39,12 +39,15 @@ builders:
       Release: 16.05
       Version: "{{ user `version` | clean_ami_name}}"
       Name: "Vault/Consul AMI - {{isotime \"2006/01/02 03:04:05\"}}"
+      billing_tag: "packer_vault_consul"
     run_tags:
       Version: "{{ user `version` | clean_ami_name}}"
       Name: "Packer Builder: Vault/Consul AMI - {{isotime \"2006/01/02 03:04:05\"}}"
+      billing_tag: "packer_vault_consul"
     run_volume_tags:
       Version: "{{ user `version` | clean_ami_name}}"
       Name: "Packer Builder: Vault/Consul AMI - {{isotime \"2006/01/02 03:04:05\"}}"
+      billing_tag: "packer_vault_consul"
 
   - name: vault-ubuntu-16.04-docker
     type: docker
