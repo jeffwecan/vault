@@ -16,7 +16,7 @@ molecule converge -- --skip-tags=bootstrap >/dev/null
 echo "[${role_to_test}]: Running initial provisioning playbook with only bootstrap tags"
 molecule converge -- --tags=bootstrap >/dev/null
 
-molecule idempotence
+molecule idempotence >/dev/null
 
 echo "[${role_to_test}]: Verifying / testing test instance"
 molecule verify >/dev/null
