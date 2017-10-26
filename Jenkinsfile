@@ -32,7 +32,7 @@ timestamps {
 						sh 'make pull-molecule-image'
 						sh 'make ensure-artifacts-dir'
 						sh 'make ensure-tls-certs-apply'
-						sh 'make -j4 test'
+						sh 'make -j4 --keep-going test'
 						junit 'artifacts/molecule/*.xml, artifacts/ansible/playbook-*.xml'
 					}
 
