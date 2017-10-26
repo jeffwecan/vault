@@ -73,7 +73,7 @@ variable "consul_cluster_name" {
 
 variable "vault_cluster_size" {
   description = "The number of Vault server nodes to deploy. We strongly recommend using 3 or 5."
-  default     = 1
+  default     = 3
 }
 
 variable "consul_cluster_size" {
