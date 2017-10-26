@@ -126,7 +126,8 @@ ensure-artifacts-dir:
 	@mkdir -p artifacts/ansible
 
 ensure-tls-certs-init:
-	@echo "=====> Using private-tls-cert module to ensure certs <====="
+	@echo
+	# Using private-tls-cert module to ensure certs
 	@docker run --rm \
 		--volume $(PWD)/terraform/modules/generate-tls-cert:/workspace \
 		--workdir=/workspace \
@@ -248,4 +249,24 @@ packer-build-ami: | packer-yaml-to-json ensure-tls-certs-apply
 			-var 'tls_public_key_path=/artifacts/vault.crt.pem' \
 			-var 'ansible_extra_arguments=-e vault_supervisor_cmd_flags=-dev' \
 			packer/vault-consul-ami/vault-consul.json
-	# TODO add packer profile to jenkins nodes IAM instance role
+
+packer-debug-ami: | packer-yaml-to-json ensure-tls-certs-apply
+	docker run --rm \
+		-it \
+		--volume $(PWD):/workspace \
+		--volume $(PWD)/artifacts:/artifacts \
+		--workdir=/workspace \
+		--env AWS_ACCESS_KEY_ID \
+		--env AWS_SECRET_ACCESS_KEY \
+		$(PACKER_IMAGE):latest \
+			build \
+			-except=vault-ubuntu-16.04-docker \
+			-var version=$(IMAGE_TAG) \
+			-var-file packer/vault-consul-ami/variables.json \
+			-var 'tls_private_key_path=/artifacts/vault.key.pem' \
+			-var 'ca_public_key_path=/artifacts/vault.ca.crt.pem' \
+			-var 'tls_public_key_path=/artifacts/vault.crt.pem' \
+			-var 'ansible_extra_arguments=-e vault_supervisor_cmd_flags=-dev' \
+			-debug \
+			packer/vault-consul-ami/vault-consul.json
+	# TODO add packer profile to jenkins nodes IAM instance role debug mode for locally-initiaited troubleshooting?

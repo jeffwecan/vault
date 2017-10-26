@@ -48,8 +48,8 @@ timestamps {
 								} catch(error) {
 									echo "First build failed, sometimes packer randomly times out waiting for SSH?"
 									retry(1) {
-										input "Retry the job?"
-										sh 'make packer-build-ami'
+										input "Retry the job again with the debug flag set?"
+										sh 'make packer-debug-ami'
 									}
 								}
 							}

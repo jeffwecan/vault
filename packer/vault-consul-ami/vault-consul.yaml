@@ -30,8 +30,9 @@ builders:
         root-device-type: ebs
       owners:
         - 099720109477
-        # - 844484402121
+        # - 844484402121\
       most_recent: true
+    # shutdown_behavior: stop
     ssh_username: ubuntu
     tags:
       Distribution: Ubuntu
@@ -39,6 +40,9 @@ builders:
       Version: "{{ user `version` | clean_ami_name}}"
       Name: "Vault/Consul AMI - {{isotime \"2006/01/02 03:04:05\"}}"
     run_tags:
+      Version: "{{ user `version` | clean_ami_name}}"
+      Name: "Packer Builder: Vault/Consul AMI - {{isotime \"2006/01/02 03:04:05\"}}"
+    run_volume_tags:
       Version: "{{ user `version` | clean_ami_name}}"
       Name: "Packer Builder: Vault/Consul AMI - {{isotime \"2006/01/02 03:04:05\"}}"
 

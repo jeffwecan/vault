@@ -101,32 +101,32 @@
   notify:
     - td-agent restart
 
-- name: td-agent syslog config
-  template:
-    src: etc/td-agent/config.d/syslog.conf
-    dest: /etc/td-agent/config.d/syslog.conf
-    owner: td-agent
-    group: td-agent
-    mode: 0640
-  notify:
-    - td-agent restart
-
-- name: td-agent fluentd config
-  template:
-    src: etc/td-agent/config.d/fluentd.conf
-    dest: /etc/td-agent/config.d/fluentd.conf
-    owner: td-agent
-    group: td-agent
-    mode: 0640
-  notify:
-    - td-agent restart
-
-- name: forward rsyslog to td-agent
-  template:
-    src: etc/rsyslog.d/40-fluentd.conf
-    dest: /etc/rsyslog.d/40-fluentd.conf
-    owner: root
-    group: root
-    mode: 0644
-  notify:
-    - rsyslog restart
+# - name: td-agent syslog config
+#  template:
+#    src: etc/td-agent/config.d/syslog.conf
+#    dest: /etc/td-agent/config.d/syslog.conf
+#    owner: td-agent
+#    group: td-agent
+#    mode: 0640
+#  notify:
+#    - td-agent restart
+#
+# - name: td-agent fluentd config
+#  template:
+#    src: etc/td-agent/config.d/fluentd.conf
+#    dest: /etc/td-agent/config.d/fluentd.conf
+#    owner: td-agent
+#    group: td-agent
+#    mode: 0640
+#  notify:
+#    - td-agent restart
+#
+# - name: forward rsyslog to td-agent
+#  template:
+#    src: etc/rsyslog.d/40-fluentd.conf
+#    dest: /etc/rsyslog.d/40-fluentd.conf
+#    owner: root
+#    group: root
+#    mode: 0644
+#  notify:
+#    - rsyslog restart
