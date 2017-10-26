@@ -20,12 +20,7 @@ verify_outgoing = true
 {% endif %}
 
 {% if consul_retry_join is defined %}
-retry_join {
-  provider = "{{ consul_retry_join.provider }}"
-  region = "{{ consul_retry_join.region }}"
-  tag_key = "{{ consul_retry_join.key }}"
-  tag_value = "{{ consul_retry_join.value }}"
-}
+retry_join = ["{{ consul_retry_join }}"]
 {% endif %}
 
 {% if telemetry_address is defined %}

@@ -1,7 +1,5 @@
 ---
-consul_run_as_server: yes
-consul_retry_join:
-  provider: aws
-  region: us-east-1
-  key: consul-servers  # in TF land => ${var.consul_cluster_tag_key}
-  value: terraform-consul  # in TF land => ${var.consul_cluster_name}
+consul_run_as_server: true
+consul_retry_join: provider=aws region=us-east-1 key=consul-servers value=terraform-consul
+# in TF land => ${var.consul_cluster_tag_key}
+# in TF land => ${var.consul_cluster_name}
