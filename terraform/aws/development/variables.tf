@@ -33,7 +33,7 @@ variable "cm_cidr" {
 
 variable "consul_bootstrap_playbook" {
     description = "Playbook to finalize a consul instance's configuration"
-    default = "/opt/ansible-vault/vault-aws-bootstrap.yml"
+    default = "/opt/ansible-vault/consul-aws-bootstrap.yml"
 }
 
 variable "consul_bootstrap_vars" {

@@ -116,7 +116,7 @@ timestamps {
 						}
 					}
 					junit 'artifacts/molecule/*.xml, artifacts/ansible/playbook-*.xml'
-					 sh 'make -j5 molecule-destroy' // ensure we've cleaned up any test docker containers
+					sh 'make -j5 molecule-destroy' // ensure we've cleaned up any test docker containers
 					throw error
 				}
 			}
