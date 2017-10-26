@@ -28,7 +28,7 @@ timestamps {
 				try {
 					stage('Lint') {
 						withCredentials(terraformCredentials) {
-							sh 'make -j3 lint'
+							sh 'make -j5 lint'
 						}
 					}
 
@@ -36,7 +36,7 @@ timestamps {
 						sh 'make pull-molecule-image'
 						sh 'make ensure-artifacts-dir'
 						sh 'make ensure-tls-certs-apply'
-						 sh 'make -j3 test'
+						 sh 'make -j4 test'
 						junit 'artifacts/molecule/*.xml, artifacts/ansible/*tags_bootstrap-3.xml' // -1 and -2 are the create and prepare plays
 					}
 
