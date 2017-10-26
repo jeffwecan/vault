@@ -1,7 +1,11 @@
 ---
 
 - name: Install chkrootkit
-  action: "{{ ansible_pkg_mgr }} state=installed name={{ item }}"
+  apt:
+    state: installed
+    name: "{{ item }}"
+    update_cache: yes
+    cache_valid_time: "{{ cache_valid_time }}"
   with_items:
     - chkrootkit
 
