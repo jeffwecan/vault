@@ -27,7 +27,7 @@ test: molecule-test
 markdownlint:
 	@echo
 	# Running markdownlint against all markdown files in this project...
-	docker run --rm \
+	@docker run --rm \
 		--volume $(PWD):/workspace \
 		${MARKDOWN_LINTER} /workspace
 	@echo
@@ -36,7 +36,7 @@ markdownlint:
 lint-packer-template:
 	@echo
 	# Running yamllint against packer template
-	docker run --rm \
+	@docker run --rm \
 		--volume $(PWD)/packer:/workspace \
 		$(YAML_LINTER):latest \
 			/workspace
@@ -45,7 +45,9 @@ lint-packer-template:
 
 # ~*~*~*~* Test Tasks *~*~*~*~ # $(VERSION)
 define run_molecule
-	docker run --rm \
+	@echo
+	# Running molecule image for role $(2) with command: $(1)
+	@docker run --rm \
 		--name $(2)_molecule_test_runner \
 		--volume /var/run/docker.sock:/var/run/docker.sock \
 		--volume $(PWD):/workspace \
@@ -54,6 +56,8 @@ define run_molecule
 		--workdir=/workspace \
 		$(MOLECULE_TEST_IMAGE) \
 			$(1)
+	@echo
+	# Successfully molecule'd role $(2) with command: $(1)
 endef
 
 infratest-docker-image: | packer-build-image
@@ -64,7 +68,6 @@ infratest-docker-image: | packer-build-image
 	/bin/bash -c "service supervisord start && py.test -v /tests --junit-xml /artifacts/infratest/docker_image.xml"
 
 molecule-tests: | ensure-artifacts-dir ensure-tls-certs-apply
-	#tests/ansible/run_all_molecule_tests.sh $(ROLES_TO_TEST)
 	$(call run_molecule,/tests/run_all_molecule_tests.sh)
 
 pull-molecule-image:
@@ -106,9 +109,8 @@ smoke-production: | build-smoke-image
 clean: #| ensure-tls-certs-get
 	rm -rvf artifacts/*
 	find packer \! -name 'variables.json' -a -name '*.json' -print
-#	find . -name '.terraform' -type d -exec rm -rfv {} \;
 
-	docker run --rm \
+	@docker run --rm \
 		--volume $(PWD)/terraform/modules/generate-tls-cert:/workspace \
 		--volume $(PWD)/artifacts:/artifacts \
 		--workdir=/workspace \
@@ -122,41 +124,41 @@ clean: #| ensure-tls-certs-get
 			-force
 
 ensure-artifacts-dir:
-	mkdir -p artifacts/molecule
-	mkdir -p artifacts/ansible
+	@mkdir -p artifacts/molecule
+	@mkdir -p artifacts/ansible
 
 ensure-tls-certs-init:
-	docker run --rm \
+	@echo "=====> Using private-tls-cert module to ensure certs <====="
+	@docker run --rm \
 		--volume $(PWD)/terraform/modules/generate-tls-cert:/workspace \
 		--workdir=/workspace \
 		$(TERRAFORM_IMAGE) \
-		terraform init
+		/bin/bash -c 'terraform init &>/dev/null'
 
 ensure-tls-certs-get: ensure-tls-certs-init
-	docker run --rm \
+	@docker run --rm \
 		--volume $(PWD)/terraform/modules/generate-tls-cert:/workspace \
 		--workdir=/workspace \
 		$(TERRAFORM_IMAGE) \
-		terraform get
+		/bin/bash -c 'terraform get &>/dev/null'
 
 ensure-tls-certs-apply: ensure-artifacts-dir ensure-tls-certs-get
-	@echo "=====> Using private-tls-cert module to ensure certs <====="
-	docker run --rm \
+	@docker run --rm \
 		--volume $(PWD)/terraform/modules/generate-tls-cert:/workspace \
 		--volume $(PWD)/artifacts:/artifacts \
 		--workdir=/workspace \
 		$(TERRAFORM_IMAGE) \
-		terraform apply \
+		/bin/bash -c 'terraform apply \
 		-var-file variables.json \
 		-var 'private_key_file_path=/artifacts/vault.key.pem' \
 		-var 'ca_public_key_file_path=/artifacts/vault.ca.crt.pem' \
 		-var 'public_key_file_path=/artifacts/vault.crt.pem' \
-		-var owner=$(TLS_OWNER)
+		-var owner=$(TLS_OWNER) &>/dev/null'
 
 packer-yaml-to-json:
 	@echo
 	# Generating JSON version of YAML packer template
-	docker run --rm \
+	@docker run --rm \
 		-i \
 		--entrypoint="" \
 		--workdir=/workspace \
@@ -168,7 +170,7 @@ packer-yaml-to-json:
 
 # ~*~*~*~* Terraform Tasks *~*~*~*~
 define run_terraform
-	docker run --rm \
+	@docker run --rm \
 		--workdir=/workspace \
 		--volume $(PWD)/terraform/aws/$(1):/workspace \
 		--volume $(PWD)/artifacts:/artifacts \
