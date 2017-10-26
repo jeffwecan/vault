@@ -30,6 +30,8 @@
     state: present
   when: item.state|default('present') != 'absent'
   with_items: "{{ supervisor_programs }}"
+  tags:
+    - always
 
 - name: Ensure Supervisor program configs are present.
   template:
@@ -42,3 +44,5 @@
   when: item.state|default('present') != 'absent'
   with_items: "{{ supervisor_programs }}"
   notify: restart supervisor
+  tags:
+    - always

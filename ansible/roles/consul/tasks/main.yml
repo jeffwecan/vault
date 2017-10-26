@@ -116,6 +116,10 @@
     hour: "*"
     job: "/usr/local/bin/upload_consul_snapshot 2>&1 | logger -t 'UPLOAD_CONSUL_SNAPSHOT'"
 
+
+- name: Flush handlers to ensure our supervisord configs are loaded
+  meta: flush_handlers
+
 - name: "Ensure consul-agent service isn't running (consul_run_as_server: false)"
   supervisorctl:
     name: consul-agent
