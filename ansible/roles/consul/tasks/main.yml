@@ -115,3 +115,19 @@
     minute: "0"
     hour: "*"
     job: "/usr/local/bin/upload_consul_snapshot 2>&1 | logger -t 'UPLOAD_CONSUL_SNAPSHOT'"
+
+- name: "Ensure consul-agent service isn't running (consul_run_as_server: false)"
+  supervisorctl:
+    name: consul-agent
+    state: stopped
+  when: not consul_run_as_server
+  tags:
+    - always
+
+- name: "Ensure consul-server service isn't running (consul_run_as_server: true)"
+  supervisorctl:
+    name: consul-server
+    state: stopped
+  when: consul_run_as_server
+  tags:
+    - always

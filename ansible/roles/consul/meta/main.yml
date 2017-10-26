@@ -13,8 +13,8 @@ dependencies:
          startretries=1
          startsecs=1
          redirect_stderr=true
-         stderr_logfile=/var/log/consul.error.log
-         stdout_logfile=/var/log/consul.log
+         stderr_logfile=/var/log/consul-agent.error.log
+         stdout_logfile=/var/log/consul-agent.log
          killasgroup=true
          stopasgroup=true
       - name: 'consul-server'
@@ -27,7 +27,7 @@ dependencies:
          startretries=1
          startsecs=1
          redirect_stderr=true
-         stderr_logfile=/var/log/consul.error.log
-         stdout_logfile=/var/log/consul.log
+         stderr_logfile=/var/log/consul-server.error.log
+         stdout_logfile=/var/log/consul-server.log
          killasgroup=true
          stopasgroup=true
