@@ -1,14 +1,12 @@
 ---
 
-# This playbook should configure a vault + consul image for use with packet, etc.
-
-- name: Vault Consul AMI
+- name: Consul AWS Bootstrap
   hosts: all
   connection: local
   become_user: root
   become: yes
   become_method: sudo
-  strategy: debug  # just something to think about...
+  # strategy: debug  # just something to think about...
 
   vars:
     - cache_valid_time: 600
@@ -19,6 +17,13 @@
     - register_with_zabbix: false
     - datacenter: 'need_a_value_to_look_up_here'
 
+  pre_tasks:
+    - name: Display all variables/facts known when -v option is set
+      debug:
+        var: hostvars[inventory_hostname]
+        verbosity: 1
+      tags:
+        - bootstrap
 
   roles:
     - { role: ami-cleanup, tags: role_ami_cleanup }
