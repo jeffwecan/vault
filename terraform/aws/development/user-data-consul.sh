@@ -9,9 +9,15 @@ set -e
 # From: https://alestic.com/2010/12/ec2-user-data-output/
 exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
 
-#/usr/local/bin/supervisorctl start consul-server
+echo sudo HOME=/root /usr/bin/ansible-playbook -c local -i localhost, \
+	"${consul_bootstrap_playbook}" \
+	-v \
+	--tags bootstrap \
+	--extra-vars "@${consul_bootstrap_vars}"
 sudo HOME=/root /usr/bin/ansible-playbook -c local -i localhost, \
 	"${consul_bootstrap_playbook}" \
 	-v \
 	--tags bootstrap \
 	--extra-vars "@${consul_bootstrap_vars}"
+
+/usr/local/bin/supervisorctl stop vault || true
