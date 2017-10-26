@@ -124,7 +124,7 @@
   supervisorctl:
     name: consul-agent
     state: stopped
-  when: not consul_run_as_server
+  when: consul_run_as_server
   tags:
     - always
 
@@ -132,6 +132,6 @@
   supervisorctl:
     name: consul-server
     state: stopped
-  when: consul_run_as_server
+  when: not consul_run_as_server
   tags:
     - always
