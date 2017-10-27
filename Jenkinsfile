@@ -32,7 +32,15 @@ timestamps {
 						sh 'make pull-molecule-image'
 						sh 'make ensure-artifacts-dir'
 						sh 'make ensure-tls-certs-apply'
-						sh 'make -j4 --keep-going test'
+						try {
+							sh 'make -j4 --keep-going test'
+						} catch(error) {
+							echo "Retrying tests right now until apt update vagrancies are sorted"
+							retry(1) {
+								sh 'make -j4 --keep-going test'
+							}
+						}
+
 						junit 'artifacts/molecule/*.xml, artifacts/ansible/playbook-*.xml'
 					}
 
