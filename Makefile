@@ -210,7 +210,7 @@ terraform-destroy-production: | terraform-get-production
 
 terraform-graph: $(addprefix terraform-graph-, $(ACCOUNTS))
 terraform-graph-%: | terraform-get-%
-	$(call run_terraform,$(*),/bin/bash -c 'terraform graph . > /artifacts/$(*)_$(IMAGE_TAG)_tf.gv')
+	$(call run_terraform,$(*),/bin/bash -c 'terraform graph -module-depth 1 . > /artifacts/$(*)_$(IMAGE_TAG)_tf.gv')
 
 # ~*~*~*~* Packer Tasks *~*~*~*~
 
