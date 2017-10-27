@@ -50,15 +50,15 @@ module "vault_cluster" {
   s3_bucket_name          = "${var.s3_bucket_name}"
   force_destroy_s3_bucket = "${var.force_destroy_s3_bucket}"
 
-  vpc_id     = "${data.aws_vpc.default.id}"
-  subnet_ids = "${data.aws_subnet_ids.default.ids}"
+  vpc_id     = "${module.vpc.vpc_id}"
+  subnet_ids = "${module.vpc.private_subnets}"
 
   # To make testing easier, we allow requests from any IP address here but in a production deployment, we *strongly*
   # recommend you limit this to the IP address ranges of known, trusted servers inside your VPC.
 
   allowed_ssh_cidr_blocks            = ["${var.cm_cidr}"]
   allowed_inbound_cidr_blocks        = ["172.16.0.0/12"]
-  allowed_inbound_security_group_ids = []
+  allowed_inbound_security_group_ids = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
   ssh_key_name                       = "${var.ssh_key_name}"
 }
 
@@ -110,14 +110,14 @@ module "consul_cluster" {
   ami_id    = "${data.aws_ami.vault-consul.id}"
   user_data = "${data.template_file.user_data_consul.rendered}"
 
-  vpc_id     = "${data.aws_vpc.default.id}"
-  subnet_ids = "${data.aws_subnet_ids.default.ids}"
+  vpc_id     = "${module.vpc.vpc_id}"
+  subnet_ids = "${module.vpc.private_subnets}"
 
   # To make testing easier, we allow Consul and SSH requests from any IP address here but in a production
   # deployment, we strongly recommend you limit this to the IP address ranges of known, trusted servers inside your VPC.
 
   allowed_ssh_cidr_blocks            = ["${var.cm_cidr}"]
-  allowed_inbound_cidr_blocks = ["172.16.0.0/12"]  # TODO THIS IS ALL FUCKD
+  allowed_inbound_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
   ssh_key_name                = "${var.ssh_key_name}"
 }
 
@@ -144,10 +144,20 @@ data "template_file" "user_data_consul" {
 # and private subnets.
 # ---------------------------------------------------------------------------------------------------------------------
 
-data "aws_vpc" "default" {
-  default = true
-}
+module "vpc" "vault_vpc" {
+  source = "terraform-aws-modules/vpc/aws"
 
-data "aws_subnet_ids" "default" {
-  vpc_id = "${data.aws_vpc.default.id}"
+  name = "terraform-vault-vpc"
+  cidr = "10.0.0.0/16"
+
+  azs             = ["${var.aws_region}a", "${var.aws_region}b", "${var.aws_region}c"]
+  private_subnets = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+  public_subnets  = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
+
+  enable_nat_gateway = true
+
+  tags = {
+    Terraform = "true"
+    Environment = "development"
+  }
 }
