@@ -57,8 +57,8 @@ module "vault_cluster" {
   # recommend you limit this to the IP address ranges of known, trusted servers inside your VPC.
 
   allowed_ssh_cidr_blocks            = ["${var.cm_cidr}"]
-  allowed_inbound_cidr_blocks        = ["172.16.0.0/12"]
-  allowed_inbound_security_group_ids = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+  allowed_inbound_cidr_blocks        = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+  allowed_inbound_security_group_ids = []
   ssh_key_name                       = "${var.ssh_key_name}"
 }
 
