@@ -37,6 +37,8 @@ timestamps {
 						} catch(error) {
 							echo "Retrying tests right now until apt update vagrancies are sorted"
 							retry(1) {
+								sh 'find artifacts/molecule -name "*.xml" -print -delete'
+								sh 'find artifacts/ansible -name "*.xml" -print -delete'
 								sh 'make -j4 --keep-going test'
 							}
 						}
