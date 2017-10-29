@@ -11,6 +11,10 @@ ACCOUNTS			:= development production
 # we can skip the nginx and supervisor roles for now since other roles have them as dependencies
 ROLES_TO_TEST		:= ami-cleanup common-packages consul ldap-client security td-agent ufw-firewall vault zabbix-agent
 
+# override this for things
+TERRAFORM_GCP_SERVICE_ACCOUNT ?= /tmp/account.json
+
+
 # default is meant to generally map to Jenkinsfile/pipeline for anything other than the master branch
 default: lint test terraform-plan
 
@@ -168,12 +172,14 @@ packer-yaml-to-json:
 
 # ~*~*~*~* Terraform Tasks *~*~*~*~
 define run_terraform
-	@docker run --rm \
+	docker run --rm \
 		--workdir=/workspace \
 		--volume $(PWD)/terraform/aws/$(1):/workspace \
 		--volume $(PWD)/artifacts:/artifacts \
 		--volume $(HOME)/.ssh/id_rsa_github:/root/.ssh/id_rsa:ro \
 		--volume $(HOME)/.ssh/known_hosts:/root/.ssh/known_hosts \
+		-e GOOGLE_APPLICATION_CREDENTIALS=/account.json \
+		-v $(TERRAFORM_GCP_SERVICE_ACCOUNT):/account.json \
 		--env GIT_TRACE=1 \
 		--env AWS_ACCESS_KEY_ID \
 		--env AWS_SECRET_ACCESS_KEY \
