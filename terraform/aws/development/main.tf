@@ -17,19 +17,12 @@ terraform {
 
 data "aws_ami" "vault-consul" {
   most_recent      = true
-//  executable_users = ["self"]
-
-//  filter {
-//    name   = "owner-alias"
-//    values = ["self"]
-//  }
 
   filter {
     name   = "name"
     values = ["vault-consul-ubuntu-*"]
   }
 
-//  name_regex = "^myami-\\d{3}"
   owners     = ["self"]
 }
 
@@ -56,8 +49,8 @@ module "vault_cluster" {
   # To make testing easier, we allow requests from any IP address here but in a production deployment, we *strongly*
   # recommend you limit this to the IP address ranges of known, trusted servers inside your VPC.
 
-  allowed_ssh_cidr_blocks            = ["${var.cm_cidr}"]
-  allowed_inbound_cidr_blocks        = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+  allowed_ssh_cidr_blocks            = "${var.allowed_ssh_cidr_blocks}"
+  allowed_inbound_cidr_blocks        = "${var.allowed_inbound_cidr_blocks}"
   allowed_inbound_security_group_ids = []
   ssh_key_name                       = "${var.ssh_key_name}"
 }
@@ -116,8 +109,8 @@ module "consul_cluster" {
   # To make testing easier, we allow Consul and SSH requests from any IP address here but in a production
   # deployment, we strongly recommend you limit this to the IP address ranges of known, trusted servers inside your VPC.
 
-  allowed_ssh_cidr_blocks            = ["${var.cm_cidr}"]
-  allowed_inbound_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+  allowed_ssh_cidr_blocks     = "${var.allowed_ssh_cidr_blocks}"
+  allowed_inbound_cidr_blocks = "${var.vpc_private_subnets}"
   ssh_key_name                = "${var.ssh_key_name}"
 }
 
@@ -144,20 +137,69 @@ data "template_file" "user_data_consul" {
 # and private subnets.
 # ---------------------------------------------------------------------------------------------------------------------
 
-module "vpc" "vault_vpc" {
+module "vpc" "vault-vpc" {
   source = "terraform-aws-modules/vpc/aws"
 
   name = "terraform-vault-vpc"
   cidr = "10.0.0.0/16"
 
   azs             = ["${var.aws_region}a", "${var.aws_region}b", "${var.aws_region}c"]
-  private_subnets = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+  private_subnets = "${var.vpc_private_subnets}"
   public_subnets  = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
-
+//  map_public_ip_on_launch = true
   enable_nat_gateway = true
+  enable_dns_support = true
+  enable_dns_hostnames = true
 
   tags = {
     Terraform = "true"
     Environment = "development"
+  }
+}
+
+//
+//resource "aws_internet_gateway" "aws-vpc-igw" {
+//  vpc_id            = "${module.vpc.id}"
+//
+//  tags {
+//    Name = "aws-vpc-igw"
+//  }
+//}
+
+/*
+ * ----------VPN Connection----------
+ */
+
+resource "aws_vpn_gateway" "aws-vpn-gw" {
+  vpc_id = "${module.vpc.vpc_id}"
+}
+
+resource "aws_customer_gateway" "aws-cgw" {
+  bgp_asn    = 65000
+  ip_address = "${google_compute_address.gcp-vpn-ip.address}"
+  type       = "ipsec.1"
+  tags {
+    "Name" = "aws-customer-gw"
+  }
+}
+
+resource "aws_default_route_table" "vault-vpc" {
+  default_route_table_id = "${module.vpc.public_route_table_ids[0]}]"
+  route {
+    cidr_block  = "0.0.0.0/0"
+    gateway_id = "${module.vpc.igw_id}"
+  }
+  propagating_vgws = [
+    "${aws_vpn_gateway.aws-vpn-gw.id}"
+  ]
+}
+
+resource "aws_vpn_connection" "aws-vpn-connection1" {
+  vpn_gateway_id      = "${aws_vpn_gateway.aws-vpn-gw.id}"
+  customer_gateway_id = "${aws_customer_gateway.aws-cgw.id}"
+  type                = "ipsec.1"
+  static_routes_only  = false
+  tags {
+    "Name" = "aws-vpn-connection1"
   }
 }
