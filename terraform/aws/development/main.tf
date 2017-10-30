@@ -52,14 +52,15 @@ module "vpc" "vault-vpc" {
   private_subnets = "${var.vpc_private_subnets}"
   public_subnets  = "${var.vpc_public_subnets}"
   map_public_ip_on_launch = false  // TODO: turn this off after dev'in
-  enable_nat_gateway = true
+//  enable_nat_gateway = true
+//  single_nat_gateway = true
   enable_dns_support = true
   enable_dns_hostnames = true
 //  enable_s3_endpoint = true
 
-  private_propagating_vgws = [
-    "${aws_vpn_gateway.aws-vpn-gw.id}"
-  ]
+//  private_propagating_vgws = [
+//    "${aws_vpn_gateway.aws-vpn-gw.id}"
+//  ]
   public_propagating_vgws = [
     "${aws_vpn_gateway.aws-vpn-gw.id}"
   ]
@@ -98,7 +99,7 @@ module "vault_cluster" {
   force_destroy_s3_bucket = "${var.force_destroy_s3_bucket}"
 
   vpc_id     = "${module.vpc.vpc_id}"
-  subnet_ids = "${module.vpc.private_subnets}"
+  subnet_ids = "${module.vpc.public_subnets}"
 
   # To make testing easier, we allow requests from any IP address here but in a production deployment, we *strongly*
   # recommend you limit this to the IP address ranges of known, trusted servers inside your VPC.
@@ -128,7 +129,7 @@ data "template_file" "user_data_vault_cluster" {
     vault_bootstrap_playbook = "${var.vault_bootstrap_playbook}"
     vault_bootstrap_vars     = "${var.vault_bootstrap_vars}"
     datacenter                = "${var.aws_region}"
-    consul_cluster_name     = "${var.vault_cluster_name}"
+    vault_cluster_name     = "${var.vault_cluster_name}"
   }
 }
 
@@ -151,7 +152,7 @@ module "consul_cluster" {
   user_data = "${data.template_file.user_data_consul.rendered}"
 
   vpc_id     = "${module.vpc.vpc_id}"
-  subnet_ids = "${module.vpc.private_subnets}"
+  subnet_ids = "${module.vpc.public_subnets}"
 
   # To make testing easier, we allow Consul and SSH requests from any IP address here but in a production
   # deployment, we strongly recommend you limit this to the IP address ranges of known, trusted servers inside your VPC.
