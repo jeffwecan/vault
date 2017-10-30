@@ -32,8 +32,14 @@ timestamps {
 						sh 'make pull-molecule-image'
 						sh 'make ensure-artifacts-dir'
 						sh 'make ensure-tls-certs-apply'
-						sh 'make -j4 --keep-going test'
-						junit 'artifacts/molecule/*.xml, artifacts/ansible/playbook-*.xml'
+						try {
+							sh 'make -j4 --keep-going test'
+						catch(error) {
+							echo "Test result bombed out"
+							throw error
+						} finally {
+							junit 'artifacts/molecule/*.xml, artifacts/ansible/playbook-*.xml'
+						}
 					}
 
 					if (env.BRANCH_NAME == masterBranch) {  // if BRANCH_NAME == some_dev_branch and/or some_master_branch?
@@ -114,9 +120,6 @@ timestamps {
 							room = hipchatRoom
 							status = 'FAILED'
 						}
-					}
-					// Store any tests results we happened to gather up to this point
-					junit 'artifacts/molecule/*.xml, artifacts/ansible/playbook-*.xml'
 					throw error
 				} finally {
 					sh 'make -j5 --keep-going molecule-destroy' // ensure we've cleaned up any test docker containers
