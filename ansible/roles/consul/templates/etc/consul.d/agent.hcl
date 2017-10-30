@@ -1,5 +1,6 @@
 data_dir = "/tmp/consul"
 log_level = "INFO"
+datacenter = "{{ cloud_vendor }}-{{ datacenter }}"
 
 addresses {
     http = "0.0.0.0"
