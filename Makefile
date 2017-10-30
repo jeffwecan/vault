@@ -180,7 +180,6 @@ define run_terraform
 		--volume $(HOME)/.ssh/known_hosts:/root/.ssh/known_hosts \
 		-e GOOGLE_APPLICATION_CREDENTIALS=/account.json \
 		-v $(TERRAFORM_GCP_SERVICE_ACCOUNT):/account.json \
-		--env GIT_TRACE=1 \
 		--env AWS_ACCESS_KEY_ID \
 		--env AWS_SECRET_ACCESS_KEY \
 		$(TERRAFORM_IMAGE) \
