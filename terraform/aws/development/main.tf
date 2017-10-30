@@ -3,6 +3,10 @@
 # This cluster uses Consul, running in a separate cluster, as its storage backend.
 # ---------------------------------------------------------------------------------------------------------------------
 
+terraform {
+  required_version = ">= 0.9.3"
+}
+
 provider "aws" {
   version = "~> 1.1"
   region = "${var.aws_region}"
@@ -22,19 +26,13 @@ provider "template" {
   version = "~> 1.0"
 }
 
-terraform {
-  required_version = ">= 0.9.3"
-}
-
 data "aws_ami" "vault-consul" {
-  most_recent      = true
-
+  most_recent = true
+  owners      = ["self"]
   filter {
     name   = "name"
     values = ["vault-consul-ubuntu-*"]
   }
-
-  owners     = ["self"]
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -72,19 +70,18 @@ module "vpc" "vault-vpc" {
   }
 }
 
-
 # ---------------------------------------------------------------------------------------------------------------------
 # DEPLOY THE VAULT SERVER CLUSTER
 # ---------------------------------------------------------------------------------------------------------------------
 
 module "vault_elb" {
   # Use version v0.0.1 of the vault-elb module
-  source = "github.com/hashicorp/terraform-aws-vault//modules/vault-elb?ref=v0.0.7"
-  name = "${var.vault_cluster_name}-elb"
+  source      = "github.com/hashicorp/terraform-aws-vault//modules/vault-elb?ref=v0.0.7"
+  name        = "${var.vault_cluster_name}-elb"
+  vpc_id      = "${module.vpc.vpc_id}"
+  subnet_ids  = "${module.vpc.private_subnets}"
+
   allowed_inbound_cidr_blocks = "${var.vpc_private_subnets}"
-  vpc_id     = "${module.vpc.vpc_id}"
-  subnet_ids = "${module.vpc.private_subnets}"
-//  availability_zones = ["${var.aws_region}a", "${var.aws_region}b", "${var.aws_region}c", "${var.aws_region}d", "${var.aws_region}e", "${var.aws_region}f"]
 }
 
 module "vault_cluster" {
@@ -101,7 +98,7 @@ module "vault_cluster" {
   force_destroy_s3_bucket = "${var.force_destroy_s3_bucket}"
 
   vpc_id     = "${module.vpc.vpc_id}"
-  subnet_ids = "${module.vpc.public_subnets}"
+  subnet_ids = "${module.vpc.private_subnets}"
 
   # To make testing easier, we allow requests from any IP address here but in a production deployment, we *strongly*
   # recommend you limit this to the IP address ranges of known, trusted servers inside your VPC.
@@ -154,7 +151,7 @@ module "consul_cluster" {
   user_data = "${data.template_file.user_data_consul.rendered}"
 
   vpc_id     = "${module.vpc.vpc_id}"
-  subnet_ids = "${module.vpc.public_subnets}"
+  subnet_ids = "${module.vpc.private_subnets}"
 
   # To make testing easier, we allow Consul and SSH requests from any IP address here but in a production
   # deployment, we strongly recommend you limit this to the IP address ranges of known, trusted servers inside your VPC.
