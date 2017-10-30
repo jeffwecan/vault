@@ -66,6 +66,18 @@
     dest: /etc/ca-certificates.conf
     line: wpengine/vault_ca.crt
 
+- name: Check that vault binary has the ability to use the mlock syscall
+  command: setcap cap_ipc_lock=+ep {{ vault_bin_path }}
+  when: getcap_vault_bin.stdout != "/usr/local/bin/vault = cap_ipc_lock+ep"
+  tags:
+    - always
+
+- name: Enable the vault binary to use the mlock syscall when needed
+  command: getcap {{ vault_bin_path }}
+  register: getcap_vault_bin
+  tags:
+    - always
+
 - name: Template vault config file at /etc/vault.d/vault.hcl
   template:
     src: etc/vault.d/vault.hcl
