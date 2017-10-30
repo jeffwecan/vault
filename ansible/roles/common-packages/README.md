@@ -1,2 +1,2 @@
-ami-cleanup
-===========
+common-packages
+===============

@@ -1,9 +1,5 @@
 ---
 
-- include: apt-get-update.yml
-  tags:
-    - apt-packages
-
 - include: apt-packages.yml
   tags:
     - apt-packages
