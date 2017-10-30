@@ -16,10 +16,10 @@
   retries: 12
   delay: 10
   changed_when: false
-  tags: packages
   check_mode: no
   tags:
     - always
+    - packages
 
 - name: apt-get update
   apt:
