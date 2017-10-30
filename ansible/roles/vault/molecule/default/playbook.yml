@@ -2,6 +2,7 @@
 - name: Converge
   hosts: all
   vars:
+    - molecule_run: true
     - tmp_certs_path: "{{ playbook_dir }}/../../../../../artifacts"
     - vault_ssl_cert: "{{ lookup('file', '{{ tmp_certs_path }}/vault.crt.pem') }}"
     - vault_ssl_ca_cert: "{{ lookup('file', '{{ tmp_certs_path }}/vault.ca.crt.pem') }}"
