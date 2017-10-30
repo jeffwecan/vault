@@ -11,7 +11,8 @@ Proposed
 Context
 -------
 
-We need some way to bootstrap initial creds (SSL certs for consul and whatnot) into our secret management cluster. So where we gonna keep.
+We need some way to bootstrap initial creds (SSL certs for consul and whatnot)
+into our secret management cluster. So where we gonna keep.
 
 Decision
 --------
