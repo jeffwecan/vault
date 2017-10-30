@@ -17,7 +17,7 @@ echo /usr/bin/ansible-playbook -c local -i localhost, \
 	-vvv \
 	--tags bootstrap \
 	--extra-vars "@${vault_bootstrap_vars}" \
-	--extra-vars "datacenter=${aws_region}" \
+	--extra-vars "datacenter=${datacenter}" \
 	--extra-vars "hostname_prefix=${vault_cluster_name}"
 
 sudo HOME=/root /usr/bin/ansible-playbook -c local -i localhost, \
@@ -25,5 +25,5 @@ sudo HOME=/root /usr/bin/ansible-playbook -c local -i localhost, \
 	-v \
 	--tags bootstrap \
 	--extra-vars "@${vault_bootstrap_vars}" \
-	--extra-vars "datacenter=${aws_region}" \
+	--extra-vars "datacenter=${datacenter}" \
 	--extra-vars "hostname_prefix=${vault_cluster_name}"

@@ -14,7 +14,7 @@ echo sudo HOME=/root /usr/bin/ansible-playbook -c local -i localhost, \
 	-v \
 	--tags bootstrap \
 	--extra-vars "@${consul_bootstrap_vars}" \
-	--extra-vars "datacenter=${aws_region}" \
+	--extra-vars "datacenter=${datacenter}" \
 	--extra-vars "hostname_prefix=${consul_cluster_name}"
 
 sudo HOME=/root /usr/bin/ansible-playbook -c local -i localhost, \
@@ -22,7 +22,7 @@ sudo HOME=/root /usr/bin/ansible-playbook -c local -i localhost, \
 	-v \
 	--tags bootstrap \
 	--extra-vars "@${consul_bootstrap_vars}" \
-	--extra-vars "datacenter=${aws_region}" \
+	--extra-vars "datacenter=${datacenter}" \
 	--extra-vars "hostname_prefix=${consul_cluster_name}"
 
 /usr/local/bin/supervisorctl stop vault || true
