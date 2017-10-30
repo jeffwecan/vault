@@ -1,5 +1,11 @@
 ---
 
+- name: Configure td-agent repository GPG key
+  apt_key:
+    keyserver: keys.gnupg.net
+    id: 901F9177AB97ACBE
+    state: present
+
 - name: Configure td-agent repos
   apt_repository:
     repo: "{{ td_agent_apt_repo }}"
