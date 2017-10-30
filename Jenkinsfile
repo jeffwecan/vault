@@ -34,12 +34,13 @@ timestamps {
 						sh 'make ensure-tls-certs-apply'
 						try {
 							sh 'make -j4 --keep-going test'
-						catch(error) {
+						} catch(error) {
 							echo "Test result bombed out"
 							throw error
 						} finally {
 							junit 'artifacts/molecule/*.xml, artifacts/ansible/playbook-*.xml'
 						}
+
 					}
 
 					if (env.BRANCH_NAME == masterBranch) {  // if BRANCH_NAME == some_dev_branch and/or some_master_branch?
@@ -120,6 +121,7 @@ timestamps {
 							room = hipchatRoom
 							status = 'FAILED'
 						}
+					}
 					throw error
 				} finally {
 					sh 'make -j5 --keep-going molecule-destroy' // ensure we've cleaned up any test docker containers
