@@ -41,7 +41,7 @@ data "aws_ami" "vault-consul" {
 # accessible from the public Internet. In a production deployment, we strongly recommend deploying into a custom VPC
 # and private subnets.
 # ---------------------------------------------------------------------------------------------------------------------
-
+# TODO: see about adding egress-only gateway for vault nodes?
 module "vpc" "vault-vpc" {
   source = "terraform-aws-modules/vpc/aws"
 
@@ -51,19 +51,14 @@ module "vpc" "vault-vpc" {
   azs             = ["${var.aws_region}a", "${var.aws_region}b", "${var.aws_region}c"]
   private_subnets = "${var.vpc_private_subnets}"
   public_subnets  = "${var.vpc_public_subnets}"
-  map_public_ip_on_launch = false  // TODO: turn this off after dev'in
-//  enable_nat_gateway = true
-//  single_nat_gateway = true
+  map_public_ip_on_launch = true  // TODO: turn this off after dev'in ?
+  // enable_nat_gateway = true
+  // single_nat_gateway = true
   enable_dns_support = true
   enable_dns_hostnames = true
-//  enable_s3_endpoint = true
 
-//  private_propagating_vgws = [
-//    "${aws_vpn_gateway.aws-vpn-gw.id}"
-//  ]
-  public_propagating_vgws = [
-    "${aws_vpn_gateway.aws-vpn-gw.id}"
-  ]
+  // private_propagating_vgws = ["${aws_vpn_gateway.aws-vpn-gw.id}"]
+  public_propagating_vgws = ["${aws_vpn_gateway.aws-vpn-gw.id}"]
 
   tags = {
     Terraform = "true"

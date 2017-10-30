@@ -76,15 +76,13 @@ variable "vpc_public_subnets" {
 variable "allowed_ssh_cidr_blocks" {
   type    = "list"
   description = "Private subnet CIDRs for the vault/consul VPC"
-  //default = ["104.196.19.141/32", "10.142.0.0/20", "10.0.0.0/16"] // "104.196.19.141/32",
-  default = ["0.0.0.0/0"]
+  default = ["104.196.19.141/32", "10.142.0.0/20"] // whitelisting dev-cm's public and VPN/private IPs for the time being
 }
-
 
 variable "allowed_inbound_cidr_blocks" {
   type    = "list"
   description = "Private subnet CIDRs for the vault/consul VPC"
-  default = ["10.0.0.0/16"]
+  default = ["10.0.0.0/16"] // switch to just private subnet ranges in the future?
 }
 
 variable "aws_region" {
