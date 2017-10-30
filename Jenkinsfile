@@ -32,18 +32,8 @@ timestamps {
 						sh 'make pull-molecule-image'
 						sh 'make ensure-artifacts-dir'
 						sh 'make ensure-tls-certs-apply'
-						//try {
-						//	sh 'make -j4 --keep-going test'
-						//} catch(error) {
-						//	echo "Retrying tests right now until apt update vagrancies are sorted"
-						//	retry(1) {
-						//		sh 'find artifacts/molecule -name "*.xml" -print -delete'
-						//		sh 'find artifacts/ansible -name "*.xml" -print -delete'
-						//		sh 'make -j4 --keep-going test'
-						//	}
-						//}
-
-						//junit 'artifacts/molecule/*.xml, artifacts/ansible/playbook-*.xml'
+						sh 'make -j4 --keep-going test'
+						junit 'artifacts/molecule/*.xml, artifacts/ansible/playbook-*.xml'
 					}
 
 					if (env.BRANCH_NAME == masterBranch) {  // if BRANCH_NAME == some_dev_branch and/or some_master_branch?
@@ -126,7 +116,7 @@ timestamps {
 						}
 					}
 					// Store any tests results we happened to gather up to this point
-					//junit 'artifacts/molecule/*.xml, artifacts/ansible/playbook-*.xml'
+					junit 'artifacts/molecule/*.xml, artifacts/ansible/playbook-*.xml'
 					throw error
 				} finally {
 					sh 'make -j5 --keep-going molecule-destroy' // ensure we've cleaned up any test docker containers
