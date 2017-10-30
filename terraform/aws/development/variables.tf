@@ -55,24 +55,36 @@ variable "vault_bootstrap_vars" {
 # OPTIONAL PARAMETERS
 # These parameters have reasonable defaults.
 # ---------------------------------------------------------------------------------------------------------------------
+variable "vpc_cidr" {
+  description = "VPC CIDR for the vault/consul VPC"
+  default = "10.0.0.0/16"
+}
+
+
 variable "vpc_private_subnets" {
   type    = "list"
   description = "Private subnet CIDRs for the vault/consul VPC"
   default = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
 }
 
+variable "vpc_public_subnets" {
+  type    = "list"
+  description = "Public subnet CIDRs for the vault/consul VPC"
+  default = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
+}
+
 variable "allowed_ssh_cidr_blocks" {
   type    = "list"
   description = "Private subnet CIDRs for the vault/consul VPC"
-//  default = ["104.196.19.141/32", "10.142.0.0/20"]
-  default = ["0.0.0.0/0"]
+  default = ["104.196.19.141/32", "10.142.0.0/20"] // "104.196.19.141/32",
+//  default = ["0.0.0.0/0"]
 }
 
 
 variable "allowed_inbound_cidr_blocks" {
   type    = "list"
   description = "Private subnet CIDRs for the vault/consul VPC"
-  default = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24", "10.142.0.0/20"]
+  default = ["10.0.0.0/16"]
 }
 
 variable "aws_region" {

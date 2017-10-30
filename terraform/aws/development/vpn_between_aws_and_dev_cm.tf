@@ -1,49 +1,41 @@
-/*
- * Copyright 2017 Google Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 
 /*
- * Terraform compute resources for GCP.
- * Acquire all zones and choose one randomly.
+ * ---------- AWS Side of the VPN Connection----------
  */
 
-provider "google" {
-  project = "${var.gcp_project}"
-  region = "${var.gcp_region}"
+resource "aws_vpn_gateway" "aws-vpn-gw" {
+  vpc_id = "${module.vpc.vpc_id}"
 }
 
-//data "google_compute_zones" "available" {
-//  region = "${var.gcp_region}"
-//}
+resource "aws_customer_gateway" "aws-cgw" {
+  bgp_asn    = 65000
+  ip_address = "${google_compute_address.gcp-vpn-ip.address}"
+  type       = "ipsec.1"
+  tags {
+    "Name" = "aws-customer-gw"
+  }
+}
 
-//data "google_compute_network" "default" {
-//  name   = "default" // TODO: look this up via data source and/or make it a var
-//  region = "${var.gcp_region}"
-//}
+resource "aws_default_route_table" "vault-vpc" {
+  default_route_table_id = "${module.vpc.public_route_table_ids[0]}]"
+  route {
+    cidr_block  = "0.0.0.0/0"
+    gateway_id = "${module.vpc.igw_id}"
+  }
+  propagating_vgws = [
+    "${aws_vpn_gateway.aws-vpn-gw.id}"
+  ]
+}
 
-//data "google_compute_address" "dev-cm-ip" {
-//  name = "default-05f20c532581c233"
-//  region = "${var.gcp_region}"
-//}
-
-//data "google_compute_instance" "dev-cm" {
-//  name         = "dev-cm"
-//  zone         = "${var.dev_cm_gcp_zone}"
-//}
-
+resource "aws_vpn_connection" "aws-vpn-connection1" {
+  vpn_gateway_id      = "${aws_vpn_gateway.aws-vpn-gw.id}"
+  customer_gateway_id = "${aws_customer_gateway.aws-cgw.id}"
+  type                = "ipsec.1"
+  static_routes_only  = false
+  tags {
+    "Name" = "aws-vpn-connection1"
+  }
+}
 
 /*
  * Terraform networking resources for GCP.
