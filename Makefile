@@ -109,8 +109,8 @@ smoke-production: | build-smoke-image
 
 # ~*~*~*~* Utility Tasks *~*~*~*~
 clean: #| ensure-tls-certs-get
-	rm -rvf artifacts/*
-	find packer \! -name 'variables.json' -a -name '*.json' -print
+	@rm -rvf artifacts/*
+	@find packer \! -name 'variables.json' -a -name '*.json'
 
 	@docker run --rm \
 		--volume $(PWD)/terraform/modules/generate-tls-cert:/workspace \
@@ -172,7 +172,7 @@ packer-yaml-to-json:
 
 # ~*~*~*~* Terraform Tasks *~*~*~*~
 define run_terraform
-	docker run --rm \
+	@docker run --rm \
 		--workdir=/workspace \
 		--volume $(PWD)/terraform/aws/$(1):/workspace \
 		--volume $(PWD)/artifacts:/artifacts \
@@ -238,7 +238,7 @@ packer-build-image: | packer-yaml-to-json ensure-tls-certs-apply
 			packer/vault-consul-ami/vault-consul.json
 
 packer-build-ami: | packer-yaml-to-json ensure-tls-certs-apply
-	docker run --rm \
+	@docker run --rm \
 		--volume $(PWD):/workspace \
 		--volume $(PWD)/artifacts:/artifacts \
 		--workdir=/workspace \
