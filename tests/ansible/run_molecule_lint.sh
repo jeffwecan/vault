@@ -6,7 +6,7 @@ role_path="ansible/roles/${role_to_lint}"
 
 pushd "${role_path}"
 
-molecule syntax >/dev/null
-molecule lint >/dev/null
+molecule syntax
+molecule lint
 
 popd >/dev/null
