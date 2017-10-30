@@ -15,7 +15,6 @@
     - vault_ssl_ca_cert: "{{ lookup('file', '{{ vault_ssl_ca_crt_path }}') }}"
     - vault_ssl_key: "{{ lookup('file', '{{ vault_ssl_key_path }}') }}"
     - register_with_zabbix: false
-    - datacenter: 'need_a_value_to_look_up_here'
     - consul_run_as_server: false
 
   pre_tasks:

@@ -130,6 +130,8 @@ data "template_file" "user_data_vault_cluster" {
     consul_cluster_tag_value = "${var.consul_cluster_name}"
     vault_bootstrap_playbook = "${var.vault_bootstrap_playbook}"
     vault_bootstrap_vars     = "${var.vault_bootstrap_vars}"
+    datacenter                = "${var.aws_region}"
+    consul_cluster_name     = "${var.vault_cluster_name}"
   }
 }
 
@@ -187,5 +189,7 @@ data "template_file" "user_data_consul" {
     consul_cluster_tag_value = "${var.consul_cluster_name}"
     consul_bootstrap_playbook = "${var.consul_bootstrap_playbook}"
     consul_bootstrap_vars     = "${var.consul_bootstrap_vars}"
+    datacenter                = "${var.aws_region}"
+    consul_cluster_name     = "${var.consul_cluster_name}"
   }
 }

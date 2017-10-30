@@ -16,10 +16,14 @@ echo /usr/bin/ansible-playbook -c local -i localhost, \
 	"${vault_bootstrap_playbook}" \
 	-vvv \
 	--tags bootstrap \
-	--extra-vars "@${vault_bootstrap_vars}"
+	--extra-vars "@${vault_bootstrap_vars}" \
+	--extra-vars "datacenter=${aws_region}" \
+	--extra-vars "hostname_prefix=${vault_cluster_name}"
 
 sudo HOME=/root /usr/bin/ansible-playbook -c local -i localhost, \
 	"${vault_bootstrap_playbook}" \
 	-v \
 	--tags bootstrap \
-	--extra-vars "@${vault_bootstrap_vars}"
+	--extra-vars "@${vault_bootstrap_vars}" \
+	--extra-vars "datacenter=${aws_region}" \
+	--extra-vars "hostname_prefix=${vault_cluster_name}"

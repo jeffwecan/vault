@@ -15,7 +15,6 @@
     - consul_ssl_ca_cert: "{{ lookup('file', '{{ tmp_certs_path }}/{{ consul_ssl_ca_cert_filename }}') }}"
     - consul_ssl_key: "{{ lookup('file', '{{ tmp_certs_path }}/{{ consul_ssl_key_filename }}') }}"
     - register_with_zabbix: false
-    - datacenter: 'need_a_value_to_look_up_here'
 
   pre_tasks:
     - name: Display all variables/facts known when -v option is set
