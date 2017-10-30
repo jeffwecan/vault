@@ -4,7 +4,7 @@ dependencies:
   - role: nginx
   - role: consul
     consul_run_as_server: false
-    consul_encryption: false
+    consul_encryption: true
     consul_ssl_cert: "{{ vault_ssl_cert }}"
     consul_ssl_ca_cert: "{{ vault_ssl_ca_cert }}"
     consul_ssl_key: "{{ vault_ssl_key }}"

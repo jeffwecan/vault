@@ -1,7 +1,8 @@
 data_dir = "/tmp/consul"
 log_level = "INFO"
+{% if datacenter is defined %}
 datacenter = "{{ datacenter }}"
-
+{% endif %}
 addresses {
     http = "0.0.0.0"
 }

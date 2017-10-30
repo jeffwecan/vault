@@ -1,5 +1,5 @@
 backend "consul" {
-  address = "consul:8500"
+  address = "localhost:8500"
   path = "vault"
 }
 
@@ -18,3 +18,4 @@ telemetry {
   disable_hostname = false
 }
 {% endif %}
+e
