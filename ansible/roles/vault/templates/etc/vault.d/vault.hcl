@@ -18,4 +18,3 @@ telemetry {
   disable_hostname = false
 }
 {% endif %}
-e
