@@ -8,7 +8,7 @@ timestamps {
 			String  IMAGE_TAG = "${BUILD_NUMBER}-${SHORT_GIT_COMMIT}"
 			String  IMAGE_NAME = "vault${IMAGE_TAG}"
 			String	hipchatRoom = "Vault Monitoring"
-			String	masterBranch = "terraform_vault" // some day master?
+			String	masterBranch = "master"
 			def packerCredentials = [
 				string(credentialsId: 'AWS_ACCESS_KEY_ID_DEV', variable: 'AWS_ACCESS_KEY_ID'),
 				string(credentialsId: 'AWS_SECRET_ACCESS_KEY_DEV', variable: 'AWS_SECRET_ACCESS_KEY'),
