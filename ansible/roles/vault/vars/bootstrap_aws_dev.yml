@@ -3,6 +3,8 @@ cloud_vendor: aws
 consul_run_as_server: false
 consul_retry_join: provider=aws region=us-east-1 tag_key=consul-servers tag_value=terraform-consul addr_type=private_v4
 vault_supervisor_cmd_flags: '-config=/etc/vault.d/vault.hcl'
+vault_unseal_pgp_keys:
+  - { keybase: jeffreyhogan, email: jeffrey.hogan@wpengine.com }
 supervisor_programs:
   - name: 'vault'
     command: /usr/local/bin/vault server {{ vault_supervisor_cmd_flags|default('') }}
