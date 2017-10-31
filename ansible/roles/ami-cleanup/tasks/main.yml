@@ -20,3 +20,15 @@
   when: hostname_prefix is defined and ec2_metadata is defined and 'ansible_facts' in ec2_metadata
   tags:
     - bootstrap
+
+- name: Ensure hostname is in etc/hosts
+  lineinfile:
+    path: /etc/hosts
+    regexp: '^127\.0\.0\.1'
+    line: '127.0.0.1 localhost {{ hostname_prefix }}-{{ ec2_metadata.ansible_facts.ansible_ec2_instance_id }}'
+    owner: root
+    group: root
+    mode: 0644
+  when: hostname_prefix is defined and ec2_metadata is defined and 'ansible_facts' in ec2_metadata
+  tags:
+    - bootstrap
