@@ -68,6 +68,7 @@ provisioners:
     inline:
       - DEBIAN_FRONTEND=noninteractive sudo apt install -y python-pip
       - sudo pip install ansible
+      - sudo pip install ansible-modules-hashivault
 
   # Ensure SSL secrets are available when running ansible. TODO: SSL storage should move to S3/KMS/Credstash?
   - type: file
