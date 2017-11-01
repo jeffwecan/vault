@@ -47,16 +47,17 @@ timestamps {
 						milestone 1 // 'Vault AMI Baked'
 						lock(resource: 'vault-packer-build-ami', inversePrecedence: true) {
 							withCredentials(packerCredentials) {
-								try {
-									stage('Build AMI') {
-										//sh 'echo hullo'
+								stage('Build AMI') {
+									try {
 										sh 'make packer-build-ami'
-									}
-								} catch(error) {
-									echo "First build failed, sometimes packer randomly times out waiting for SSH?"
-									retry(1) {
-										input "Retry the job again with the debug flag set?"
-										sh 'make packer-debug-ami'
+									} catch(error) {
+										echo "First build failed, sometimes packer randomly times out waiting for SSH?"
+										retry(1) {
+											timeout 600 {  // fail out if no one has clicked the retry button with 10 minutes
+												input "Retry the job again with the debug flag set?"
+												sh 'make packer-debug-ami'
+											}
+										}
 									}
 								}
 							}
@@ -65,9 +66,11 @@ timestamps {
 						milestone 2 // 'Vault Terraform Module Deployed to AWS Development'
 						lock(resource: 'vault-terraform-deploy-to-dev', inversePrecedence: true) {
 							stage('Deploy to Dev') {
-								terraform.apply {
-									terraformDir = "./terraform/aws/development"
-									hipchatRoom = "Vault Monitoring"
+								timeout 1200 {  // fail out if no one has clicked the deploy button with 20 minutes
+									terraform.apply {
+										terraformDir = "./terraform/aws/development"
+										hipchatRoom = "Vault Monitoring"
+									}
 								}
 							}
 
