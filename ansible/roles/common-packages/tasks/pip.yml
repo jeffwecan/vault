@@ -9,7 +9,7 @@
   with_items:
     - {module: boto3, when: true}
     - {module: testinfra>=1.6.0, when: true}
-    - {module: credstash, when: true}
+    - {module: python-consul, when: true}
   tags:
     - pip
     - pip2

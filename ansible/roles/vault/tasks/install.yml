@@ -43,3 +43,8 @@
   run_once: true
   changed_when: false
   tags: installation
+
+- name: Install ansible-modules-hashivault for vault management tasks
+  pip:
+    name: ansible-modules-hashivault
+    state: present
