@@ -6,16 +6,26 @@
   become_user: root
   become: yes
   become_method: sudo
-  # strategy: debug  # just something to think about...
 
   vars:
-    - cache_valid_time: 600
+    - vault_config_path: /etc/vault.d
     - tmp_certs_path: "{{ vault_config_path }}/ssl/"
     - vault_ssl_cert: "{{ lookup('file', '{{ vault_ssl_crt_path }}') }}"
     - vault_ssl_ca_cert: "{{ lookup('file', '{{ vault_ssl_ca_crt_path }}') }}"
     - vault_ssl_key: "{{ lookup('file', '{{ vault_ssl_key_path }}') }}"
-    - register_with_zabbix: false
+    - default_secret_threshold: 3
     - consul_run_as_server: false
+    - vault_url: https://127.0.0.1:8200
+    - consul_leader_election_session: vault
+    - consul_leader_election_key: service/vault/leader
+    - vault_unseal_pgp_keys:
+      - { keybase: jeffreyhogan, email: jeffrey.hogan@wpengine.com }
+
+  environment:
+    VAULT_ADDR: "{{ vault_url }}"
+    VAULT_CLIENT_CERT: /etc/vault.d/ssl/vault.crt.pem
+    VAULT_CLIENT_KEY: /etc/vault.d/ssl/vault.key.pem
+    VAULT_CACERT: /usr/share/ca-certificates/wpengine/vault_ca.crt
 
   pre_tasks:
     - name: Display all variables/facts known when -v option is set

@@ -92,3 +92,8 @@
     - 'Vault Restart'
   tags:
     - bootstrap
+
+- name: Initialize vault if needed
+  include: initialize.yml
+  tags:
+    - bootstrap

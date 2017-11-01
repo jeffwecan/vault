@@ -1,0 +1,90 @@
+---
+
+# - name: Attempt to initialize vault cluster TODO: blocks get names in ansible >=2.3
+- block:
+    - name: Use consul to aquire lock for this task (so we only run it on one node)
+      consul_session:
+        name: "{{ consul_leader_election_session }}"
+      register: consul_session
+
+    - name: Register a key/value pair with an associated session
+      consul_kv:
+        key: "{{ consul_leader_election_key }}"
+        value: "{{ ansible_hostname }}"
+        session: "{{ consul_session.session_id }}"
+        state: acquire
+      register: acquire_consul_lock
+      failed_when: not acquire_consul_lock.changed
+
+    - name: Check vault status to determine if we need to bootstrap the cluster
+      hashivault_status:
+      register: vault_status
+      failed_when: '"msg" in vault_status and vault_status.msg != "Exception: server is not yet initialized"'
+
+    - name: "Perform initial vault bootstrapping (rekeying will be done later)"
+      hashivault_init:
+        secret_shares: 1
+        secret_threshold: 1
+      register: vault_init
+
+    - name: Perform initial vault unseal
+      hashivault_unseal:
+        keys: "{{ vault_init.keys_base64 | join(' ') }}"
+
+    - name: Enable syslog audit backend
+      hashivault_audit_enable:
+        name: syslog
+        token: "{{ vault_init.root_token }}"
+
+    - name: Store vault client certificate in
+      hashivault_write:
+        secret: 'vault/client_certificate'
+        data:
+          vault_ssl_cert: "{{ vault_ssl_cert }}"
+          vault_ssl_ca_cert: "{{ vault_ssl_ca_cert }}"
+          vault_ssl_key: "{{ vault_ssl_key }}"
+        token: "{{ vault_init.root_token }}"
+      no_log: true
+
+    # TODO: vault HTTP (and thus hvac / this module) don't do keybase lookups. So rekeying this way only works via cli client for now
+    # Alternatively, we can store the actual PGP keys in the variables here?
+    # - name: Rekey vault with final keys
+    #  hashivault_rekey_init:
+    #    secret_shares: "{{ vault_unseal_pgp_keys | length }}"
+    #    secret_threshold: "{{ [ vault_unseal_pgp_keys | length, default_secret_threshold] | min }}"
+    #    token: "{{ vault_init.root_token }}"
+    #    # extract our list of keybase usernames and prepend them with "keybase:"
+    #    pgp_keys: "{{ vault_unseal_pgp_keys | json_query('[*].keybase') | map('regex_replace', '^(.*)$', 'keybase:\\1') | list }}"
+
+    - name: Process vault_unseal_pgp_keys for vault cli command
+      set_fact: cli_pgp_keys="{{ vault_unseal_pgp_keys | json_query('[*].keybase') | map('regex_replace', '^(.*)$', 'keybase:\\1') | list }}"
+
+    - name: Set key_threshold
+      set_fact: key_threshold="{{ [ vault_unseal_pgp_keys | length, default_secret_threshold] | min }}"
+
+    - name: Rekey vault with desired keys
+      command: "vault rekey -key-shares={{ vault_unseal_pgp_keys | length }} -key-threshold={{ key_threshold }} -pgp-keys='{{ cli_pgp_keys|join(',') }}' {{ vault_init.keys_base64 | join(' ') }} "
+      environment:
+        VAULT_TOKEN: "{{ vault_init.root_token }}"
+      register: vault_rekey
+
+    # TODO: See about a easier way to distribute these. Email? Drop in a S3 bucket? Something else?
+    - name: Save encrypted unseal keys to local filesystem
+      copy:
+        content: "{{ vault_rekey.stdout }}"
+        dest: /var/vault/vault_rekey.txt
+
+    - name: Release our consul session
+      consul_kv:
+        key: "{{ consul_leader_election_key }}"
+        session: "{{ consul_session.session_id }}"
+        state: release
+      register: release_consul_lock
+
+  rescue:
+    - debug:
+        msg: "Skipping vault bootstrapping tasks, vault status already being checked by another node..."
+      when: acquire_consul_lock is defined and acquire_consul_lock.failed
+    - debug:
+        msg: "Skipping vault bootstrapping tasks, vault status already being checked by another node..."
+      when: vault_status is defined and vault_status.failed
