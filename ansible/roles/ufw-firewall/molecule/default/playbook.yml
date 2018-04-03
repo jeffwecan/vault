@@ -1,7 +1,0 @@
----
-- name: Converge
-  hosts: all
-  vars:
-    - molecule_run: true
-  roles:
-    - role: ufw-firewall

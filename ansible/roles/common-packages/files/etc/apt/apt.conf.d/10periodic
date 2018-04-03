@@ -1,6 +1,0 @@
-APT::Periodic::Enable "1";
-APT::Periodic::Update-Package-Lists "1";
-APT::Periodic::Download-Upgradeable-Packages "3";
-APT::Periodic::AutocleanInterval "14";
-APT::Periodic::Verbose "0";
-APT::Periodic::MaxSize "1000";

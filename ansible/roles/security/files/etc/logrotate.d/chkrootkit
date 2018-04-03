@@ -1,9 +1,0 @@
-/var/log/chkrootkit/daily.log {
-	compress
-	create 640 root adm
-	daily
-	dateext
-	missingok
-	notifempty
-	rotate 14
-}

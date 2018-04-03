@@ -1,8 +1,0 @@
-{
-  "ip_addresses": ["127.0.0.1"],
-  "validity_period_hours": "8760",
-  "organization_name": "WP Engine",
-  "ca_common_name": "wpenginedev.com",
-  "common_name": "wpenginedev.com",
-  "dns_names": ["vault.service.consul", "vault.wpenginedev.com"]
-}

@@ -1,2 +1,0 @@
--I OUTPUT -m tcp -p tcp --dport 8500 -m owner --uid-owner root -j ACCEPT
--A OUTPUT -p tcp -m tcp --dport 8500 -j REJECT

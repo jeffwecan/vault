@@ -1,3 +1,0 @@
----
-# How long to consider apt's cache valid, in seconds
-cache_valid_time: 600

@@ -1,9 +1,0 @@
----
-# How long to consider apt's cache valid, in seconds
-cache_valid_time: 600
-
-is_zabbix: false
-zabbix_environment: production
-zabbix_server_ip: 54.85.16.44
-zabbix_registration_secret: hullozabbix
-datacenter_group: N/A
