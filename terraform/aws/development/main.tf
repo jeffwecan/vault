@@ -19,11 +19,11 @@ provider "aws" {
 }
 
 provider "aws" {
-  alias = "corporate"
+  alias = "corporate_dns"
   version = "~> 1.13.0"
   region = "${var.aws_corporate_region}"
   assume_role {
-    role_arn     = "${var.aws_corporate_role_arn}"
+    role_arn     = "${var.aws_corporate_dns_role_arn}"
     session_name = "terraform_development_vault_dns"
   }
 }
@@ -74,7 +74,7 @@ module "vault_elbv2_dns_record" {
   name = "${var.vault_dns_record_name}"
   load_balancer_arn = "${var.vault_load_balancer_arn}"
   providers = {
-    "aws.dns" = "aws.corporate"
+    "aws.dns" = "aws.corporate_dns"
     "aws.load_balancer" = "aws.development"
   }
 }
