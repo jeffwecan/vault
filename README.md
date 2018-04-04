@@ -20,4 +20,10 @@ For information on all architectural decisions, click the links below.
 
 ## Development
 
-<insert Makefile things/guide/info>
+To validate terraform modifications locally, the following Makefile jobs can be used:
+
+- `make terraform-validate`
+- `make terraform-plan`
+
+Those jobs will run terraform commands against all accounts / environments. To target a specific account, tack on the
+ environment's directory name to the job name. E.g.: `make terraform-plan-development`.
