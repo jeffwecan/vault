@@ -8,7 +8,7 @@ TERRAFORM_GCP_SERVICE_ACCOUNT ?= $(PWD)/account.json
 
 # default is meant to generally map to Jenkinsfile/pipeline for anything other than the master branch
 default: lint
-lint: markdownlint
+lint: markdownlint terraform-validate
 
 # Run markdown analysis tool.
 markdownlint:
@@ -24,7 +24,7 @@ markdownlint:
 define run_terraform
 	@echo
 	# Running "$(2)" for account "$(1)"
-	@docker run --rm -it \
+	@docker run --rm \
 		--workdir=/workspace \
 		--volume $(PWD)/terraform/aws/$(1):/workspace \
 		--volume $(PWD)/artifacts:/artifacts \

@@ -8,14 +8,15 @@ def terraform_environments = ['development']
 timestamps {
 	node('docker') {
 		wpe.pipeline('Techops Deploy') {
+			def terraformCredentials = [
+				// for terraform validate, TODO: remove this context once shared var can do our validate and graph calls?
+				string(credentialsId: 'TERRAFORM_AWS_ACCESS_KEY_ID', variable: 'AWS_ACCESS_KEY_ID'),
+				string(credentialsId: 'TERRAFORM_AWS_SECRET_ACCESS_KEY', variable: 'AWS_SECRET_ACCESS_KEY'),
+			]
 			try {
 				stage('Lint') {
-					sh 'make --keep-going lint'
-
-					for (env_index = 0; env_index < terraform_environments.size(); env_index++) {
-						terraform.validate {
-							terraformDir = "./terraform/aws/" + terraform_environments[env_index]
-						}
+					withCredentials(terraformCredentials) {
+						sh 'make --keep-going lint'
 					}
 				}
 
