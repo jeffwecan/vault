@@ -51,6 +51,7 @@ terraform-get-%: | terraform-init-%
 terraform-validate: $(addprefix terraform-validate-, $(ACCOUNTS))
 terraform-validate-%: | terraform-init-%
 	$(call run_terraform,$(*),terraform validate)
+	rm -rf $(PWD)/terraform/aws/$(*)/.terraform/modules
 
 terraform-plan: $(addprefix terraform-plan-, $(ACCOUNTS))
 terraform-plan-%: | terraform-get-%
