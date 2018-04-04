@@ -39,7 +39,6 @@ module "corporate_core_metrics_to_vault" {
   source = "git@github.com:wpengine/infraform.git//modules/aws-vpc-peering-to-vault-vpc?ref=v1.41"
 
   vault_client_name = "metricsapp"
-  vault_client_aws_region = "${var.aws_development_region}"
   vault_client_subnet_id = "${var.corporate_core_metrics_subnet_id}"
   peer_owner_id = "${var.peer_owner_id}"
   vault_vpc_id = "${var.vault_vpc_id}"
@@ -55,7 +54,6 @@ module "dev_cm_to_vault" {
   source = "git@github.com:wpengine/infraform.git//modules/gcp-vpn-to-vault-vpc?ref=v1.41"
 
   vault_client_name = "dev-cm"
-  vault_client_gcp_project = "${var.gcp_project}"
   vault_client_gcp_region = "${var.gcp_region}"
   vault_client_gcp_network_name = "${var.gcp_network_name}"
   vault_client_subnet_cidr = "${var.dev_cm_subnet_cidr}"
