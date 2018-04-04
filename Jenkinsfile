@@ -1,15 +1,41 @@
 #!groovy
 @Library('wpshared') _
 
+String hipchatRoom = 'Vault Monitoring'
+String masterBranch = 'master'
+def terraform_environments = ['development']
+
 timestamps {
 	node('docker') {
 		wpe.pipeline('Techops Deploy') {
-			String	hipchatRoom = "Vault Monitoring"
-			String	masterBranch = "master"
-
 			try {
 				stage('Lint') {
 					sh 'make --keep-going lint'
+
+					for (env_index = 0; env_index < terraform_environments.size(); env_index++) {
+						terraform.validate {
+							terraformDir = "./terraform/aws/" + terraform_environments[env_index]
+						}
+					}
+				}
+
+				if (env.BRANCH_NAME == masterBranch) {
+					stage('Terraform Apply') {
+						for (env_index = 0; env_index < terraform_environments.size(); env_index++) {
+							terraform.apply {
+								terraformDir = "./terraform/aws/" + terraform_environments[env_index]
+								hipchatRoom = hipchatRoom
+							}
+						}
+					}
+				} else {
+					stage('Terraform Plan') {
+						for (env_index = 0; env_index < terraform_environments.size(); env_index++) {
+							terraform.plan {
+								terraformDir = "./terraform/aws/" + terraform_environments[env_index]
+							}
+						}
+					}
 				}
 			} catch (error) {
 				if (env.BRANCH_NAME == masterBranch) {
