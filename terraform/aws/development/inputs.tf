@@ -46,16 +46,22 @@ variable "vault_load_balancer_security_group_id" {
   default = "sg-1b8c8569"
 }
 
-variable "corporate_core_metrics_subnet_id" {
+variable "vault_dns_record_name" {
   type = "string"
-  description = "Subnet ID for the metrics* instances in the 'CorporateCore' VPC."
-  default     = "subnet-88f28fd0"
+  description = "The record to create on the wpesvc.net to point at Vault's internally facing Application Load Balancer."
+  default     = "vault-dev"
 }
 
 variable "peer_owner_id" {
   type = "string"
   description = "Account ID of the AWS account housing the VPC peering connection."
   default     = "844484402121"
+}
+
+variable "corporate_core_metrics_subnet_id" {
+  type = "string"
+  description = "Subnet ID for the metrics* instances in the 'CorporateCore' VPC."
+  default     = "subnet-88f28fd0"
 }
 
 variable "gcp_project" {
@@ -80,10 +86,4 @@ variable "dev_cm_subnet_cidr" {
   type = "string"
   description = "The GCP subnet to route to Vault for dev-cm."
   default     = "10.142.0.0/20"
-}
-
-variable "vault_dns_record_name" {
-  type = "string"
-  description = "The record to create on the wpesvc.net to point at Vault's internally facing Application Load Balancer."
-  default     = "vault-dev"
 }
