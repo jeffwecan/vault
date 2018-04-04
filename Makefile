@@ -61,11 +61,8 @@ terraform-apply-%: | terraform-plan-%
 	$(call run_terraform,$(*),terraform apply)
 
 terraform-destroy: $(addprefix terraform-destroy-, $(ACCOUNTS))
-terraform-destroy-development: | terraform-get-development
-	$(call run_terraform,$(*),terraform destroy -var 'aws_role_arn=arn:aws:iam::844484402121:role/wpengine/robots/TerraformDestroyer')
-
-terraform-destroy-production: | terraform-get-production
-	$(call run_terraform,$(*),terraform destroy -var 'aws_role_arn=arn:aws:iam::844484402121:role/wpengine/robots/TerraformDestroyer')
+terraform-destroy-%: | terraform-get-%
+	$(call run_terraform,$(*),terraform destroy)
 
 terraform-graph: $(addprefix terraform-graph-, $(ACCOUNTS))
 terraform-graph-%: | terraform-get-%
