@@ -6,3 +6,4 @@ ansible/**/vault*.zip
 ansible/**/consul*.zip
 **/molecule/**/.cache
 **/molecule/**/.molecule
+account.json
