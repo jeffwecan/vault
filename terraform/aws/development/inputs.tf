@@ -7,7 +7,7 @@ variable "aws_development_role_arn" {
 variable "aws_corporate_role_arn" {
   type = "string"
   description = "AWS role ARN to assume when modifying DNS zones under the corporate account."
-  default = "arn:aws:iam::770273818880:role/wpengine/robots/TerraformApplier"
+  default = "arn:aws:iam::770273818880:role/wpengine/administrators/WPEngineIoRoute53AdminPolicy"
 }
 
 variable "aws_development_region" {
