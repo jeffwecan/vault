@@ -1,13 +1,13 @@
 #!groovy
 @Library('wpshared') _
 
-String hipchatRoom = 'Vault Monitoring'
+String hipchatRoom = 'Techops Deploy'
 String masterBranch = 'master'
 def terraform_environments = ['development']
 
 timestamps {
 	node('docker') {
-		wpe.pipeline('Techops Deploy') {
+		wpe.pipeline(hipchatRoom) {
 			try {
 				stage('Lint') {
 					sh 'make --keep-going lint'
