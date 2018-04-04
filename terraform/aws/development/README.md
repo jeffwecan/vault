@@ -24,7 +24,7 @@ Route tables are updated for the metrics instances and vault cluster to allow co
 
 ## gcp-vpn-to-vault-vpc
 
-This module will sets up dev-cm's Google Compute Network for communication to the Vault VPC at AWS via the
+This module sets up dev-cm's Google Compute Network for communication to the Vault VPC at AWS via the
  [GCP VPN / Cloud Interconnect service](https://cloud.google.com/interconnect/) service. Additionally, it configures
  route tables and security groups to allow dev-cm to send requests to Vault via HTTPS. The VPN configuration bits of
  this module were mostly derived from [https://github.com/GoogleCloudPlatform/autonetdeploy-multicloudvpn/](https://github.com/GoogleCloudPlatform/autonetdeploy-multicloudvpn/).
