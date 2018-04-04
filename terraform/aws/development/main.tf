@@ -36,7 +36,7 @@ provider "google" {
 }
 
 module "corporate_core_metrics_to_vault" {
-  source = "git@github.com:wpengine/infraform.git//modules/aws-vpc-peering-to-vault-vpc?ref=v1.40"
+  source = "git@github.com:wpengine/infraform.git//modules/aws-vpc-peering-to-vault-vpc?ref=v1.41"
 
   vault_client_name = "metricsapp"
   vault_client_aws_region = "${var.aws_development_region}"
@@ -52,7 +52,7 @@ module "corporate_core_metrics_to_vault" {
 }
 
 module "dev_cm_to_vault" {
-  source = "git@github.com:wpengine/infraform.git//modules/gcp-vpn-to-vault-vpc?ref=v1.40"
+  source = "git@github.com:wpengine/infraform.git//modules/gcp-vpn-to-vault-vpc?ref=v1.41"
 
   vault_client_name = "dev-cm"
   vault_client_gcp_project = "${var.gcp_project}"
@@ -69,7 +69,7 @@ module "dev_cm_to_vault" {
 }
 
 module "vault_elbv2_dns_record" {
-  source = "git@github.com:wpengine/infraform.git//modules/dns-for-aws-elbv2?ref=v1.40"
+  source = "git@github.com:wpengine/infraform.git//modules/dns-for-aws-elbv2?ref=v1.41"
 
   name = "${var.vault_dns_record_name}"
   load_balancer_arn = "${var.vault_load_balancer_arn}"
