@@ -48,7 +48,7 @@ variable "vault_load_balancer_security_group_id" {
 
 variable "corporate_core_metrics_subnet_id" {
   type = "string"
-  description = "Subnet ID for the metris* instances in the 'CorporateCore' VPC."
+  description = "Subnet ID for the metrics* instances in the 'CorporateCore' VPC."
   default     = "subnet-88f28fd0"
 }
 
