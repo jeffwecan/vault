@@ -1,6 +1,6 @@
 MARKDOWN_LINTER := wpengine/mdl
 TERRAFORM_IMAGE := wpengine/terraform
-ACCOUNTS        := development
+ACCOUNTS        := development corporate
 # used for tagging terraform graphs with a "version"
 GIT_HASH        := $(shell git rev-parse --short HEAD)
 # override this for terraform modules that require GCP access TODO: or better yet, pass this without needing the filesystem
