@@ -43,7 +43,7 @@ variable "vault_load_balancer_security_group_id" {
 variable "vault_dns_record_name" {
   type = "string"
   description = "The record to create on the wpesvc.net to point at Vault's internally facing Application Load Balancer."
-  default     = "vault-dev"
+  default     = "vault"
 }
 
 variable "peer_owner_id" {
