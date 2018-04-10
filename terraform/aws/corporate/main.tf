@@ -4,8 +4,9 @@
 # ---------------------------------------------------------------------------------------------------------------------
 
 terraform {
-  # 0.11.1 is required for the providers map attribute for our modules
-  required_version = ">= 0.11.1"
+  # 0.11.3 is the current version in our public terraform image
+  # see: https://github.com/wpengine/base-images-public/tree/master/gcloud/terraform
+  required_version = "0.11.3"
 }
 
 provider "aws" {
