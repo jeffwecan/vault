@@ -21,7 +21,6 @@ Route tables are updated for the metrics instances and vault cluster to allow co
  A security group rule is added to the vault cluster application load balancer to allow ingress from the vault client
  instances via HTTPS / port 443.
 
-
 ## dns-for-aws-elbv2
 
 This module creates a DNS record for development Vault's internally-facing (i.e., ingress via private subnets only) EC2
