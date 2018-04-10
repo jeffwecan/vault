@@ -66,6 +66,6 @@ variable "cm_subnet_id" {
 
 variable "jenkins_subnet_id" {
   type = "string"
-  description = "Subnet ID for the cm-aws instance"
+  description = "Subnet ID for the Jenkins master instance"
   default     = "subnet-e975a9c4"
 }
