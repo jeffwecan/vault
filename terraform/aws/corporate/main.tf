@@ -78,7 +78,7 @@ module "jenkins_to_vault" {
 module "vault_elbv2_dns_record" {
   source = "git@github.com:wpengine/infraform.git//modules/dns-for-aws-elbv2?ref=v1.41"
 
-  name = "vault"
+  name = "${var.vault_dns_record_name}"
   load_balancer_arn = "${var.vault_load_balancer_arn}"
   providers = {
     "aws.dns" = "aws.corporate_dns"

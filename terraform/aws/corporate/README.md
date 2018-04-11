@@ -25,4 +25,4 @@ Route tables are updated for the metrics instances and vault cluster to allow co
 
 This module creates a DNS record for development Vault's internally-facing (i.e., ingress via private subnets only) EC2
  Application load balancer. This module expects the ARN of the ELB being referenced to be provided as an input
-  variable. Upon an apply of this terraform module, the `vault-dev.wpesvc.net` DNS record is established.
+  variable. Upon an apply of this terraform module, the `vault.wpesvc.net` DNS record is established.
