@@ -3,7 +3,7 @@
 
 String hipchatRoom = 'Techops Deploy'
 String masterBranch = 'master'
-def terraform_environments = ['development']
+def terraform_environments = ['development', 'corporate']
 
 timestamps {
 	node('docker') {
