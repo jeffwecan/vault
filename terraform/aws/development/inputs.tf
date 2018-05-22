@@ -76,6 +76,12 @@ variable "metricsdb_security_group_id" {
   default = "sg-3d895142"
 }
 
+variable "zabbix_subnet_id" {
+  type = "string"
+  description = "Subnet ID for the zabbix 'main' instance in the 'Zabbix' VPC."
+  default     = "subnet-3fe7c015"
+}
+
 variable "gcp_project" {
   type = "string"
   description = "The GCP project to connect to for dev-cm."

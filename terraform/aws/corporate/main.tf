@@ -86,6 +86,21 @@ module "jenkins_to_vault" {
   }
 }
 
+module "zabbix_to_vault" {
+  source = "git@github.com:wpengine/infraform.git//modules/aws-vpc-peering-to-vault-vpc?ref=v1.42"
+
+  peer_owner_id = "${var.peer_owner_id}"
+  vault_client_subnet_id = "${var.zabbix_subnet_id}"
+  vault_client_name = "zabbix"
+  vault_vpc_id = "${var.vault_vpc_id}"
+  vault_application_load_balancer_security_group_id = "${var.vault_load_balancer_security_group_id}"
+  vault_route_table_id = "${var.vault_route_table_id}"
+  providers = {
+    "aws.vault_client" = "aws.corporate"
+    "aws.vault_cluster" = "aws.corporate"
+  }
+}
+
 module "vault_elbv2_dns_record" {
   source = "git@github.com:wpengine/infraform.git//modules/dns-for-aws-elbv2?ref=v1.42"
 
