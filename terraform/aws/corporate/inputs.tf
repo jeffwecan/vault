@@ -40,6 +40,12 @@ variable "vault_load_balancer_security_group_id" {
   default = "sg-cb97a3b9"
 }
 
+variable "vault_security_group_id" {
+  type = "string"
+  description = "The VPC security group ID for the Vault nodes / ec2 instances themselves."
+  default = "sg-49af9b3b"
+}
+
 variable "vault_dns_record_name" {
   type = "string"
   description = "The record to create on the wpesvc.net to point at Vault's internally facing Application Load Balancer."
@@ -56,6 +62,12 @@ variable "corporate_core_metrics_subnet_id" {
   type = "string"
   description = "Subnet ID for the metrics* instances in the 'CorporateCore' VPC"
   default     = "subnet-d3b549f9"
+}
+
+variable "metricsdb_security_group_id" {
+  type = "string"
+  description = "The VPC security group ID for the metricsdb nodes / ec2 instance."
+  default = "sg-f4065b8d"
 }
 
 variable "cm_subnet_id" {
