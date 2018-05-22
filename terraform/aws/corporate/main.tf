@@ -45,6 +45,17 @@ module "corporate_core_metrics_to_vault" {
   }
 }
 
+resource "aws_security_group_rule" "allow_vault_server_to_metricsdb_mysql" {
+  provider                  = "aws.corporate"
+  type                      = "ingress"
+  from_port                 = 3306
+  to_port                   = 3306
+  protocol                  = "tcp"
+  source_security_group_id  = "${var.vault_security_group_id}"
+
+  security_group_id = "${var.metricsdb_security_group_id}"
+}
+
 module "cm_to_vault" {
   source = "git@github.com:wpengine/infraform.git//modules/aws-vpc-peering-to-vault-vpc?ref=v1.41"
 
