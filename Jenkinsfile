@@ -1,23 +1,21 @@
 #!groovy
 @Library('wpshared') _
 
-String hipchatRoom = 'Techops Deploy'
-String masterBranch = 'master'
 def terraform_environments = ['development', 'corporate']
 
 timestamps {
 	node('docker') {
-		wpe.pipeline(hipchatRoom) {
+		wpe.pipeline("Techops Deploy") {
 			stage('Lint') {
 				sh 'make --keep-going lint'
 			}
 
-			if (env.BRANCH_NAME == masterBranch) {
+			if (env.BRANCH_NAME == "master") {
 				stage('Terraform Apply') {
 					for (env_index = 0; env_index < terraform_environments.size(); env_index++) {
 						terraform.apply {
 							terraformDir = "./terraform/aws/" + terraform_environments[env_index]
-							hipchatRoom = hipchatRoom
+							hipchatRoom = "Techops Deploy"
 						}
 					}
 				}
