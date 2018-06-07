@@ -49,3 +49,7 @@ output "aws_dns_zone_name" {
 output "aws_dns_name" {
   value = "${module.vault_elbv2_dns_record.aws_dns_name}"
 }
+
+output "heroku_space_peering_pcx_id" {
+  value = "${aws_vpc_peering_connection.heroku_wpengine_corporate_space_to_vault.id}"
+}

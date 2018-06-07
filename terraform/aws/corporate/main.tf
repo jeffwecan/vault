@@ -111,3 +111,36 @@ module "vault_elbv2_dns_record" {
     "aws.load_balancer" = "aws.corporate"
   }
 }
+
+resource "aws_vpc_peering_connection" "heroku_wpengine_corporate_space_to_vault" {
+  provider = "aws.corporate"
+  peer_owner_id = "${var.heroku_wpengine_corporate_space_peer_owner}"
+  peer_vpc_id   = "${var.heroku_wpengine_corporate_space_vpc_id}"
+  vpc_id        = "${var.vault_vpc_id}"
+  tags {
+    "CreatingResource" = "github.com/wpengine/vault"
+  }
+}
+
+/*
+ * Establish routes and security group rules allowing Heroku apps in our private space to reach the Vault application load balancer
+ */
+resource "aws_route" "vault_to_heroku_wpengine_corporate_space_route" {
+  provider = "aws.corporate"
+  # Create one route table entry for each heroku dyno CIDR
+  count                     = "${length(var.heroku_wpengine_corporate_space_dyno_cidrs)}"
+  route_table_id            = "${var.vault_route_table_id}"
+  destination_cidr_block    = "${var.heroku_wpengine_corporate_space_dyno_cidrs[count.index]}"
+  vpc_peering_connection_id = "${aws_vpc_peering_connection.heroku_wpengine_corporate_space_to_vault.id}"
+}
+
+resource "aws_security_group_rule" "allow_heroku_wpengine_corporate_space_to_vault_loadbalancer" {
+  provider = "aws.corporate"
+  type            = "ingress"
+  from_port       = 443
+  to_port         = 443
+  protocol        = "tcp"
+  cidr_blocks     = ["${var.heroku_wpengine_corporate_space_dyno_cidrs}"]
+
+  security_group_id = "${var.vault_load_balancer_security_group_id}"
+}
