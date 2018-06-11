@@ -87,3 +87,22 @@ variable "zabbix_subnet_id" {
   description = "Subnet ID for the zabbix 'main' instance in the 'Zabbix' VPC."
   default     = "subnet-eba99e9d"
 }
+
+// The following three variables' values can be determined via heroku-cli and `heroku spaces:peering:info <space_name>`
+variable "heroku_wpengine_corporate_space_peer_owner" {
+  type = "string"
+  description = "The VPC ID of our 'wpengine-corporate' space in Heroku. See: https://devcenter.heroku.com/articles/private-space-peering#creating-a-peering-connection-to-your-private-space"
+  default = "505048354400"
+}
+
+variable "heroku_wpengine_corporate_space_vpc_id" {
+  type = "string"
+  description = "The VPC ID of our 'wpengine-corporate' space in Heroku"
+  default = "vpc-5cf5e127"
+}
+
+variable "heroku_wpengine_corporate_space_dyno_cidrs" {
+  type = "list"
+  description = "The VPC ID of our 'wpengine-corporate' space in Heroku"
+  default = ["10.0.128.0/20", "10.0.144.0/20"]
+}

@@ -6,6 +6,9 @@ This Terraform module configures connections and DNS records to allow for reques
 - [infraform/modules/aws-vpc-peering-to-vault-vpc](https://github.com/wpengine/infraform/tree/master/modules/aws-vpc-peering-to-vault-vpc)
 - [infraform/modules/gcp-vpn-to-vault-vpc](https://github.com/wpengine/infraform/tree/master/modules/dns-for-aws-elbv2)
 
+An explicit VPC peering connection, route table entries, and security group update are also managed to allow our "wpengine-corporate"
+Heroku private space to reach the internally-facing Vault ALB.
+
 ## aws-vpc-peering-to-vault-vpc
 
 This module is responsible for connecting the AWS subnet used by the metrics servers
