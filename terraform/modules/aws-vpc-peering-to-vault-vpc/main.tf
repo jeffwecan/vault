@@ -47,7 +47,7 @@ resource "aws_vpc_peering_connection" "vault_client_to_vault" {
   provider      = "aws.vault_cluster"
   peer_owner_id = "${var.peer_owner_id}"
   peer_vpc_id   = "${data.aws_vpc.vault.id}"
-  vpc_id        = "${data.aws_subnet.vault_client.*.vpc_id[count.index]}"
+  vpc_id        = "${element(distinct(data.aws_subnet.vault_client.*.vpc_id), count.index)}"
   auto_accept   = true
 
   tags {
@@ -69,7 +69,7 @@ resource "aws_route" "vault_to_vault_client_route" {
 resource "aws_route" "vault_client_to_vault_route" {
   count                     = "${length(distinct(data.aws_route_table.vault_client.*.id))}"
   provider                  = "aws.vault_client"
-  route_table_id            = "${data.aws_route_table.vault_client.*.id[count.index]}"
+  route_table_id            = "${element(distinct(data.aws_route_table.vault_client.*.id), count.index)}"
   destination_cidr_block    = "${data.aws_vpc.vault.cidr_block}"
   vpc_peering_connection_id = "${aws_vpc_peering_connection.vault_client_to_vault.id}"
 }
