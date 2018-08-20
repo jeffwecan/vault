@@ -14,6 +14,7 @@ variable "vault_client_subnet_id" {
 variable "vault_client_name" {
   description = "A label identifying the vault client being connected to use when tagging/naming resources."
 }
+
 # ---------------------------------------------------------------------------------------------------------------------
 # OPTIONAL PARAMETERS
 # These parameters have reasonable defaults.
@@ -26,7 +27,7 @@ variable "vault_vpc_id" {
 
 variable "vault_server_aws_region" {
   description = "The AWS region hosting the vault client"
-  default = "us-east-1"
+  default     = "us-east-1"
 }
 
 variable "vault_application_load_balancer_security_group_id" {

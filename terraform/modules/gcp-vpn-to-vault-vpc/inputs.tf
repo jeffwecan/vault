@@ -29,7 +29,7 @@ variable "vault_vpc_id" {
 
 variable "vault_server_aws_region" {
   description = "The AWS region hosting the vault client"
-  default = "us-east-1"
+  default     = "us-east-1"
 }
 
 variable "vault_application_load_balancer_security_group_id" {
@@ -44,20 +44,20 @@ variable "vault_route_table_id" {
 
 variable "gcp_tunnel1_vpn_gw_asn" {
   description = "Tunnel 1 - Virtual Private Gateway ASN, from the AWS VPN Customer Gateway Configuration"
-  default = "7224"
+  default     = "7224"
 }
 
 variable "gcp_tunnel1_customer_gw_inside_network_cidr" {
   description = "Tunnel 1 - Customer Gateway from Inside IP Address CIDR block, from AWS VPN Customer Gateway Configuration"
-  default = "30"
+  default     = "30"
 }
 
 variable "gcp_tunnel2_vpn_gw_asn" {
   description = "Tunnel 2 - Virtual Private Gateway ASN, from the AWS VPN Customer Gateway Configuration"
-  default = "7224"
+  default     = "7224"
 }
 
 variable "gcp_tunnel2_customer_gw_inside_network_cidr" {
   description = "Tunnel 2 - Customer Gateway from Inside IP Address CIDR block, from AWS VPN Customer Gateway Configuration"
-  default = "30"
+  default     = "30"
 }
