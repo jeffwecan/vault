@@ -31,7 +31,7 @@ provider "aws" {
 
 
 module "corporate_core_metrics_to_vault" {
-  source = "git@github.com:wpengine/infraform.git//modules/aws-vpc-peering-to-vault-vpc?ref=v1.42"
+  source = "../../modules/aws-vpc-peering-to-vault-vpc"
 
   peer_owner_id = "${var.peer_owner_id}"
   vault_client_subnet_id = "${var.corporate_core_metrics_subnet_id}"
@@ -57,7 +57,7 @@ resource "aws_security_group_rule" "allow_vault_server_to_metricsdb_mysql" {
 }
 
 module "cm_to_vault" {
-  source = "git@github.com:wpengine/infraform.git//modules/aws-vpc-peering-to-vault-vpc?ref=v1.42"
+  source = "../../modules/aws-vpc-peering-to-vault-vpc"
 
   peer_owner_id = "${var.peer_owner_id}"
   vault_client_subnet_id = "${var.cm_subnet_id}"
@@ -72,7 +72,7 @@ module "cm_to_vault" {
 }
 
 module "jenkins_to_vault" {
-  source = "git@github.com:wpengine/infraform.git//modules/aws-vpc-peering-to-vault-vpc?ref=v1.42"
+  source = "../../modules/aws-vpc-peering-to-vault-vpc"
 
   peer_owner_id = "${var.peer_owner_id}"
   vault_client_subnet_id = "${var.jenkins_subnet_id}"
@@ -87,7 +87,7 @@ module "jenkins_to_vault" {
 }
 
 module "zabbix_to_vault" {
-  source = "git@github.com:wpengine/infraform.git//modules/aws-vpc-peering-to-vault-vpc?ref=v1.42"
+  source = "../../modules/aws-vpc-peering-to-vault-vpc"
 
   peer_owner_id = "${var.peer_owner_id}"
   vault_client_subnet_id = "${var.zabbix_subnet_id}"
