@@ -105,3 +105,9 @@ variable "dev_cm_subnet_cidr" {
   description = "The GCP subnet to route to Vault for dev-cm."
   default     = "10.142.0.0/20"
 }
+
+variable "dns_private_corporate_zone" {
+  description = "Domain/zone to use for any DNS records needed on a 'corporate core-related' private route53 zone."
+  type        = "string"
+  default     = "corporate.private."
+}

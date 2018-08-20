@@ -109,3 +109,19 @@ module "vault_elbv2_dns_record" {
     "aws.load_balancer" = "aws.development"
   }
 }
+
+/*
+ * Set up a route53 -> VPC associate for Vault so it can perform queries on our corporate.private zone.
+ * E.g., for database plugin configuration that keys on records like "metricsdb.corporate.private
+*/
+data "aws_route53_zone" "corprate_private" {
+  provider     = "aws.development"
+  name         = "${var.dns_private_corporate_zone}"
+  private_zone = true
+}
+
+resource "aws_route53_zone_association" "vault" {
+  provider = "aws.development"
+  zone_id  = "${data.aws_route53_zone.corprate_private.zone_id}"
+  vpc_id   = "${var.vault_vpc_id}"
+}
