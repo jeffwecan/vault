@@ -64,12 +64,6 @@ variable "corporate_core_cf_stack_name" {
   default     = "CorpCore"
 }
 
-variable "metricsdb_security_group_id" {
-  type        = "string"
-  description = "The VPC security group ID for the metricsdb nodes / ec2 instance."
-  default     = "sg-f4065b8d"
-}
-
 variable "cm_subnet_ids" {
   type        = "list"
   description = "Subnet ID(s) for the cm-aws instance"

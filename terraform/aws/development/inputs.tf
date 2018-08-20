@@ -70,12 +70,6 @@ variable "corporate_core_cf_stack_name" {
   default     = "corp-dev"
 }
 
-variable "metricsdb_security_group_id" {
-  type        = "string"
-  description = "The VPC security group ID for the metricsdb nodes / ec2 instance."
-  default     = "sg-3d895142"
-}
-
 variable "zabbix_subnet_ids" {
   type        = "list"
   description = "Subnet ID(s) for the zabbix 'main' instance in the 'Zabbix' VPC."

@@ -75,7 +75,7 @@ resource "aws_security_group_rule" "allow_vault_server_to_metricsdb_mysql" {
   protocol                 = "tcp"
   source_security_group_id = "${var.vault_security_group_id}"
 
-  security_group_id = "${var.metricsdb_security_group_id}"
+  security_group_id = "${data.aws_cloudformation_stack.corporate_core.outputs.sgMetricsDb}"
 }
 
 module "dev_cm_to_vault" {
