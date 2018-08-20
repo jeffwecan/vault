@@ -37,7 +37,7 @@ provider "google" {
 }
 
 module "corporate_core_metrics_to_vault" {
-  source = "git@github.com:wpengine/infraform.git//modules/aws-vpc-peering-to-vault-vpc?ref=v1.42"
+  source = "../../modules/aws-vpc-peering-to-vault-vpc"
 
   vault_client_name = "metricsapp"
   vault_client_subnet_id = "${var.corporate_core_metrics_subnet_id}"
@@ -63,7 +63,7 @@ resource "aws_security_group_rule" "allow_vault_server_to_metricsdb_mysql" {
 }
 
 module "dev_cm_to_vault" {
-  source = "git@github.com:wpengine/infraform.git//modules/gcp-vpn-to-vault-vpc?ref=v1.42"
+  source = "../../modules/gcp-vpn-to-vault-vpc"
 
   vault_client_name = "dev-cm"
   vault_client_gcp_region = "${var.gcp_region}"
@@ -79,7 +79,7 @@ module "dev_cm_to_vault" {
 }
 
 module "zabbix_to_vault" {
-  source = "git@github.com:wpengine/infraform.git//modules/aws-vpc-peering-to-vault-vpc?ref=v1.42"
+  source = "../../modules/aws-vpc-peering-to-vault-vpc"
 
   peer_owner_id = "${var.peer_owner_id}"
   vault_client_subnet_id = "${var.zabbix_subnet_id}"

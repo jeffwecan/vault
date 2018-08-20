@@ -27,6 +27,7 @@ define run_terraform
 	@docker run --rm \
 		--workdir=/workspace \
 		--volume $(PWD)/terraform/aws/$(1):/workspace \
+		--volume $(PWD)/terraform/modules:/modules \
 		--volume $(PWD)/artifacts:/artifacts \
 		--volume $(HOME)/.ssh/id_rsa_github:/root/.ssh/id_rsa:ro \
 		--volume $(HOME)/.ssh/known_hosts:/root/.ssh/known_hosts:ro \
