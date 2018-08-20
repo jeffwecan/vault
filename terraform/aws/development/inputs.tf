@@ -64,10 +64,10 @@ variable "peer_owner_id" {
   default     = "844484402121"
 }
 
-variable "corporate_core_metrics_subnet_id" {
+variable "corporate_core_cf_stack_name" {
   type        = "string"
-  description = "Subnet ID for the metrics* instances in the 'CorporateCore' VPC."
-  default     = "subnet-88f28fd0"
+  description = "Name of the CloudFormation stack holding related corporate_core resources."
+  default     = "corp-dev"
 }
 
 variable "metricsdb_security_group_id" {
@@ -76,10 +76,10 @@ variable "metricsdb_security_group_id" {
   default     = "sg-3d895142"
 }
 
-variable "zabbix_subnet_id" {
-  type        = "string"
-  description = "Subnet ID for the zabbix 'main' instance in the 'Zabbix' VPC."
-  default     = "subnet-3fe7c015"
+variable "zabbix_subnet_ids" {
+  type        = "list"
+  description = "Subnet ID(s) for the zabbix 'main' instance in the 'Zabbix' VPC."
+  default     = ["subnet-3fe7c015"]
 }
 
 variable "gcp_project" {
