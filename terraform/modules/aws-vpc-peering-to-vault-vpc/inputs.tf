@@ -8,9 +8,9 @@ variable "peer_owner_id" {
   type        = "string"
 }
 
-variable "vault_client_subnet_id" {
-  description = "Subnet ID for the instance(s) being peered with the Vault VPC."
-  type        = "string"
+variable "vault_client_subnet_ids" {
+  description = "Subnet ID(s) for the instance(s) being peered with the Vault VPC."
+  type        = "list"
 }
 
 variable "vault_client_name" {
