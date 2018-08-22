@@ -38,11 +38,24 @@ provider "google" {
   region  = "${var.gcp_region}"
 }
 
-module "corporate_core_metrics_to_vault" {
+# Load the details of the specified "corporate_core" CloudFormation stack.
+data "aws_cloudformation_stack" "corporate_core" {
+  provider = "aws.development"
+  name     = "${var.corporate_core_cf_stack_name}"
+}
+
+module "corporate_core_to_vault" {
   source = "../../modules/aws-vpc-peering-to-vault-vpc"
 
-  vault_client_name                                 = "metricsapp"
-  vault_client_subnet_id                            = "${var.corporate_core_metrics_subnet_id}"
+  vault_client_name = "corporate_core"
+
+  vault_client_subnet_ids = [
+    "${data.aws_cloudformation_stack.corporate_core.outputs.AZ1Subnet}",
+    "${data.aws_cloudformation_stack.corporate_core.outputs.AZ2Subnet}",
+    "${data.aws_cloudformation_stack.corporate_core.outputs.AZ3Subnet}",
+    "${data.aws_cloudformation_stack.corporate_core.outputs.AZ4Subnet}",
+  ]
+
   peer_owner_id                                     = "${var.peer_owner_id}"
   vault_vpc_id                                      = "${var.vault_vpc_id}"
   vault_application_load_balancer_security_group_id = "${var.vault_load_balancer_security_group_id}"
@@ -62,7 +75,7 @@ resource "aws_security_group_rule" "allow_vault_server_to_metricsdb_mysql" {
   protocol                 = "tcp"
   source_security_group_id = "${var.vault_security_group_id}"
 
-  security_group_id = "${var.metricsdb_security_group_id}"
+  security_group_id = "${data.aws_cloudformation_stack.corporate_core.outputs.sgMetricsDb}"
 }
 
 module "dev_cm_to_vault" {
@@ -86,7 +99,7 @@ module "zabbix_to_vault" {
   source = "../../modules/aws-vpc-peering-to-vault-vpc"
 
   peer_owner_id                                     = "${var.peer_owner_id}"
-  vault_client_subnet_id                            = "${var.zabbix_subnet_id}"
+  vault_client_subnet_ids                           = "${var.zabbix_subnet_ids}"
   vault_client_name                                 = "zabbix"
   vault_vpc_id                                      = "${var.vault_vpc_id}"
   vault_application_load_balancer_security_group_id = "${var.vault_load_balancer_security_group_id}"

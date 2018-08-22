@@ -58,34 +58,28 @@ variable "peer_owner_id" {
   default     = "770273818880"
 }
 
-variable "corporate_core_metrics_subnet_id" {
+variable "corporate_core_cf_stack_name" {
   type        = "string"
-  description = "Subnet ID for the metrics* instances in the 'CorporateCore' VPC"
-  default     = "subnet-d3b549f9"
+  description = "Name of the CloudFormation stack holding related corporate_core resources."
+  default     = "CorpCore"
 }
 
-variable "metricsdb_security_group_id" {
-  type        = "string"
-  description = "The VPC security group ID for the metricsdb nodes / ec2 instance."
-  default     = "sg-f4065b8d"
+variable "cm_subnet_ids" {
+  type        = "list"
+  description = "Subnet ID(s) for the cm-aws instance"
+  default     = ["subnet-2273fc1f"]
 }
 
-variable "cm_subnet_id" {
-  type        = "string"
-  description = "Subnet ID for the cm-aws instance"
-  default     = "subnet-2273fc1f"
+variable "jenkins_subnet_ids" {
+  type        = "list"
+  description = "Subnet ID(s) for the Jenkins master instance"
+  default     = ["subnet-e975a9c4"]
 }
 
-variable "jenkins_subnet_id" {
-  type        = "string"
-  description = "Subnet ID for the Jenkins master instance"
-  default     = "subnet-e975a9c4"
-}
-
-variable "zabbix_subnet_id" {
-  type        = "string"
-  description = "Subnet ID for the zabbix 'main' instance in the 'Zabbix' VPC."
-  default     = "subnet-eba99e9d"
+variable "zabbix_subnet_ids" {
+  type        = "list"
+  description = "Subnet ID(s) for the zabbix 'main' instance in the 'Zabbix' VPC."
+  default     = ["subnet-eba99e9d"]
 }
 
 // The following three variables' values can be determined via heroku-cli and `heroku spaces:peering:info <space_name>`
