@@ -106,3 +106,9 @@ variable "heroku_wpengine_corporate_space_dyno_cidrs" {
   description = "The VPC ID of our 'wpengine-corporate' space in Heroku"
   default     = ["10.0.128.0/20", "10.0.144.0/20"]
 }
+
+variable "dns_private_corporate_zone" {
+  description = "Domain/zone to use for any DNS records needed on a 'corporate core-related' private route53 zone."
+  type        = "string"
+  default     = "corporate.private."
+}

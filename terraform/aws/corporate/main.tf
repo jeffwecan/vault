@@ -152,3 +152,19 @@ resource "aws_security_group_rule" "allow_heroku_wpengine_corporate_space_to_vau
 
   security_group_id = "${var.vault_load_balancer_security_group_id}"
 }
+
+/*
+ * Set up a route53 -> VPC associate for Vault so it can perform queries on our corporate.private zone.
+ * E.g., for database plugin configuration that keys on records like "metricsdb.corporate.private
+*/
+data "aws_route53_zone" "corprate_private" {
+  provider     = "aws.corporate"
+  name         = "${var.dns_private_corporate_zone}"
+  private_zone = true
+}
+
+resource "aws_route53_zone_association" "vault" {
+  provider = "aws.corporate"
+  zone_id  = "${data.aws_route53_zone.corprate_private.zone_id}"
+  vpc_id   = "${var.vault_vpc_id}"
+}
