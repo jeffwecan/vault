@@ -60,6 +60,7 @@ module "corporate_core_to_vault" {
   vault_vpc_id                                      = "${var.vault_vpc_id}"
   vault_application_load_balancer_security_group_id = "${var.vault_load_balancer_security_group_id}"
   vault_route_table_id                              = "${var.vault_route_table_id}"
+  add_alb_sg_rule_for_client_vpc_cidr               = true
 
   providers = {
     "aws.vault_client"  = "aws.development"

@@ -22,6 +22,11 @@ data "aws_vpc" "vault" {
   id       = "${var.vault_vpc_id}"
 }
 
+data "aws_vpc" "vault_client" {
+  provider = "aws.vault_client"
+  id       = "${element(distinct(data.aws_subnet.vault_client.*.vpc_id), 0)}"
+}
+
 data "aws_route_table" "vault" {
   provider       = "aws.vault_cluster"
   route_table_id = "${var.vault_route_table_id}"
@@ -75,12 +80,27 @@ resource "aws_route" "vault_client_to_vault_route" {
 }
 
 resource "aws_security_group_rule" "allow_vault_client_to_vault_loadbalancer" {
+  count = "${var.add_alb_sg_rule_for_client_vpc_cidr == "" ? 1 : 0}"
+
   provider    = "aws.vault_cluster"
   type        = "ingress"
   from_port   = 443
   to_port     = 443
   protocol    = "tcp"
   cidr_blocks = ["${data.aws_subnet.vault_client.*.cidr_block}"]
+
+  security_group_id = "${var.vault_application_load_balancer_security_group_id}"
+}
+
+resource "aws_security_group_rule" "allow_vault_client_vpc_to_vault_loadbalancer" {
+  count = "${var.add_alb_sg_rule_for_client_vpc_cidr != "" ? 1 : 0}"
+
+  provider    = "aws.vault_cluster"
+  type        = "ingress"
+  from_port   = 443
+  to_port     = 443
+  protocol    = "tcp"
+  cidr_blocks = ["${data.aws_vpc.vault_client.cidr_block}"]
 
   security_group_id = "${var.vault_application_load_balancer_security_group_id}"
 }

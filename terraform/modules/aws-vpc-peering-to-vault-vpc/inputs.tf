@@ -46,3 +46,9 @@ variable "vault_route_table_id" {
   default     = "rtb-8d622af7"
   type        = "string"
 }
+
+variable "add_alb_sg_rule_for_client_vpc_cidr" {
+  description = "Optional variable to allow requests to the Vault Application Load Balancer by the entire CIDR range of the client VPC. Set this value to 'true' (or anything other than a blank string) to enable."
+  type        = "string"
+  default     = ""
+}
