@@ -7,5 +7,5 @@ output "vault_client_to_vault_route_id" {
 }
 
 output "allow_vault_client_to_vault_loadbalancer_id" {
-  value = "${aws_security_group_rule.allow_vault_client_to_vault_loadbalancer.id}"
+  value = "${aws_security_group_rule.allow_vault_client_to_vault_loadbalancer.0.id}"
 }
