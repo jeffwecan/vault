@@ -35,6 +35,8 @@ define run_terraform
 		-v $(TERRAFORM_GCP_SERVICE_ACCOUNT):/account.json \
 		--env AWS_ACCESS_KEY_ID \
 		--env AWS_SECRET_ACCESS_KEY \
+		--env CLOUDFLARE_EMAIL \
+		--env CLOUDFLARE_TOKEN \
 		$(TERRAFORM_IMAGE) \
 		$(2) .
 	@echo
