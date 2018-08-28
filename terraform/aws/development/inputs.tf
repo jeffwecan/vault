@@ -22,34 +22,10 @@ variable "aws_corporate_region" {
   default     = "us-east-1"
 }
 
-variable "vault_load_balancer_arn" {
+variable "vault_cf_stack_name" {
   type        = "string"
-  description = "The Amazon Resource Name (ARN) for the internally-facing Application Load Balancer for Vault nodes."
-  default     = "arn:aws:elasticloadbalancing:us-east-1:844484402121:loadbalancer/app/vault-Appli-1QA7PEJIOGJ56/d6010dd693eec4be"
-}
-
-variable "vault_vpc_id" {
-  type        = "string"
-  description = "The VPC ID for the VPC that contains the vault nodes."
-  default     = "vpc-6b1fa213"
-}
-
-variable "vault_route_table_id" {
-  type        = "string"
-  description = "The VPC route table ID for vault nodes."
-  default     = "rtb-839cc1f9"
-}
-
-variable "vault_load_balancer_security_group_id" {
-  type        = "string"
-  description = "The VPC security group ID for the Vault node load balancer."
-  default     = "sg-1b8c8569"
-}
-
-variable "vault_security_group_id" {
-  type        = "string"
-  description = "The VPC security group ID for the Vault nodes / ec2 instances themselves."
-  default     = "sg-bb8e87c9"
+  description = "Name of the CloudFormation stack holding related Vault cluster resources."
+  default     = "vault"
 }
 
 variable "vault_dns_record_name" {
