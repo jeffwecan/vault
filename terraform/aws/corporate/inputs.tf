@@ -82,3 +82,21 @@ variable "dns_private_corporate_zone" {
   type        = "string"
   default     = "corporate.private."
 }
+
+variable "instance_ssh_key_name" {
+  type        = "string"
+  description = "Name of the AWS EC2-hosted SSH public key to grant SSH access to for the instance."
+  default     = "cm_provisioning"
+}
+
+variable "instance_dns_zone" {
+  type        = "string"
+  description = "DNS zone to use when creating records for EC2 instances."
+  default     = "wpengine.io"
+}
+
+variable "service_dns_zone" {
+  type        = "string"
+  description = "DNS zone to use when creating records for services / load balancers."
+  default     = "wpesvc.net"
+}

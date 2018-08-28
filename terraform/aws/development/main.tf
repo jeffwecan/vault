@@ -38,6 +38,11 @@ provider "google" {
   region  = "${var.gcp_region}"
 }
 
+# Authentication expected to be handled through the CLOUDFLARE_EMAIL and CLOUDFLARE_TOKEN environmental variables.
+provider "cloudflare" {
+  version = "~> 1.0"
+}
+
 # Load the details of the specified "corporate_core" CloudFormation stack.
 data "aws_cloudformation_stack" "vault" {
   provider = "aws.development"
@@ -144,4 +149,20 @@ resource "aws_route53_zone_association" "vault" {
   provider = "aws.development"
   zone_id  = "${data.aws_route53_zone.corprate_private.zone_id}"
   vpc_id   = "${data.aws_cloudformation_stack.vault.outputs.VaultVPC}"
+}
+
+module "vault_bastion" {
+  source = "../../modules/vault-bastion"
+
+  vault_cf_stack_outputs  = "${data.aws_cloudformation_stack.vault.outputs}"
+  ssh_key_name            = "${var.instance_ssh_key_name}"
+  vault_bastion1_dns_name = "vault-bastion1-dev"
+  instance_dns_zone       = "${var.instance_dns_zone}"
+  service_dns_zone        = "${var.service_dns_zone}"
+
+  providers = {
+    "aws.bastion" = "aws.development"
+    "aws.dns"     = "aws.development"
+    "cloudflare"  = "cloudflare"
+  }
 }

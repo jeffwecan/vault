@@ -188,3 +188,17 @@ resource "aws_route53_zone_association" "vault" {
   zone_id  = "${data.aws_route53_zone.corprate_private.zone_id}"
   vpc_id   = "${data.aws_cloudformation_stack.vault.outputs.VaultVPC}"
 }
+
+module "vault_bastion" {
+  source = "../../modules/vault-bastion"
+
+  vault_cf_stack_outputs = "${data.aws_cloudformation_stack.vault.outputs}"
+  ssh_key_name           = "${var.instance_ssh_key_name}"
+  instance_dns_zone      = "${var.instance_dns_zone}"
+  service_dns_zone       = "${var.service_dns_zone}"
+
+  providers = {
+    "aws.bastion" = "aws.corporate"
+    "aws.dns"     = "aws.corporate"
+  }
+}
