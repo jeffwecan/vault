@@ -38,6 +38,17 @@ provider "google" {
   region  = "${var.gcp_region}"
 }
 
+# Authentication expected to be handled through the CLOUDFLARE_EMAIL and CLOUDFLARE_TOKEN environmental variables.
+provider "cloudflare" {
+  version = "~> 1.0"
+}
+
+# Load the details of the specified "corporate_core" CloudFormation stack.
+data "aws_cloudformation_stack" "vault" {
+  provider = "aws.development"
+  name     = "${var.vault_cf_stack_name}"
+}
+
 # Load the details of the specified "corporate_core" CloudFormation stack.
 data "aws_cloudformation_stack" "corporate_core" {
   provider = "aws.development"
@@ -57,9 +68,9 @@ module "corporate_core_to_vault" {
   ]
 
   peer_owner_id                                     = "${var.peer_owner_id}"
-  vault_vpc_id                                      = "${var.vault_vpc_id}"
-  vault_application_load_balancer_security_group_id = "${var.vault_load_balancer_security_group_id}"
-  vault_route_table_id                              = "${var.vault_route_table_id}"
+  vault_vpc_id                                      = "${data.aws_cloudformation_stack.vault.outputs.VaultVPC}"
+  vault_application_load_balancer_security_group_id = "${data.aws_cloudformation_stack.vault.outputs.VaultApplicationLoadBalancerSecurityGroup}"
+  vault_route_table_id                              = "${data.aws_cloudformation_stack.vault.outputs.RouteTable}"
   add_alb_sg_rule_for_client_vpc_cidr               = true
 
   providers = {
@@ -74,7 +85,7 @@ resource "aws_security_group_rule" "allow_vault_server_to_metricsdb_mysql" {
   from_port                = 3306
   to_port                  = 3306
   protocol                 = "tcp"
-  source_security_group_id = "${var.vault_security_group_id}"
+  source_security_group_id = "${data.aws_cloudformation_stack.vault.outputs.VaultServersSecurityGroup}"
 
   security_group_id = "${data.aws_cloudformation_stack.corporate_core.outputs.sgMetricsDb}"
 }
@@ -86,9 +97,9 @@ module "dev_cm_to_vault" {
   vault_client_gcp_region                           = "${var.gcp_region}"
   vault_client_gcp_network_name                     = "${var.gcp_network_name}"
   vault_client_subnet_cidr                          = "${var.dev_cm_subnet_cidr}"
-  vault_vpc_id                                      = "${var.vault_vpc_id}"
-  vault_application_load_balancer_security_group_id = "${var.vault_load_balancer_security_group_id}"
-  vault_route_table_id                              = "${var.vault_route_table_id}"
+  vault_vpc_id                                      = "${data.aws_cloudformation_stack.vault.outputs.VaultVPC}"
+  vault_application_load_balancer_security_group_id = "${data.aws_cloudformation_stack.vault.outputs.VaultApplicationLoadBalancerSecurityGroup}"
+  vault_route_table_id                              = "${data.aws_cloudformation_stack.vault.outputs.RouteTable}"
 
   providers = {
     "google.vault_client" = "google.development"
@@ -102,9 +113,9 @@ module "zabbix_to_vault" {
   peer_owner_id                                     = "${var.peer_owner_id}"
   vault_client_subnet_ids                           = "${var.zabbix_subnet_ids}"
   vault_client_name                                 = "zabbix"
-  vault_vpc_id                                      = "${var.vault_vpc_id}"
-  vault_application_load_balancer_security_group_id = "${var.vault_load_balancer_security_group_id}"
-  vault_route_table_id                              = "${var.vault_route_table_id}"
+  vault_vpc_id                                      = "${data.aws_cloudformation_stack.vault.outputs.VaultVPC}"
+  vault_application_load_balancer_security_group_id = "${data.aws_cloudformation_stack.vault.outputs.VaultApplicationLoadBalancerSecurityGroup}"
+  vault_route_table_id                              = "${data.aws_cloudformation_stack.vault.outputs.RouteTable}"
 
   providers = {
     "aws.vault_client"  = "aws.development"
@@ -116,7 +127,7 @@ module "vault_elbv2_dns_record" {
   source = "git@github.com:wpengine/infraform.git//modules/dns-for-aws-elbv2?ref=v1.42"
 
   name              = "${var.vault_dns_record_name}"
-  load_balancer_arn = "${var.vault_load_balancer_arn}"
+  load_balancer_arn = "${data.aws_cloudformation_stack.vault.outputs.VaultApplicationLoadBalancer}"
 
   providers = {
     "aws.dns"           = "aws.corporate_dns"
@@ -137,5 +148,21 @@ data "aws_route53_zone" "corprate_private" {
 resource "aws_route53_zone_association" "vault" {
   provider = "aws.development"
   zone_id  = "${data.aws_route53_zone.corprate_private.zone_id}"
-  vpc_id   = "${var.vault_vpc_id}"
+  vpc_id   = "${data.aws_cloudformation_stack.vault.outputs.VaultVPC}"
+}
+
+module "vault_bastion" {
+  source = "../../modules/vault-bastion"
+
+  vault_cf_stack_outputs  = "${data.aws_cloudformation_stack.vault.outputs}"
+  ssh_key_name            = "${var.instance_ssh_key_name}"
+  vault_bastion1_dns_name = "vault-bastion1-dev"
+  instance_dns_zone       = "${var.instance_dns_zone}"
+  service_dns_zone        = "${var.service_dns_zone}"
+
+  providers = {
+    "aws.bastion" = "aws.development"
+    "aws.dns"     = "aws.development"
+    "cloudflare"  = "cloudflare"
+  }
 }
