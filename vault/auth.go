@@ -712,7 +712,10 @@ func (c *Core) newCredentialBackend(ctx context.Context, entry *MountEntry, sysV
 		t = alias
 	}
 
-	f := plugin.Factory
+	f, ok := c.credentialBackends[t]
+	if !ok {
+		f = plugin.Factory
+	}
 
 	// Set up conf to pass in plugin_name
 	conf := make(map[string]string, len(entry.Options)+1)
