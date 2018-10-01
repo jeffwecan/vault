@@ -7,9 +7,8 @@ import (
 	"reflect"
 	"sync"
 
-	"github.com/hashicorp/vault/helper/consts"
-
 	uuid "github.com/hashicorp/go-uuid"
+	"github.com/hashicorp/vault/helper/consts"
 	"github.com/hashicorp/vault/logical"
 	"github.com/hashicorp/vault/logical/framework"
 	bplugin "github.com/hashicorp/vault/logical/plugin"
@@ -43,7 +42,6 @@ func Backend(ctx context.Context, conf *logical.BackendConfig) (logical.Backend,
 	var b backend
 
 	name := conf.Config["plugin_name"]
-	// TODO where does this get set? Backwards compatibility?
 	pluginType, err := consts.ParsePluginType(conf.Config["plugin_type"])
 	if err != nil {
 		return nil, err
@@ -101,7 +99,6 @@ func (b *backend) reloadBackend(ctx context.Context) error {
 // startBackend starts a plugin backend
 func (b *backend) startBackend(ctx context.Context) error {
 	pluginName := b.config.Config["plugin_name"]
-	// TODO where does this get set? Backwards compatibility?
 	pluginType, err := consts.ParsePluginType(b.config.Config["plugin_type"])
 	if err != nil {
 		return err

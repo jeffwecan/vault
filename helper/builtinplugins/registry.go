@@ -1,17 +1,15 @@
 package builtinplugins
 
 import (
+	"github.com/hashicorp/vault/logical"
+	"github.com/hashicorp/vault/plugins/helper/database/credsutil"
+
 	credAliCloud "github.com/hashicorp/vault-plugin-auth-alicloud"
 	credAzure "github.com/hashicorp/vault-plugin-auth-azure"
 	credCentrify "github.com/hashicorp/vault-plugin-auth-centrify"
 	credGcp "github.com/hashicorp/vault-plugin-auth-gcp/plugin"
 	credJWT "github.com/hashicorp/vault-plugin-auth-jwt"
 	credKube "github.com/hashicorp/vault-plugin-auth-kubernetes"
-	ad "github.com/hashicorp/vault-plugin-secrets-ad/plugin"
-	"github.com/hashicorp/vault-plugin-secrets-alicloud"
-	azure "github.com/hashicorp/vault-plugin-secrets-azure"
-	gcp "github.com/hashicorp/vault-plugin-secrets-gcp/plugin"
-	"github.com/hashicorp/vault-plugin-secrets-kv"
 	credAppId "github.com/hashicorp/vault/builtin/credential/app-id"
 	credAppRole "github.com/hashicorp/vault/builtin/credential/approle"
 	credAws "github.com/hashicorp/vault/builtin/credential/aws"
@@ -21,21 +19,33 @@ import (
 	credOkta "github.com/hashicorp/vault/builtin/credential/okta"
 	credRadius "github.com/hashicorp/vault/builtin/credential/radius"
 	credUserpass "github.com/hashicorp/vault/builtin/credential/userpass"
-	"github.com/hashicorp/vault/builtin/logical/aws"
-	"github.com/hashicorp/vault/builtin/logical/cassandra"
-	"github.com/hashicorp/vault/builtin/logical/consul"
-	"github.com/hashicorp/vault/builtin/logical/database"
-	"github.com/hashicorp/vault/builtin/logical/mongodb"
-	"github.com/hashicorp/vault/builtin/logical/mssql"
-	"github.com/hashicorp/vault/builtin/logical/mysql"
-	"github.com/hashicorp/vault/builtin/logical/nomad"
-	"github.com/hashicorp/vault/builtin/logical/pki"
-	"github.com/hashicorp/vault/builtin/logical/postgresql"
-	"github.com/hashicorp/vault/builtin/logical/rabbitmq"
-	"github.com/hashicorp/vault/builtin/logical/ssh"
-	"github.com/hashicorp/vault/builtin/logical/totp"
-	"github.com/hashicorp/vault/builtin/logical/transit"
-	"github.com/hashicorp/vault/logical"
+
+	dbCass "github.com/hashicorp/vault/plugins/database/cassandra"
+	dbHana "github.com/hashicorp/vault/plugins/database/hana"
+	dbMongo "github.com/hashicorp/vault/plugins/database/mongodb"
+	dbMssql "github.com/hashicorp/vault/plugins/database/mssql"
+	dbMysql "github.com/hashicorp/vault/plugins/database/mysql"
+	dbPostgres "github.com/hashicorp/vault/plugins/database/postgresql"
+
+	logicalAd "github.com/hashicorp/vault-plugin-secrets-ad/plugin"
+	logicalAlicloud "github.com/hashicorp/vault-plugin-secrets-alicloud"
+	logicalAzure "github.com/hashicorp/vault-plugin-secrets-azure"
+	logicalGcp "github.com/hashicorp/vault-plugin-secrets-gcp/plugin"
+	logicalKv "github.com/hashicorp/vault-plugin-secrets-kv"
+	logicalAws "github.com/hashicorp/vault/builtin/logical/aws"
+	logicalCass "github.com/hashicorp/vault/builtin/logical/cassandra"
+	logicalConsul "github.com/hashicorp/vault/builtin/logical/consul"
+	logicalDb "github.com/hashicorp/vault/builtin/logical/database"
+	logicalMongo "github.com/hashicorp/vault/builtin/logical/mongodb"
+	logicalMssql "github.com/hashicorp/vault/builtin/logical/mssql"
+	logicalMysql "github.com/hashicorp/vault/builtin/logical/mysql"
+	logicalNomad "github.com/hashicorp/vault/builtin/logical/nomad"
+	logicalPki "github.com/hashicorp/vault/builtin/logical/pki"
+	logicalPostgres "github.com/hashicorp/vault/builtin/logical/postgresql"
+	logicalRabbit "github.com/hashicorp/vault/builtin/logical/rabbitmq"
+	logicalSsh "github.com/hashicorp/vault/builtin/logical/ssh"
+	logicalTotp "github.com/hashicorp/vault/builtin/logical/totp"
+	logicalTransit "github.com/hashicorp/vault/builtin/logical/transit"
 )
 
 var credentialBackends = map[string]logical.Factory{
@@ -56,24 +66,39 @@ var credentialBackends = map[string]logical.Factory{
 	"userpass":   credUserpass.Factory,
 }
 
+var databasePlugins = map[string]BuiltinFactory{
+	// These four databasePlugins all use the same mysql implementation but with
+	// different username settings passed by the constructor.
+	"mysql-database-plugin":        dbMysql.New(dbMysql.MetadataLen, dbMysql.MetadataLen, dbMysql.UsernameLen),
+	"mysql-aurora-database-plugin": dbMysql.New(credsutil.NoneLength, dbMysql.LegacyMetadataLen, dbMysql.LegacyUsernameLen),
+	"mysql-rds-database-plugin":    dbMysql.New(credsutil.NoneLength, dbMysql.LegacyMetadataLen, dbMysql.LegacyUsernameLen),
+	"mysql-legacy-database-plugin": dbMysql.New(credsutil.NoneLength, dbMysql.LegacyMetadataLen, dbMysql.LegacyUsernameLen),
+
+	"postgresql-database-plugin": dbPostgres.New,
+	"mssql-database-plugin":      dbMssql.New,
+	"cassandra-database-plugin":  dbCass.New,
+	"mongodb-database-plugin":    dbMongo.New,
+	"hana-database-plugin":       dbHana.New,
+}
+
 var logicalBackends = map[string]logical.Factory{
-	"ad":         ad.Factory,
-	"alicloud":   alicloud.Factory,
-	"aws":        aws.Factory,
-	"azure":      azure.Factory,
-	"cassandra":  cassandra.Factory,
-	"consul":     consul.Factory,
-	"database":   database.Factory,
-	"gcp":        gcp.Factory,
-	"kv":         kv.Factory,
-	"mongodb":    mongodb.Factory,
-	"mssql":      mssql.Factory,
-	"mysql":      mysql.Factory,
-	"nomad":      nomad.Factory,
-	"pki":        pki.Factory,
-	"postgresql": postgresql.Factory,
-	"rabbitmq":   rabbitmq.Factory,
-	"ssh":        ssh.Factory,
-	"totp":       totp.Factory,
-	"transit":    transit.Factory,
+	"ad":         logicalAd.Factory,
+	"alicloud":   logicalAlicloud.Factory,
+	"aws":        logicalAws.Factory,
+	"azure":      logicalAzure.Factory,
+	"cassandra":  logicalCass.Factory,
+	"consul":     logicalConsul.Factory,
+	"database":   logicalDb.Factory,
+	"gcp":        logicalGcp.Factory,
+	"kv":         logicalKv.Factory,
+	"mongodb":    logicalMongo.Factory,
+	"mssql":      logicalMssql.Factory,
+	"mysql":      logicalMysql.Factory,
+	"nomad":      logicalNomad.Factory,
+	"pki":        logicalPki.Factory,
+	"postgresql": logicalPostgres.Factory,
+	"rabbitmq":   logicalRabbit.Factory,
+	"ssh":        logicalSsh.Factory,
+	"totp":       logicalTotp.Factory,
+	"transit":    logicalTransit.Factory,
 }

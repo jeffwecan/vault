@@ -7,11 +7,10 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/hashicorp/vault/helper/consts"
-
 	"github.com/fatih/structs"
 	uuid "github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/vault/builtin/logical/database/dbplugin"
+	"github.com/hashicorp/vault/helper/consts"
 	"github.com/hashicorp/vault/logical"
 	"github.com/hashicorp/vault/logical/framework"
 )

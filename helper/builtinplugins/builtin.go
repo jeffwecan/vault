@@ -2,30 +2,7 @@ package builtinplugins
 
 import (
 	"github.com/hashicorp/vault/helper/consts"
-	"github.com/hashicorp/vault/plugins/database/cassandra"
-	"github.com/hashicorp/vault/plugins/database/hana"
-	"github.com/hashicorp/vault/plugins/database/mongodb"
-	"github.com/hashicorp/vault/plugins/database/mssql"
-	"github.com/hashicorp/vault/plugins/database/mysql"
-	"github.com/hashicorp/vault/plugins/database/postgresql"
-	"github.com/hashicorp/vault/plugins/helper/database/credsutil"
 )
-
-// TODO move to registry
-var databasePlugins = map[string]BuiltinFactory{
-	// These four databasePlugins all use the same mysql implementation but with
-	// different username settings passed by the constructor.
-	"mysql-database-plugin":        mysql.New(mysql.MetadataLen, mysql.MetadataLen, mysql.UsernameLen),
-	"mysql-aurora-database-plugin": mysql.New(credsutil.NoneLength, mysql.LegacyMetadataLen, mysql.LegacyUsernameLen),
-	"mysql-rds-database-plugin":    mysql.New(credsutil.NoneLength, mysql.LegacyMetadataLen, mysql.LegacyUsernameLen),
-	"mysql-legacy-database-plugin": mysql.New(credsutil.NoneLength, mysql.LegacyMetadataLen, mysql.LegacyUsernameLen),
-
-	"postgresql-database-plugin": postgresql.New,
-	"mssql-database-plugin":      mssql.New,
-	"cassandra-database-plugin":  cassandra.New,
-	"mongodb-database-plugin":    mongodb.New,
-	"hana-database-plugin":       hana.New,
-}
 
 // BuiltinFactory is the func signature that should be returned by
 // the plugin's New() func.
@@ -55,7 +32,9 @@ func Get(name string, pluginType consts.PluginType) (BuiltinFactory, bool) {
 	}
 }
 
-// TODO should this now include more keys? or be renamed to being a db plugin?
+// TODO this should now include more keys, and differentiate based on the plugin type. Probably needs to be an array of objects with plugin_type and plugin_name.
+// TODO need to go through this workflow and update the code and docs:
+// https://www.vaultproject.io/api/system/plugins-catalog.html
 // Keys returns the list of plugin names that are considered builtin databasePlugins.
 func Keys() []string {
 	keys := make([]string, len(databasePlugins))

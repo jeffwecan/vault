@@ -7,12 +7,11 @@ import (
 	"syscall"
 
 	"github.com/hashicorp/vault/audit"
+	"github.com/hashicorp/vault/builtin/plugin"
 	"github.com/hashicorp/vault/logical"
 	"github.com/hashicorp/vault/physical"
 	"github.com/hashicorp/vault/version"
 	"github.com/mitchellh/cli"
-
-	"github.com/hashicorp/vault/builtin/plugin"
 
 	auditFile "github.com/hashicorp/vault/builtin/audit/file"
 	auditSocket "github.com/hashicorp/vault/builtin/audit/socket"
