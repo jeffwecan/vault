@@ -59,6 +59,7 @@ func (c *PluginCatalog) Get(ctx context.Context, name string, pluginType consts.
 
 	// If the directory isn't set only look for builtin plugins.
 	if c.directory != "" {
+		// TODO do we need to worry about plugin types here? Or do plugins have to have unique names so we're cool?
 		// Look for external plugins in the barrier
 		out, err := c.catalogView.Get(ctx, name)
 		if err != nil {
@@ -80,6 +81,7 @@ func (c *PluginCatalog) Get(ctx context.Context, name string, pluginType consts.
 	if factory, ok := builtinplugins.Get(name, pluginType); ok {
 		return &pluginutil.PluginRunner{
 			Name:           name,
+			Type:           pluginType.String(),
 			Builtin:        true,
 			BuiltinFactory: factory,
 		}, nil
@@ -90,7 +92,7 @@ func (c *PluginCatalog) Get(ctx context.Context, name string, pluginType consts.
 
 // Set registers a new external plugin with the catalog, or updates an existing
 // external plugin. It takes the name, command and SHA256 of the plugin.
-func (c *PluginCatalog) Set(ctx context.Context, name, command string, args []string, env []string, sha256 []byte) error {
+func (c *PluginCatalog) Set(ctx context.Context, name string, pluginType consts.PluginType, command string, args []string, env []string, sha256 []byte) error {
 	if c.directory == "" {
 		return ErrDirectoryNotConfigured
 	}
@@ -123,6 +125,7 @@ func (c *PluginCatalog) Set(ctx context.Context, name, command string, args []st
 
 	entry := &pluginutil.PluginRunner{
 		Name:    name,
+		Type:    pluginType.String(), // TODO how to migrate this for pre-existing plugins, for the upgrade path? or is this even really needed?
 		Command: command,
 		Args:    args,
 		Env:     env,
@@ -172,9 +175,11 @@ func (c *PluginCatalog) List(ctx context.Context, pluginType consts.PluginType) 
 	// Use a map to unique the two lists.
 	mapKeys := make(map[string]bool)
 
-	// TODO ugh this should be typed too
 	for _, plugin := range keys {
-		mapKeys[plugin] = true
+		// Only list user-added plugins if they're of the given type.
+		if _, err := c.Get(ctx, plugin, pluginType); err == nil {
+			mapKeys[plugin] = true
+		}
 	}
 
 	for _, plugin := range builtinKeys {

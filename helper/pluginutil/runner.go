@@ -42,6 +42,7 @@ type LookRunnerUtil interface {
 // go-plugin.
 type PluginRunner struct {
 	Name           string                      `json:"name" structs:"name"`
+	Type           string                      `json:"type" structs:"type"`
 	Command        string                      `json:"command" structs:"command"`
 	Args           []string                    `json:"args" structs:"args"`
 	Env            []string                    `json:"env" structs:"env"`
