@@ -156,7 +156,7 @@ func (c *PluginCatalog) Delete(ctx context.Context, name string) error {
 
 // List returns a list of all the known plugin names. If an external and builtin
 // plugin share the same name, only one instance of the name will be returned.
-func (c *PluginCatalog) List(ctx context.Context) ([]string, error) {
+func (c *PluginCatalog) List(ctx context.Context, pluginType consts.PluginType) ([]string, error) {
 	c.lock.RLock()
 	defer c.lock.RUnlock()
 
@@ -166,12 +166,13 @@ func (c *PluginCatalog) List(ctx context.Context) ([]string, error) {
 		return nil, err
 	}
 
-	// Get the plugins
-	builtinKeys := builtinplugins.Keys()
+	// Get the builtin plugins.
+	builtinKeys := builtinplugins.Keys(pluginType)
 
-	// Use a map to unique the two lists
+	// Use a map to unique the two lists.
 	mapKeys := make(map[string]bool)
 
+	// TODO ugh this should be typed too
 	for _, plugin := range keys {
 		mapKeys[plugin] = true
 	}

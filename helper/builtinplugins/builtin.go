@@ -1,7 +1,6 @@
 package builtinplugins
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/hashicorp/vault/helper/consts"
@@ -36,19 +35,23 @@ func Get(name string, pluginType consts.PluginType) (BuiltinFactory, bool) {
 }
 
 // Keys returns the list of plugin names that are considered builtin databasePlugins.
-func Keys() []string {
-	var plugins []string
-	for k := range databasePlugins {
-		// These are already in the format below so no concatenation is needed.
-		plugins = append(plugins, k)
+func Keys(pluginType consts.PluginType) []string {
+	var keys []string
+	switch pluginType {
+	case consts.PluginTypeDatabase:
+		for key := range databasePlugins {
+			keys = append(keys, key)
+		}
+	case consts.PluginTypeCredential:
+		for key := range credentialBackends {
+			keys = append(keys, key)
+		}
+	case consts.PluginTypeSecrets:
+		for key := range logicalBackends {
+			keys = append(keys, key)
+		}
 	}
-	for k := range credentialBackends {
-		plugins = append(plugins, fmt.Sprintf("%s-%s-plugin", k, consts.PluginTypeCredential.String()))
-	}
-	for k := range logicalBackends {
-		plugins = append(plugins, fmt.Sprintf("%s-%s-plugin", k, consts.PluginTypeSecrets.String()))
-	}
-	return plugins
+	return keys
 }
 
 // ParseKey returns a key's:
