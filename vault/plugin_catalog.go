@@ -24,6 +24,9 @@ var (
 	ErrPluginNotFound         = errors.New("plugin not found in the catalog")
 )
 
+// TODO need to go through this workflow and update the code and docs:
+// https://www.vaultproject.io/api/system/plugins-catalog.html
+
 // PluginCatalog keeps a record of plugins known to vault. External plugins need
 // to be registered to the catalog before they can be used in backends. Builtin
 // plugins are automatically detected and included in the catalog.
@@ -163,7 +166,7 @@ func (c *PluginCatalog) List(ctx context.Context) ([]string, error) {
 		return nil, err
 	}
 
-	// Get the keys for builtin plugins
+	// Get the plugins
 	builtinKeys := builtinplugins.Keys()
 
 	// Use a map to unique the two lists

@@ -1,6 +1,9 @@
 package builtinplugins
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/hashicorp/vault/helper/consts"
 )
 
@@ -32,18 +35,32 @@ func Get(name string, pluginType consts.PluginType) (BuiltinFactory, bool) {
 	}
 }
 
-// TODO this should now include more keys, and differentiate based on the plugin type. Probably needs to be an array of objects with plugin_type and plugin_name.
-// TODO need to go through this workflow and update the code and docs:
-// https://www.vaultproject.io/api/system/plugins-catalog.html
 // Keys returns the list of plugin names that are considered builtin databasePlugins.
 func Keys() []string {
-	keys := make([]string, len(databasePlugins))
-
-	i := 0
+	var plugins []string
 	for k := range databasePlugins {
-		keys[i] = k
-		i++
+		// These are already in the format below so no concatenation is needed.
+		plugins = append(plugins, k)
 	}
+	for k := range credentialBackends {
+		plugins = append(plugins, fmt.Sprintf("%s-%s-plugin", k, consts.PluginTypeCredential.String()))
+	}
+	for k := range logicalBackends {
+		plugins = append(plugins, fmt.Sprintf("%s-%s-plugin", k, consts.PluginTypeSecrets.String()))
+	}
+	return plugins
+}
 
-	return keys
+// ParseKey returns a key's:
+//   - Name
+//   - PluginType
+func ParseKey(key string) (string, consts.PluginType, error) {
+	fields := strings.Split(key, "-")
+	name := fields[0]
+	strType := fields[1]
+	pluginType, err := consts.ParsePluginType(strType)
+	if err != nil {
+		return "", consts.PluginTypeUnknown, err
+	}
+	return name, pluginType, nil
 }

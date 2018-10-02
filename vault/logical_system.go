@@ -17,6 +17,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/hashicorp/vault/helper/builtinplugins"
+
 	"github.com/hashicorp/errwrap"
 	log "github.com/hashicorp/go-hclog"
 	memdb "github.com/hashicorp/go-memdb"
@@ -297,14 +299,19 @@ func (b *SystemBackend) handlePluginCatalogUpdate(ctx context.Context, req *logi
 }
 
 func (b *SystemBackend) handlePluginCatalogRead(ctx context.Context, req *logical.Request, d *framework.FieldData) (*logical.Response, error) {
-	pluginName := d.Get("name").(string)
-	if pluginName == "" {
+	pluginKey := d.Get("name").(string)
+	if pluginKey == "" {
 		return logical.ErrorResponse("missing plugin name"), nil
 	}
-	pluginType, err := consts.ParsePluginType(d.Get("type").(string))
+
+	pluginName, pluginType, err := builtinplugins.ParseKey(pluginKey)
 	if err != nil {
-		return nil, err
+		// The user may be trying to read a non-built-in plugin with a custom name,
+		// so let's try searching for the raw pluginKey.
+		pluginName = pluginKey
+		pluginType = consts.PluginTypeUnknown
 	}
+
 	plugin, err := b.Core.pluginCatalog.Get(ctx, pluginName, pluginType)
 	if err != nil {
 		return nil, err
