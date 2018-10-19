@@ -6,7 +6,7 @@
 terraform {
   # 0.11.3 is the current version in our public terraform image
   # see: https://github.com/wpengine/base-images-public/tree/master/gcloud/terraform
-  required_version = "0.11.3"
+  required_version = "0.11.7"
 }
 
 provider "aws" {
