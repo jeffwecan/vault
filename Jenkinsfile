@@ -1,7 +1,7 @@
 #!groovy
 @Library('wpshared') _
 
-def terraform_version = "0.11.3"
+def terraform_version = "0.11.7"
 def terraform_environments = ['development', 'corporate']
 def vaultSecretList = [
 	[
